@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form" xmlns:c="/lib/credentials">
+
+        <block>
+        <f:entry field="serverURL" title="${%GeneXus Server URL}">
+            <f:textbox/>
+        </f:entry>
+
+        <f:entry field="otherProperty" title="${%Another property}">
+            <f:textbox/>
+        </f:entry>
+        
+            <b>arbitrary</b>
+        </block>
+    
+</j:jelly>

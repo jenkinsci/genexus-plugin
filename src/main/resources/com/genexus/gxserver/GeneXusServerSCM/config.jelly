@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:f="/lib/form" xmlns:c="/lib/credentials">
+    
+    <f:entry field="gxPath" title="${%GeneXus Installation Path}">
+        <f:textbox default="${descriptor.DEFAULT_GENEXUS_PATH}"/>
+    </f:entry>
+
+    <f:entry field="serverURL" title="${%GeneXus Server URL}">
+        <f:textbox default="${descriptor.DEFAULT_SERVER_URL}"/>
+    </f:entry>
+
+    <f:entry field="credentialsId" title="${%GeneXus Server Credentials}">
+        <c:select checkMethod="post"/>
+    </f:entry>
+    
+    <f:entry field="kbName" title="${%Knowledge Base Name}">
+        <f:textbox default="KBname"/>
+    </f:entry>
+
+    <f:entry field="kbVersion" title="${%Version}" default="${instance.kbName}">
+        <f:textbox/>
+    </f:entry>
+
+    <f:advanced align="left" style="text-decoration:bold" title="Advanced Options">
+        <f:entry field="kbDbServerInstance" title="${%SQL Server Name}">
+            <f:textbox />
+        </f:entry>
+
+        <f:entry field="kbDbCredentialsId" title="${%SQL Server Credentials}">
+            <c:select checkMethod="post"/>
+        </f:entry>
+
+        <f:entry field="kbDbName" title="${%Knowledge Base DB name}">
+            <f:textbox />
+        </f:entry>
+
+        <f:entry field="kbDbInSameFolder" title="${%Create DB files in KB folder}">
+            <f:checkbox default="true" />
+        </f:entry>
+    </f:advanced>
+
+</j:jelly>

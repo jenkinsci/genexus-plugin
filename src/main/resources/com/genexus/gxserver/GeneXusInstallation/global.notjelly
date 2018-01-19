@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+  <f:section title="${descriptor.displayName}">
+    <f:entry title="${%GeneXus installations}">
+      <f:repeatable
+          var="installation" 
+          name="installation"
+          items="${descriptor.installations}"
+          add="${%Add GeneXus installation}" hasHeader="true"
+      />
+    </f:entry>
+  </f:section>
+</j:jelly>
