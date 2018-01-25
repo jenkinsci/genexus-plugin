@@ -32,6 +32,7 @@ import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredenti
 import com.cloudbees.plugins.credentials.domains.DomainRequirement;
 import com.cloudbees.plugins.credentials.domains.URIRequirementBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import hudson.CopyOnWrite;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
@@ -43,8 +44,6 @@ import hudson.model.Job;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.plugins.msbuild.MsBuildBuilder;
-import hudson.remoting.Channel;
-import hudson.remoting.VirtualChannel;
 import hudson.scm.ChangeLogParser;
 import hudson.scm.PollingResult;
 import hudson.scm.PollingResult.Change;
@@ -53,6 +52,7 @@ import hudson.scm.SCMDescriptor;
 import hudson.scm.SCMRevisionState;
 import hudson.security.ACL;
 import hudson.tasks.Builder;
+import hudson.tools.ToolInstallation;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import java.io.File;
@@ -62,6 +62,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -89,9 +90,8 @@ import org.kohsuke.stapler.interceptor.RequirePOST;
 public class GeneXusServerSCM extends SCM implements Serializable {
 
     // GX installation
-    // TODO: add GX as a configurable tool so we can just select an installation
-    private final String gxPath;
-
+    private final String gxInstallationId;
+    
     // GXserver connection data
     private final String serverURL;
     private final String credentialsId;
@@ -108,7 +108,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
 
     @DataBoundConstructor
     public GeneXusServerSCM(
-            String gxPath,
+            String gxInstallationId,
             String serverURL,
             String credentialsId,
             String kbName,
@@ -118,8 +118,8 @@ public class GeneXusServerSCM extends SCM implements Serializable {
             String kbDbName,
             boolean kbDbInSameFolder) {
 
-        this.gxPath = gxPath;
-
+        this.gxInstallationId = gxInstallationId;
+        
         this.serverURL = serverURL;
         this.credentialsId = credentialsId;
 
@@ -133,8 +133,17 @@ public class GeneXusServerSCM extends SCM implements Serializable {
     }
 
     @Exported
+    public String getGxInstallationId() {
+        return gxInstallationId;
+    }
+    
     public String getGxPath() {
-        return gxPath;
+        GeneXusInstallation installation = GeneXusInstallation.getInstallation(gxInstallationId);
+        if (installation!=null) {
+            return installation.getHome();
+        }
+        
+        return "";
     }
 
     @Exported
@@ -509,13 +518,17 @@ public class GeneXusServerSCM extends SCM implements Serializable {
             return "GeneXus Server";
         }
 
+        public GeneXusInstallation.DescriptorImpl getToolDescriptor() {
+            return ToolInstallation.all().get(GeneXusInstallation.DescriptorImpl.class);
+        }
+
         @Override
         public boolean configure(StaplerRequest req, JSONObject formData) throws FormException {
             // Save configuration
             save();
             return super.configure(req, formData);
         }
-
+        
         public ListBoxModel doFillCredentialsIdItems(@AncestorInPath Item item, @QueryParameter String credentialsId, @QueryParameter String serverURL) {
             StandardListBoxModel result = new StandardListBoxModel();
             if (!userCanSelect(item)) {

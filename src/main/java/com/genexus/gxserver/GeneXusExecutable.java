@@ -36,6 +36,14 @@ public enum GeneXusExecutable {
     } 
  
     public String getName() { 
-        return name; 
+        return getName(/* isUnix= */ false); 
     } 
+
+    String getName(boolean isUnix) {
+        if (isUnix) {
+            return name;
+        }
+        
+        return name + ".exe";
+    }
 }

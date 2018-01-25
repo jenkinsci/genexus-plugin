@@ -26,6 +26,7 @@ package com.genexus.gxserver;
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.Launcher;
+import hudson.Util;
 import hudson.model.EnvironmentSpecific;
 import hudson.model.Node;
 import hudson.model.TaskListener;
@@ -36,7 +37,6 @@ import hudson.tools.ToolProperty;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 import jenkins.model.Jenkins;
 import jenkins.security.MasterToSlaveCallable;
@@ -54,9 +54,18 @@ public final class GeneXusInstallation extends ToolInstallation
 
     @DataBoundConstructor
     public GeneXusInstallation(String name, String home, List<? extends ToolProperty<?>> properties) {
-        super(name, home, null);
+        super(Util.fixEmptyAndTrim(name), Util.fixEmptyAndTrim(home), properties);
     }
 
+    @Override
+    public void buildEnvVars(EnvVars env) {
+        String home = getHome();
+        if (home == null) {
+            return;
+        }
+        env.put("GX_PROGRAM_DIR", home);
+    }
+        
     @Override
     public GeneXusInstallation forNode(Node node, TaskListener log) throws IOException, InterruptedException {
         return new GeneXusInstallation(getName(), translateFor(node, log), getProperties().toList());
@@ -71,36 +80,34 @@ public final class GeneXusInstallation extends ToolInstallation
         return launcher.getChannel().call(new MasterToSlaveCallable<String, IOException>() { 
             @Override
             public String call() throws IOException { 
-                File exe = new File(getHome(), executable.getName()); 
+                String gxHome = Util.replaceMacro(getHome(),EnvVars.masterEnvVars);
+                File exe = new File(gxHome, executable.getName(launcher.isUnix())); 
                 if (exe.exists()) { 
                     return exe.getPath(); 
-                } 
+                }
                 return null; 
             } 
         }); 
     }
     
-    public static GeneXusInstallation[] allInstallations() { 
-        DescriptorImpl gxDescriptor = Jenkins.getInstance().getDescriptorByType(DescriptorImpl.class); 
-        return gxDescriptor.getInstallations(); 
-    } 
- 
-    public static GeneXusInstallation getInstallation(String gxInstallation) throws IOException { 
-        GeneXusInstallation[] installations = allInstallations(); 
-        if (gxInstallation == null) { 
-            if (installations.length == 0) { 
-                throw new IOException("GeneXus Installation not found"); 
-            } 
-            return installations[0]; 
-        } else { 
-            for (GeneXusInstallation installation: installations) { 
-                if (gxInstallation.equals(installation.getName())) { 
-                    return installation; 
-                } 
-            } 
-        } 
-        throw new IOException("GeneXus Installation not found"); 
-    }     
+    String getExecutable(Launcher launcher) throws IOException, InterruptedException {
+        return getExecutable(GeneXusExecutable.GENEXUS, launcher);
+    }    
+
+    public static GeneXusInstallation getInstallation(String installationId) {
+        if (installationId == null)
+            return null;
+
+        DescriptorImpl descriptor = ToolInstallation.all().get(DescriptorImpl.class);
+        if (descriptor == null)
+            return null;
+        
+        for( GeneXusInstallation i : descriptor.getInstallations() ) {
+            if(installationId.equals(i.getName()))
+                return i;
+        }
+        return null;
+    }
     
     @Extension
     @Symbol("genexus")
@@ -115,23 +122,23 @@ public final class GeneXusInstallation extends ToolInstallation
         public String getDisplayName() {
             return "GeneXus";
         }
+        
+        @Override
+        public GeneXusInstallation[] getInstallations() {
+            return Jenkins.getInstance().getDescriptorByType(GeneXusBuilder.DescriptorImpl.class).getInstallations();
+        }
+
+        @Override
+        public void setInstallations(GeneXusInstallation... installations) {
+            Jenkins.getInstance().getDescriptorByType(GeneXusBuilder.DescriptorImpl.class).setInstallations(installations);
+            save();
+        }
 
         @Override 
         public boolean configure(StaplerRequest req, JSONObject json) throws FormException { 
             super.configure(req, json); 
             save(); 
             return true; 
-        }
-        
-        @SuppressWarnings("unchecked")
-        public List<ToolDescriptor<? extends GeneXusInstallation>> getApplicableDescriptors() {
-            List<ToolDescriptor<? extends GeneXusInstallation>> r = new ArrayList<>();
-            for (ToolDescriptor<?> td : Jenkins.getInstance().<ToolInstallation,ToolDescriptor<?>>getDescriptorList(ToolInstallation.class)) {
-                if (GeneXusInstallation.class.isAssignableFrom(td.clazz)) { // This checks cast is allowed
-                    r.add((ToolDescriptor<? extends GeneXusInstallation>)td); // This is the unchecked cast
-                }
-            }
-            return r;
         }
     }
 }
