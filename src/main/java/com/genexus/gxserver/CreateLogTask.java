@@ -33,6 +33,7 @@ import jenkins.MasterToSlaveFileCallable;
 /**
  *
  * @author jlr
+ * 
  */
 public class CreateLogTask  extends MasterToSlaveFileCallable<Boolean> {
 
