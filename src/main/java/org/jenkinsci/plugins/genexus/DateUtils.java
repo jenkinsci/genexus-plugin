@@ -21,30 +21,46 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.genexus.gxserver;
+package org.jenkinsci.plugins.genexus;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 /**
- * The executable to be launched 
+ *
  * @author jlr
- */ 
-public enum GeneXusExecutable { 
-    GENEXUS("genexus"), TEAMDEV("teamdev"); 
- 
-    private final String name; 
- 
-    private GeneXusExecutable(String name) { 
-        this.name = name; 
-    } 
- 
-    public String getName() { 
-        return getName(/* isUnix= */ false); 
-    } 
+ */
+class DateUtils {
+    static Date cloneIfNotNull(Date date) {
+        return date == null? null : new Date(date.getTime());
+    }
+    
+    static Date fromUTCstring(String utcDate) {
+        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss", Locale.ROOT);            
+        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
 
-    String getName(boolean isUnix) {
-        if (isUnix) {
-            return name;
+        Date parsedDate;
+        try {
+            parsedDate = sdf.parse(utcDate);
+        }
+        catch (ParseException ex) {
+            parsedDate = new Date(0);
         }
         
-        return name + ".exe";
+        return parsedDate;
     }
+    
+    static String toDisplayDate(Date date) {
+        if (date == null) {
+            return "[no date]";
+        }
+        
+        DateFormat formatter = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.DEFAULT, Locale.ROOT);
+        return formatter.format(date);
+    }
+
 }

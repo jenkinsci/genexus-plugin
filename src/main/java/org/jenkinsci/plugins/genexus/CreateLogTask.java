@@ -21,74 +21,66 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.genexus.gxserver;
+package org.jenkinsci.plugins.genexus;
 
 import hudson.model.TaskListener;
 import hudson.remoting.VirtualChannel;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
-import java.util.List;
 import jenkins.MasterToSlaveFileCallable;
 
 /**
  *
  * @author jlr
- *
- * Obtains the revision number of a remote KB up to a given timestamp.
+ * 
  */
-public class GetLastRevisionTask extends MasterToSlaveFileCallable<GXSInfo> {
+public class CreateLogTask  extends MasterToSlaveFileCallable<Boolean> {
 
     private final String gxPath;
     private final TaskListener listener;
     private final GXSConnection gxsConnection;
+    private final File logFile;
     private final Date fromTimestamp;
     private final Date toTimestamp;
 
-    public GetLastRevisionTask(TaskListener listener, String gxPath, GXSConnection gxsConnection) {
-        this(listener, gxPath, gxsConnection, null, null);
+    public CreateLogTask(TaskListener listener, String gxPath, GXSConnection gxsConnection, File logFile) {
+        this(listener, gxPath, gxsConnection, logFile, null, null);
     }
 
-    public GetLastRevisionTask(TaskListener listener, String gxPath, GXSConnection gxsConnection, Date fromTimestamp, Date toTimestamp) {
+    public CreateLogTask(TaskListener listener, String gxPath, GXSConnection gxsConnection, File logFile, Date fromTimestamp, Date toTimestamp) {
         this.gxPath = gxPath;
         this.listener = listener;
         this.gxsConnection = gxsConnection;
+        this.logFile = logFile;
         this.fromTimestamp = DateUtils.cloneIfNotNull(fromTimestamp);
         this.toTimestamp = DateUtils.cloneIfNotNull(toTimestamp);
     }
 
     /**
-     * @return null if the parsing somehow fails. Otherwise a GXserver revision
+     * @return true if the changelog.txt was created
      * info.
      */
     @Override
-    public GXSInfo invoke(File ws, VirtualChannel channel) throws IOException, InterruptedException {
-
-        TeamDevArgumentListBuilder args = new TeamDevArgumentListBuilder(gxPath, gxsConnection, fromTimestamp, toTimestamp);
+    public Boolean invoke(File ws, VirtualChannel channel) throws IOException, InterruptedException {
+        TeamDevArgumentListBuilder args = new TeamDevArgumentListBuilder(gxPath, gxsConnection, fromTimestamp, toTimestamp, /*fromExcluding=*/ true);
 
         listener.getLogger().println("About to get revision");
         listener.getLogger().println(args.toString());
 
-        ProcessBuilder procBuilder = new ProcessBuilder(args.toCommandArray());
-        procBuilder.redirectErrorStream(true);
-        Process proc = procBuilder.start();
-
-        return getLastRevisionInfo(proc);
-    }
-
-    private GXSInfo getLastRevisionInfo(Process proc) throws IOException {
+        boolean created = false;
+        try {
+            ProcessBuilder procBuilder = new ProcessBuilder(args.toCommandArray());
+            procBuilder.redirectErrorStream(true);
+            procBuilder.redirectOutput(logFile);
+            Process proc = procBuilder.start();
+            int exitCode = proc.waitFor();
+            created = (exitCode == 0);
+        }
+        catch (Exception e) {
+            listener.getLogger().println("Could not create log file: "+e.getMessage());
+        }
         
-        List<GXSChangeLogSet.LogEntry> logEntries = GXSChangeLogParser.parse(proc.getInputStream());
-                
-        if (logEntries.isEmpty())
-            return new GXSInfo(gxsConnection, 0, new Date(0));
-        
-        // We are assuming revisions always come in descending order, so we
-        // just take the first revision as the most recent one.
-        GXSChangeLogSet.LogEntry lastRevision = logEntries.get(0);
-        GXSInfo gxsInfo = new GXSInfo(gxsConnection, lastRevision.getRevision(), new Date(lastRevision.getTimestamp()));
-        return gxsInfo;
+        return created;
     }
-
-    private static final long serialVersionUID = 1L;
 }

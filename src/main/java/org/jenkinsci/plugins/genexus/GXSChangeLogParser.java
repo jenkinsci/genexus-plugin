@@ -21,10 +21,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.genexus.gxserver;
+package org.jenkinsci.plugins.genexus;
 
-import com.genexus.gxserver.GXSChangeLogSet.Action;
-import com.genexus.gxserver.GXSChangeLogSet.LogEntry;
+import org.jenkinsci.plugins.genexus.GXSChangeLogSet.Action;
+import org.jenkinsci.plugins.genexus.GXSChangeLogSet.LogEntry;
 import hudson.model.Run;
 import hudson.scm.ChangeLogParser;
 import hudson.scm.RepositoryBrowser;

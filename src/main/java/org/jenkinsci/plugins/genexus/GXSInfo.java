@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.genexus.gxserver;
+package org.jenkinsci.plugins.genexus;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import static com.fasterxml.jackson.annotation.JsonCreator.Mode.PROPERTIES;
