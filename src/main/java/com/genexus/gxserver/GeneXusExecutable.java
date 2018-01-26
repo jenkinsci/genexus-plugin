@@ -25,6 +25,7 @@ package com.genexus.gxserver;
 
 /**
  * The executable to be launched 
+ * @author jlr
  */ 
 public enum GeneXusExecutable { 
     GENEXUS("genexus"), TEAMDEV("teamdev"); 

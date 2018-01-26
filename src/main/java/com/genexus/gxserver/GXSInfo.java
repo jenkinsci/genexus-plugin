@@ -34,6 +34,7 @@ import org.apache.commons.lang.StringUtils;
 
 /**
  * {@link GXSInfo} for {@link GeneXusServerSCM}.
+ * @author jlr
  */
 public class GXSInfo implements Serializable, Comparable<GXSInfo> {
 

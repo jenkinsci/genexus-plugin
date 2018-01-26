@@ -33,6 +33,7 @@ import java.util.TimeZone;
 /**
  * {@link GXSRevisionState} for {@link GeneXusServerSCM}.
  * {@link Serializable} since we compute this remote.
+ * @author jlr
  */
 public class GXSRevisionState extends SCMRevisionState implements Serializable {
 
