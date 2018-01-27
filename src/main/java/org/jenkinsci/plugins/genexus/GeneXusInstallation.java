@@ -30,14 +30,13 @@ import hudson.Util;
 import hudson.model.EnvironmentSpecific;
 import hudson.model.Node;
 import hudson.model.TaskListener;
+import hudson.plugins.msbuild.MsBuildInstallation;
 import hudson.slaves.NodeSpecific;
 import hudson.tools.ToolDescriptor;
 import hudson.tools.ToolInstallation;
-import hudson.tools.ToolProperty;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.List;
 import jenkins.model.Jenkins;
 import jenkins.security.MasterToSlaveCallable;
 import net.sf.json.JSONObject;
@@ -52,9 +51,22 @@ import org.kohsuke.stapler.StaplerRequest;
 public final class GeneXusInstallation extends ToolInstallation
         implements NodeSpecific<GeneXusInstallation>, EnvironmentSpecific<GeneXusInstallation>, Serializable {
 
+    private final String msBuildInstallationId;
+
+    /**
+     *
+     * @param msBuildInstallationId MSBuild installation to use
+     * @param name Installation name
+     * @param home Path to GeneXus Installation
+     */
     @DataBoundConstructor
-    public GeneXusInstallation(String name, String home, List<? extends ToolProperty<?>> properties) {
-        super(Util.fixEmptyAndTrim(name), Util.fixEmptyAndTrim(home), properties);
+    public GeneXusInstallation(String name, String home, String msBuildInstallationId) {
+        super(Util.fixEmptyAndTrim(name), Util.fixEmptyAndTrim(home), null);
+        this.msBuildInstallationId = Util.fixEmptyAndTrim(msBuildInstallationId);
+    }
+
+    public String getMsBuildInstallationId() {
+        return msBuildInstallationId;
     }
 
     @Override
@@ -68,12 +80,12 @@ public final class GeneXusInstallation extends ToolInstallation
         
     @Override
     public GeneXusInstallation forNode(Node node, TaskListener log) throws IOException, InterruptedException {
-        return new GeneXusInstallation(getName(), translateFor(node, log), getProperties().toList());
+        return new GeneXusInstallation(getName(), translateFor(node, log), getMsBuildInstallationId());
     }
 
     @Override
     public GeneXusInstallation forEnvironment(EnvVars environment) {
-        return new GeneXusInstallation(getName(), environment.expand(getHome()), getProperties().toList());
+        return new GeneXusInstallation(getName(), environment.expand(getHome()),getMsBuildInstallationId());
     }
 
     public String getExecutable(final GeneXusExecutable executable, Launcher launcher) throws IOException, InterruptedException { 
@@ -139,6 +151,14 @@ public final class GeneXusInstallation extends ToolInstallation
             super.configure(req, json); 
             save(); 
             return true; 
+        }
+        
+        /**
+         *
+         * @return MsBuildInstallation descriptor
+         */
+        public MsBuildInstallation.DescriptorImpl getMSBuildToolDescriptor() {
+            return ToolInstallation.all().get(MsBuildInstallation.DescriptorImpl.class);
         }
     }
 }

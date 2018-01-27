@@ -31,4 +31,12 @@ THE SOFTWARE.
     <f:entry title="${%Path to GeneXus installation}" field="home">
         <f:textbox />
     </f:entry>
+    <f:entry title="${%MSBuild Installation}">
+        <select class="setting-input" name="geneXusInstallation.msBuildInstallationId">
+            <option>(Default)</option>
+            <j:forEach var="inst" items="${descriptor.getMSBuildToolDescriptor().installations}">
+                <f:option selected="${inst.name==instance.msBuildInstallationId}">${inst.name}</f:option>
+            </j:forEach>
+        </select>
+    </f:entry>
 </j:jelly>

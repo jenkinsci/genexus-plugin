@@ -137,10 +137,19 @@ public class GeneXusServerSCM extends SCM implements Serializable {
         return gxInstallationId;
     }
     
-    public String getGxPath() {
+    private String getGxPath() {
         GeneXusInstallation installation = GeneXusInstallation.getInstallation(gxInstallationId);
         if (installation!=null) {
             return installation.getHome();
+        }
+        
+        return "";
+    }
+
+    private String getMSBuildInstallationId() {
+        GeneXusInstallation installation = GeneXusInstallation.getInstallation(gxInstallationId);
+        if (installation!=null) {
+            return installation.getMsBuildInstallationId();
         }
         
         return "";
@@ -185,11 +194,6 @@ public class GeneXusServerSCM extends SCM implements Serializable {
     public boolean isKbDbInSameFolder() {
         return kbDbInSameFolder;
     }
-
-    // TODO: add a MSBUild version configuration entry
-    private static final String msBuildInstallationId = "MSBuild14";
-
-    private static final String teamDevMsBuildFile = "TeamDev.msbuild";
 
     @Override
     public ChangeLogParser createChangeLogParser() {
@@ -305,7 +309,8 @@ public class GeneXusServerSCM extends SCM implements Serializable {
             // TODO: we should get the actual revision as an output from the checkout or update
             // Meanwhile we resort to get the latest revision up to the current time
             Date updateTimeStamp = new Date();
-            builder.perform((AbstractBuild) build, launcher, (BuildListener) listener);
+            if (!builder.perform((AbstractBuild) build, launcher, (BuildListener) listener))
+                throw new IOException("error executing checkout");
 
             GXSConnection gxs = new GXSConnection(getServerURL(), getCredentialsId(), getKbName(), getKbVersion());
             GXSInfo info = workspace.act(new GetLastRevisionTask(listener, getGxPath(), gxs, null, updateTimeStamp));
@@ -427,12 +432,16 @@ public class GeneXusServerSCM extends SCM implements Serializable {
         return createMsBuildAction(msbArgs);
     }
 
-    private Builder createMsBuildAction(MsBuildArgsHelper msbArgs) {
+    private String getMsBuildFile() {
+        final String teamDevMsBuildFile = "TeamDev.msbuild";
         Path teamDevPath = Paths.get(getGxPath(), teamDevMsBuildFile);
-
+        return teamDevPath.toString();
+    }
+    
+    private Builder createMsBuildAction(MsBuildArgsHelper msbArgs) {
         MsBuildBuilder builder = new MsBuildBuilder(
-                msBuildInstallationId,
-                teamDevPath.toString(),
+                getMSBuildInstallationId(),
+                getMsBuildFile(),
                 msbArgs.toString(),
                 true,
                 false,
