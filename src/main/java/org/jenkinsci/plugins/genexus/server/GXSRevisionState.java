@@ -21,46 +21,46 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.jenkinsci.plugins.genexus;
+package org.jenkinsci.plugins.genexus.server;
 
-import java.text.DateFormat;
-import java.text.ParseException;
+import hudson.scm.SCMRevisionState;
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
 /**
- *
+ * {@link GXSRevisionState} for {@link GeneXusServerSCM}.
+ * {@link Serializable} since we compute this remote.
  * @author jlr
  */
-class DateUtils {
-    static Date cloneIfNotNull(Date date) {
-        return date == null? null : new Date(date.getTime());
+public class GXSRevisionState extends SCMRevisionState implements Serializable {
+
+    private final long revision;
+    private final Date revisionDate;
+
+    public static final GXSRevisionState MIN_REVISION = new GXSRevisionState(0, new Date(0));
+    
+    GXSRevisionState(long revision, Date revisionDate) {
+        this.revision = revision;
+        this.revisionDate = revisionDate;
+    }
+
+    public long getRevision() {
+        return revision;
     }
     
-    static Date fromUTCstring(String utcDate) {
-        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss", Locale.ROOT);            
+    public Date getRevisionDate() {
+        return DateUtils.cloneIfNotNull(revisionDate);
+    }
+
+    @Override
+    public String toString() {
+        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss", Locale.ROOT);
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-
-        Date parsedDate;
-        try {
-            parsedDate = sdf.parse(utcDate);
-        }
-        catch (ParseException ex) {
-            parsedDate = new Date(0);
-        }
-        
-        return parsedDate;
-    }
-    
-    static String toDisplayDate(Date date) {
-        if (date == null) {
-            return "[no date]";
-        }
-        
-        DateFormat formatter = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.DEFAULT, Locale.ROOT);
-        return formatter.format(date);
+        return "GXserverRevisionState{" + revision + "," + sdf.format(revisionDate) + "}";
     }
 
+    private static final long serialVersionUID = 1L;
 }

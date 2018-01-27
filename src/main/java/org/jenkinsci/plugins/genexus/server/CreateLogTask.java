@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.jenkinsci.plugins.genexus;
+package org.jenkinsci.plugins.genexus.server;
 
 import hudson.model.TaskListener;
 import hudson.remoting.VirtualChannel;
@@ -29,6 +29,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import jenkins.MasterToSlaveFileCallable;
+import org.jenkinsci.plugins.genexus.helpers.TeamDevArgumentListBuilder;
 
 /**
  *

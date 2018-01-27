@@ -21,8 +21,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.jenkinsci.plugins.genexus;
+package org.jenkinsci.plugins.genexus.server;
 
+import org.jenkinsci.plugins.genexus.server.GXSRevisionState;
+import org.jenkinsci.plugins.genexus.server.GXSInfo;
+import org.jenkinsci.plugins.genexus.server.GXSConnection;
+import org.jenkinsci.plugins.genexus.server.GXSChangeLogParser;
+import org.jenkinsci.plugins.genexus.server.CreateLogTask;
 import com.cloudbees.plugins.credentials.CredentialsMatcher;
 import com.cloudbees.plugins.credentials.CredentialsMatchers;
 import com.cloudbees.plugins.credentials.CredentialsProvider;
@@ -74,6 +79,8 @@ import net.sf.json.JSONObject;
 import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.lang.StringUtils;
+import org.jenkinsci.plugins.genexus.GeneXusInstallation;
+import org.jenkinsci.plugins.genexus.helpers.MsBuildArgsHelper;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
