@@ -23,11 +23,6 @@
  */
 package org.jenkinsci.plugins.genexus.server;
 
-import org.jenkinsci.plugins.genexus.server.GXSRevisionState;
-import org.jenkinsci.plugins.genexus.server.GXSInfo;
-import org.jenkinsci.plugins.genexus.server.GXSConnection;
-import org.jenkinsci.plugins.genexus.server.GXSChangeLogParser;
-import org.jenkinsci.plugins.genexus.server.CreateLogTask;
 import com.cloudbees.plugins.credentials.CredentialsMatcher;
 import com.cloudbees.plugins.credentials.CredentialsMatchers;
 import com.cloudbees.plugins.credentials.CredentialsProvider;

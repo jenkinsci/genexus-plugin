@@ -23,7 +23,6 @@
  */
 package org.jenkinsci.plugins.genexus.server;
 
-import org.jenkinsci.plugins.genexus.server.GXSConnection;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import static com.fasterxml.jackson.annotation.JsonCreator.Mode.PROPERTIES;
 import com.fasterxml.jackson.annotation.JsonFormat;
