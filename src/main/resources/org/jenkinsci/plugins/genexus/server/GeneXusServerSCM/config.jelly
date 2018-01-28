@@ -26,13 +26,8 @@ THE SOFTWARE.
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:f="/lib/form" xmlns:c="/lib/credentials">
     
-    <f:entry title="${%GeneXus Installation}">
-        <select class="setting-input" name="geneXusServerSCM.gxInstallationId">
-            <option value="(Default)">(${%Default})</option>
-            <j:forEach var="inst" items="${descriptor.getToolDescriptor().installations}">
-                <f:option selected="${inst.name==instance.gxInstallationId}">${inst.name}</f:option>
-            </j:forEach>
-        </select>
+    <f:entry title="${%GeneXus Installation}" field="gxInstallationId">
+        <f:select />
     </f:entry>
     
     <f:entry field="serverURL" title="${%GeneXus Server URL}">

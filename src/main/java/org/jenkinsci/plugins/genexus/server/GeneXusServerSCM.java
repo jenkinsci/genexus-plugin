@@ -538,6 +538,15 @@ public class GeneXusServerSCM extends SCM implements Serializable {
             return super.configure(req, formData);
         }
         
+        public ListBoxModel doFillGxInstallationIdItems() {
+            ListBoxModel items = new ListBoxModel();
+            items.add("(Default)", "");
+            for (GeneXusInstallation installation : getToolDescriptor().getInstallations()) {
+                items.add(installation.getName(), installation.getName());
+            }
+            return items;
+        }
+        
         public ListBoxModel doFillCredentialsIdItems(@AncestorInPath Item item, @QueryParameter String credentialsId, @QueryParameter String serverURL) {
             StandardListBoxModel result = new StandardListBoxModel();
             if (!userCanSelect(item)) {
