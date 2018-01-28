@@ -34,6 +34,7 @@ import hudson.plugins.msbuild.MsBuildInstallation;
 import hudson.slaves.NodeSpecific;
 import hudson.tools.ToolDescriptor;
 import hudson.tools.ToolInstallation;
+import hudson.util.ListBoxModel;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -159,6 +160,15 @@ public final class GeneXusInstallation extends ToolInstallation
          */
         public MsBuildInstallation.DescriptorImpl getMSBuildToolDescriptor() {
             return ToolInstallation.all().get(MsBuildInstallation.DescriptorImpl.class);
+        }
+        
+        public ListBoxModel doFillMsBuildInstallationIdItems() {
+            ListBoxModel items = new ListBoxModel();
+            items.add("(Default)", "");
+            for (MsBuildInstallation installation : getMSBuildToolDescriptor().getInstallations()) {
+                items.add(installation.getName(), installation.getName());
+            }
+            return items;
         }
     }
 }
