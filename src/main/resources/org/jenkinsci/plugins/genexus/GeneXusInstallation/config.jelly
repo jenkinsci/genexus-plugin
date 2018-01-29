@@ -31,7 +31,10 @@ THE SOFTWARE.
     <f:entry title="${%Path to GeneXus installation}" field="home">
         <f:textbox />
     </f:entry>
-    <f:entry title="${%MSBuild Installation}" field="msBuildInstallationId">
-        <f:select />
-    </f:entry>
+
+    <f:advanced align="left" style="text-decoration:bold" title="Advanced Options">
+        <f:entry title="${%MSBuild Installation}" field="msBuildInstallationId">
+            <f:select />
+        </f:entry>
+    </f:advanced>
 </j:jelly>
