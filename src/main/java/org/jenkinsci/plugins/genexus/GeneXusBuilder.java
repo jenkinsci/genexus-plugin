@@ -69,10 +69,15 @@ public class GeneXusBuilder extends Builder {
      * @return GeneXusInstallation to invoke.
      */
     public GeneXusInstallation getGeneXus() {
+        if(gxName == null || gxName.isEmpty()) {
+            return null;
+        }
+        
         for( GeneXusInstallation i : getDescriptor().getInstallations() ) {
             if(gxName !=null && gxName.equals(i.getName()))
                 return i;
         }
+        
         return null;
     }
 
