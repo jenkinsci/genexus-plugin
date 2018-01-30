@@ -27,6 +27,7 @@ import hudson.EnvVars;
 import hudson.Extension;
 import hudson.Launcher;
 import hudson.Util;
+import hudson.model.Descriptor;
 import hudson.model.EnvironmentSpecific;
 import hudson.model.Node;
 import hudson.model.TaskListener;
@@ -34,11 +35,13 @@ import hudson.plugins.msbuild.MsBuildInstallation;
 import hudson.slaves.NodeSpecific;
 import hudson.tools.ToolDescriptor;
 import hudson.tools.ToolInstallation;
+import hudson.tools.ToolProperty;
 import hudson.util.ListBoxModel;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import jenkins.model.Jenkins;
+import java.util.Collections;
+import java.util.List;
 import jenkins.security.MasterToSlaveCallable;
 import net.sf.json.JSONObject;
 import org.jenkinsci.Symbol;
@@ -54,15 +57,20 @@ public final class GeneXusInstallation extends ToolInstallation
 
     private final String msBuildInstallationId;
 
+    public GeneXusInstallation(String name, String home, String msBuildInstallationId) {
+        this(name, home, msBuildInstallationId, Collections.<ToolProperty<?>>emptyList());
+    }
+    
     /**
      *
      * @param msBuildInstallationId MSBuild installation to use
      * @param name Installation name
      * @param home Path to GeneXus Installation
+     * @param properties Tool properties
      */
     @DataBoundConstructor
-    public GeneXusInstallation(String name, String home, String msBuildInstallationId) {
-        super(Util.fixEmptyAndTrim(name), Util.fixEmptyAndTrim(home), null);
+    public GeneXusInstallation(String name, String home, String msBuildInstallationId, List<? extends ToolProperty<?>> properties) {
+        super(Util.fixEmptyAndTrim(name), Util.fixEmptyAndTrim(home), properties);
         this.msBuildInstallationId = Util.fixEmptyAndTrim(msBuildInstallationId);
     }
 
@@ -90,11 +98,15 @@ public final class GeneXusInstallation extends ToolInstallation
     }
 
     public String getExecutable(final GeneXusExecutable executable, Launcher launcher) throws IOException, InterruptedException { 
+        return getFilePath(executable.getName(launcher.isUnix()), launcher);
+    }
+    
+    public String getFilePath(final String fileName, Launcher launcher) throws IOException, InterruptedException { 
         return launcher.getChannel().call(new MasterToSlaveCallable<String, IOException>() { 
             @Override
             public String call() throws IOException { 
                 String gxHome = Util.replaceMacro(getHome(),EnvVars.masterEnvVars);
-                File exe = new File(gxHome, executable.getName(launcher.isUnix())); 
+                File exe = new File(gxHome, fileName); 
                 if (exe.exists()) { 
                     return exe.getPath(); 
                 }
@@ -103,22 +115,28 @@ public final class GeneXusInstallation extends ToolInstallation
         }); 
     }
     
-    String getExecutable(Launcher launcher) throws IOException, InterruptedException {
+    public String getExecutable(Launcher launcher) throws IOException, InterruptedException {
         return getExecutable(GeneXusExecutable.GENEXUS, launcher);
     }    
 
+    public static GeneXusInstallation[] getInstallations() {
+        DescriptorImpl descriptor = ToolInstallation.all().get(DescriptorImpl.class);
+        if (descriptor == null) {
+            return new GeneXusInstallation[] {};
+        }
+        
+        return descriptor.getInstallations();
+    }
+    
     public static GeneXusInstallation getInstallation(String installationId) {
         if (installationId == null)
             return null;
 
-        DescriptorImpl descriptor = ToolInstallation.all().get(DescriptorImpl.class);
-        if (descriptor == null)
-            return null;
-        
-        for( GeneXusInstallation i : descriptor.getInstallations() ) {
+        for( GeneXusInstallation i : getInstallations() ) {
             if(installationId.equals(i.getName()))
                 return i;
         }
+        
         return null;
     }
     
@@ -138,12 +156,13 @@ public final class GeneXusInstallation extends ToolInstallation
         
         @Override
         public GeneXusInstallation[] getInstallations() {
-            return Jenkins.getInstance().getDescriptorByType(GeneXusBuilder.DescriptorImpl.class).getInstallations();
+            load();
+            return super.getInstallations();
         }
 
         @Override
         public void setInstallations(GeneXusInstallation... installations) {
-            Jenkins.getInstance().getDescriptorByType(GeneXusBuilder.DescriptorImpl.class).setInstallations(installations);
+            super.setInstallations(installations);
             save();
         }
 
@@ -165,9 +184,14 @@ public final class GeneXusInstallation extends ToolInstallation
         public ListBoxModel doFillMsBuildInstallationIdItems() {
             ListBoxModel items = new ListBoxModel();
             items.add("(Default)", "");
-            for (MsBuildInstallation installation : getMSBuildToolDescriptor().getInstallations()) {
-                items.add(installation.getName(), installation.getName());
+            
+            Descriptor msbuildDescriptor = getMSBuildToolDescriptor();
+            if (msbuildDescriptor != null) {
+                for (MsBuildInstallation installation : getMSBuildToolDescriptor().getInstallations()) {
+                    items.add(installation.getName(), installation.getName());
+                }
             }
+
             return items;
         }
     }

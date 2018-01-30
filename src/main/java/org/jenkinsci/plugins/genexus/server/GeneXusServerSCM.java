@@ -51,7 +51,6 @@ import hudson.scm.SCMDescriptor;
 import hudson.scm.SCMRevisionState;
 import hudson.security.ACL;
 import hudson.tasks.Builder;
-import hudson.tools.ToolInstallation;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import java.io.File;
@@ -137,8 +136,12 @@ public class GeneXusServerSCM extends SCM implements Serializable {
         return gxInstallationId;
     }
     
+    private GeneXusInstallation getGeneXusInstallation() {
+        return GeneXusInstallation.getInstallation(gxInstallationId);
+    }
+    
     private String getGxPath() {
-        GeneXusInstallation installation = GeneXusInstallation.getInstallation(gxInstallationId);
+        GeneXusInstallation installation = getGeneXusInstallation();
         if (installation!=null) {
             return installation.getHome();
         }
@@ -147,7 +150,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
     }
 
     private String getMSBuildInstallationId() {
-        GeneXusInstallation installation = GeneXusInstallation.getInstallation(gxInstallationId);
+        GeneXusInstallation installation = getGeneXusInstallation();
         if (installation!=null) {
             return installation.getMsBuildInstallationId();
         }
@@ -527,10 +530,6 @@ public class GeneXusServerSCM extends SCM implements Serializable {
             return "GeneXus Server";
         }
 
-        public GeneXusInstallation.DescriptorImpl getToolDescriptor() {
-            return ToolInstallation.all().get(GeneXusInstallation.DescriptorImpl.class);
-        }
-
         @Override
         public boolean configure(StaplerRequest req, JSONObject formData) throws FormException {
             // Save configuration
@@ -541,7 +540,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
         public ListBoxModel doFillGxInstallationIdItems() {
             ListBoxModel items = new ListBoxModel();
             items.add("(Default)", "");
-            for (GeneXusInstallation installation : getToolDescriptor().getInstallations()) {
+            for (GeneXusInstallation installation : GeneXusInstallation.getInstallations()) {
                 items.add(installation.getName(), installation.getName());
             }
             return items;
