@@ -25,5 +25,5 @@ THE SOFTWARE.
 
 <?jelly escape-by-default='true'?>
 <div>
-    TODO
+    Adds support for GeneXus Knowledge Bases (SCM, build, etc.)
 </div>
