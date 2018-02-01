@@ -42,4 +42,9 @@ THE SOFTWARE.
         <f:textbox/>
     </f:entry>
 
+    <f:advanced align="left" style="text-decoration:bold" title="Advanced Options">
+        <f:entry field="forceRebuild" title="${%Force rebuilding all objects}">
+            <f:checkbox default="false" />
+        </f:entry>
+    </f:advanced>
 </j:jelly>

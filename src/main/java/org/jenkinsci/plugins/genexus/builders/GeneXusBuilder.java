@@ -57,14 +57,16 @@ public class GeneXusBuilder extends Builder {
     private final String kbPath;
     private final String kbVersion;
     private final String kbEnvironment;
+    private final boolean forceRebuild;
 
 
     @DataBoundConstructor
-    public GeneXusBuilder(String gxInstallationId, String kbPath, String kbVersion, String kbEnvironment) {
+    public GeneXusBuilder(String gxInstallationId, String kbPath, String kbVersion, String kbEnvironment, boolean forceRebuild) {
         this.gxInstallationId = gxInstallationId;
         this.kbPath = kbPath;
         this.kbVersion = kbVersion;
         this.kbEnvironment = kbEnvironment;
+        this.forceRebuild = forceRebuild;
     }
 
     @Exported
@@ -85,6 +87,11 @@ public class GeneXusBuilder extends Builder {
     @Exported
     public String getKbEnvironment() {
         return kbEnvironment;
+    }
+    
+    @Exported
+    public boolean getForceRebuild() {
+        return forceRebuild;
     }
     
     private GeneXusInstallation getGeneXusInstallation() {
@@ -120,6 +127,7 @@ public class GeneXusBuilder extends Builder {
         argsHelper.addProperty("WorkingDirectory", kbPath);
         argsHelper.addProperty("WorkingVersion", kbVersion);
         argsHelper.addProperty("WorkingEnvironment", kbEnvironment);
+        argsHelper.addProperty("ForceRebuild", forceRebuild);
         
         MsBuildBuilder builder = new MsBuildBuilder(
                 installation.getMsBuildInstallationId(),
