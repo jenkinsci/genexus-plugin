@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import jenkins.MasterToSlaveFileCallable;
-import org.jenkinsci.plugins.genexus.helpers.TeamDevArgumentListBuilder;
 
 /**
  *
@@ -64,23 +63,17 @@ public class GetLastRevisionTask extends MasterToSlaveFileCallable<GXSInfo> {
      */
     @Override
     public GXSInfo invoke(File ws, VirtualChannel channel) throws IOException, InterruptedException {
-
-        TeamDevArgumentListBuilder args = new TeamDevArgumentListBuilder(gxPath, gxsConnection, fromTimestamp, toTimestamp);
-
-        listener.getLogger().println("About to get revision");
-        listener.getLogger().println(args.toString());
-
-        ProcessBuilder procBuilder = new ProcessBuilder(args.toCommandArray());
-        procBuilder.redirectErrorStream(true);
-        Process proc = procBuilder.start();
-
-        return getLastRevisionInfo(proc);
-    }
-
-    private GXSInfo getLastRevisionInfo(Process proc) throws IOException {
         
-        List<GXSChangeLogSet.LogEntry> logEntries = GXSChangeLogParser.parse(proc.getInputStream());
-                
+        File logFile = new File(ws, "scm-polling.txt");
+        
+        // we avoid excluding the fromTimestamp so that we get at least the
+        // last known revision
+        CreateLogTask createLogTask = new CreateLogTask(listener, gxPath, gxsConnection, logFile, fromTimestamp, toTimestamp, /* fromExcluding= */ false);
+        if (!createLogTask.invoke(ws, channel)) {
+            throw new IOException("Error checking for last revision");
+        }
+        
+        List<GXSChangeLogSet.LogEntry> logEntries = GXSChangeLogParser.parse(logFile);
         if (logEntries.isEmpty())
             return new GXSInfo(gxsConnection, 0, new Date(0));
         
@@ -90,6 +83,6 @@ public class GetLastRevisionTask extends MasterToSlaveFileCallable<GXSInfo> {
         GXSInfo gxsInfo = new GXSInfo(gxsConnection, lastRevision.getRevision(), new Date(lastRevision.getTimestamp()));
         return gxsInfo;
     }
-
+    
     private static final long serialVersionUID = 1L;
 }

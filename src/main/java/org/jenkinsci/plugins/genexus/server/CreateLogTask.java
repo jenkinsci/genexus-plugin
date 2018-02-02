@@ -27,7 +27,9 @@ import hudson.model.TaskListener;
 import hudson.remoting.VirtualChannel;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Date;
+import java.util.stream.Stream;
 import jenkins.MasterToSlaveFileCallable;
 import org.jenkinsci.plugins.genexus.helpers.TeamDevArgumentListBuilder;
 
@@ -44,44 +46,57 @@ public class CreateLogTask  extends MasterToSlaveFileCallable<Boolean> {
     private final File logFile;
     private final Date fromTimestamp;
     private final Date toTimestamp;
+    private final boolean fromExcluding;
 
     public CreateLogTask(TaskListener listener, String gxPath, GXSConnection gxsConnection, File logFile) {
         this(listener, gxPath, gxsConnection, logFile, null, null);
     }
 
     public CreateLogTask(TaskListener listener, String gxPath, GXSConnection gxsConnection, File logFile, Date fromTimestamp, Date toTimestamp) {
+        this(listener, gxPath, gxsConnection, logFile, fromTimestamp, toTimestamp, true);
+    }
+    
+    public CreateLogTask(TaskListener listener, String gxPath, GXSConnection gxsConnection, File logFile, Date fromTimestamp, Date toTimestamp, boolean fromExcluding) {
         this.gxPath = gxPath;
         this.listener = listener;
         this.gxsConnection = gxsConnection;
         this.logFile = logFile;
         this.fromTimestamp = DateUtils.cloneIfNotNull(fromTimestamp);
         this.toTimestamp = DateUtils.cloneIfNotNull(toTimestamp);
+        this.fromExcluding = fromExcluding;
     }
 
     /**
-     * @return true if the changelog.txt was created
+     * @return true if success. The logFile may contain an actual log or the error 
      * info.
      */
     @Override
     public Boolean invoke(File ws, VirtualChannel channel) throws IOException, InterruptedException {
-        TeamDevArgumentListBuilder args = new TeamDevArgumentListBuilder(gxPath, gxsConnection, fromTimestamp, toTimestamp, /*fromExcluding=*/ true);
+        TeamDevArgumentListBuilder args = new TeamDevArgumentListBuilder(gxPath, gxsConnection, fromTimestamp, toTimestamp, fromExcluding);
 
-        listener.getLogger().println("About to get revision");
+        listener.getLogger().println("Checking GeneXus Server history");
         listener.getLogger().println(args.toString());
 
-        boolean created = false;
+        boolean success = false;
         try {
             ProcessBuilder procBuilder = new ProcessBuilder(args.toCommandArray());
             procBuilder.redirectErrorStream(true);
             procBuilder.redirectOutput(logFile);
             Process proc = procBuilder.start();
             int exitCode = proc.waitFor();
-            created = (exitCode == 0);
-        }
+            success = (exitCode == 0);
+            
+            if (!success) {
+                listener.getLogger().println("Error checking history:");
+                try (Stream<String> stream = Files.lines(logFile.toPath())) {
+                    stream.forEach(listener.getLogger()::println);
+                }
+            }
+         }
         catch (Exception e) {
-            listener.getLogger().println("Could not create log file: "+e.getMessage());
+            listener.getLogger().println("Error checking history: "+e.getMessage());
         }
         
-        return created;
+        return success;
     }
 }
