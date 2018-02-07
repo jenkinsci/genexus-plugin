@@ -311,20 +311,51 @@ public class GeneXusServerSCM extends SCM implements Serializable {
 
             // TODO: we should get the actual revision as an output from the checkout or update
             // Meanwhile we resort to get the latest revision up to the current time
-            Date updateTimeStamp = new Date();
+            Date updateTimestamp = new Date();
             if (!builder.perform((AbstractBuild) build, launcher, (BuildListener) listener))
                 throw new IOException("error executing checkout");
 
             GXSConnection gxs = new GXSConnection(getServerURL(), getCredentialsId(), getKbName(), getKbVersion());
-            GXSInfo info = workspace.act(new GetLastRevisionTask(listener, getGxPath(), gxs, null, updateTimeStamp));
-            saveRevisionFile(build, info);
+            GXSInfo currentInfo = calcCurrentInfo(workspace, listener, gxs, baseline, updateTimestamp);
+            saveRevisionFile(build, currentInfo);
 
             if (changelogFile != null) {
-                calcChangeLog(build, workspace, changelogFile, baseline, listener, gxs, info);
+                calcChangeLog(build, workspace, changelogFile, baseline, listener, gxs, currentInfo);
             }
         }
     }
 
+    private GXSInfo calcCurrentInfo(FilePath workspace, TaskListener listener, GXSConnection gxs, SCMRevisionState baseline, Date updateTimestamp) throws IOException, InterruptedException {
+        Date minDate = new Date(0);
+
+        // try asking for changes after the baseline
+        if (baseline instanceof GXSRevisionState) {
+            Date baseDate = ((GXSRevisionState) baseline).getRevisionDate();
+            if (baseDate.after(minDate)) {
+                // ask for changes at or after baseDate
+                GXSInfo baseInfo = calcCurrentInfo(workspace, listener, gxs, baseDate, updateTimestamp);
+                
+                // Check if the baseInfo is actually at or after baseDate
+                // because if there are no changes in the asked range we will
+                // get a {0, minDate} state.
+                
+                // That might happen if after building for revision #42
+                // the server got back to when the last revision was #41
+                // (for example by restoring from a backup)
+                if (!baseDate.before(baseInfo.revisionDate)) {
+                    return baseInfo;
+                }
+            } 
+        }
+        
+        // fall back to the last resort (asking from all changes up to updateTimestamp
+        return calcCurrentInfo(workspace, listener, gxs, minDate, updateTimestamp);
+    }
+    
+    private GXSInfo calcCurrentInfo(FilePath workspace, TaskListener listener, GXSConnection gxs, Date minDate, Date maxDate) throws IOException, InterruptedException {
+        return workspace.act(new GetLastRevisionTask(listener, getGxPath(), gxs, minDate, maxDate));
+    }
+    
     /**
      * Called after checkout/update has finished to compute the changelog.
      */
