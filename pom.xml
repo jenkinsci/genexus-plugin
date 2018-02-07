@@ -56,18 +56,17 @@ THE SOFTWARE.
     <developers>
       <developer>
         <id>jlr</id>
-        <name>José Lamas</name>
-        <email>jlr (at) genexus.com</email>
+        <name>José Lamas Ríos</name>
+        <email>jlr@genexus.com</email>
       </developer>
     </developers>
 
-    <!-- Assuming you want to host on @jenkinsci:
     <scm>
-        <connection>scm:git:git://github.com/jenkinsci/${project.artifactId}-plugin.git</connection>
-        <developerConnection>scm:git:git@github.com:jenkinsci/${project.artifactId}-plugin.git</developerConnection>
-        <url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
+        <connection>scm:git:ssh://github.com/jenkinsci/genexus-plugin.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com:jenkinsci/genexus-plugin.git</developerConnection>
+        <url>https://github.com/jenkinsci/genexus-plugin</url>
     </scm>
-    -->
+    
     <repositories>
         <repository>
             <id>repo.jenkins-ci.org</id>
