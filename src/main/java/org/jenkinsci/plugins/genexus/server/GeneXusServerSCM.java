@@ -212,9 +212,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
     public PollingResult compareRemoteRevisionWith(@Nonnull Job<?, ?> project, @Nullable Launcher launcher, @Nullable FilePath workspace, @Nonnull TaskListener listener, @Nonnull SCMRevisionState _baseline) throws IOException, InterruptedException {
         final GXSRevisionState baseline = getSafeBaseline(project, launcher, workspace, listener, _baseline);
         
-        FilePath workingPath = workspace;
-        if (workspace == null)
-            workingPath = new FilePath(project.getRootDir());
+        FilePath workingPath = workspace!=null? workspace : new FilePath(project.getRootDir());
         
         GXSConnection gxs = new GXSConnection(getServerURL(), getCredentialsId(), getKbName(), getKbVersion());
         GXSInfo currentInfo = workingPath.act(new GetLastRevisionTask(listener, getGxPath(), gxs, baseline.getRevisionDate(), new Date()));
