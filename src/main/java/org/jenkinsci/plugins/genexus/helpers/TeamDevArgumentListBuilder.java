@@ -44,6 +44,8 @@ import org.apache.commons.lang.StringUtils;
  */
 public class TeamDevArgumentListBuilder extends ArgumentListBuilder {
 
+    private static final long serialVersionUID = 1L;
+        
     public TeamDevArgumentListBuilder(String gxPath, GXSConnection gxsConnection) {
         this(gxPath, gxsConnection, /*fromTimestamp=*/ null, /*toTimestamp=*/ null);
     }

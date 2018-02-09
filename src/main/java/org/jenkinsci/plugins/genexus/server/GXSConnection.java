@@ -39,6 +39,8 @@ import org.kohsuke.stapler.export.ExportedBean;
 @ExportedBean
 public class GXSConnection extends AbstractDescribableImpl<GXSConnection> implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     private final String serverURL;
     private final String credentialsId;
     private final String kbName;

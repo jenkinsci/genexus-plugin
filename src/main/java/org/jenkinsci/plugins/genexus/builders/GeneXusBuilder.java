@@ -98,15 +98,6 @@ public class GeneXusBuilder extends Builder {
         return GeneXusInstallation.getInstallation(gxInstallationId);
     }
     
-    private String getMSBuildInstallationId() {
-        GeneXusInstallation installation = getGeneXusInstallation();
-        if (installation!=null) {
-            return installation.getMsBuildInstallationId();
-        }
-        
-        return "";
-    }
-
     @Override
     public boolean perform(AbstractBuild<?,?> build, Launcher launcher, BuildListener listener) throws IOException, InterruptedException {
         GeneXusInstallation installation = getGeneXusInstallation();

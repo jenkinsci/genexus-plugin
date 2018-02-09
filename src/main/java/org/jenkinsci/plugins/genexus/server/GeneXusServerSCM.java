@@ -88,6 +88,8 @@ import org.kohsuke.stapler.interceptor.RequirePOST;
  */
 public class GeneXusServerSCM extends SCM implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     // GX installation
     private final String gxInstallationId;
     

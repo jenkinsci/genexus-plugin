@@ -39,7 +39,6 @@ import hudson.tools.ToolProperty;
 import hudson.util.ListBoxModel;
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import jenkins.security.MasterToSlaveCallable;
@@ -53,8 +52,10 @@ import org.kohsuke.stapler.StaplerRequest;
  * @author jlr
  */
 public final class GeneXusInstallation extends ToolInstallation
-        implements NodeSpecific<GeneXusInstallation>, EnvironmentSpecific<GeneXusInstallation>, Serializable {
+        implements NodeSpecific<GeneXusInstallation>, EnvironmentSpecific<GeneXusInstallation> {
 
+    private static final long serialVersionUID = 1L;
+    
     private final String msBuildInstallationId;
 
     public GeneXusInstallation(String name, String home, String msBuildInstallationId) {
@@ -102,7 +103,8 @@ public final class GeneXusInstallation extends ToolInstallation
     }
     
     public String getFilePath(final String fileName, Launcher launcher) throws IOException, InterruptedException { 
-        return launcher.getChannel().call(new MasterToSlaveCallable<String, IOException>() { 
+        return launcher.getChannel().call(new MasterToSlaveCallable<String, IOException>() {
+            private static final long serialVersionUID = 1L;
             @Override
             public String call() throws IOException { 
                 String gxHome = Util.replaceMacro(getHome(),EnvVars.masterEnvVars);

@@ -40,6 +40,8 @@ import org.jenkinsci.plugins.genexus.helpers.TeamDevArgumentListBuilder;
  */
 public class CreateLogTask  extends MasterToSlaveFileCallable<Boolean> {
 
+    private static final long serialVersionUID = 1L;
+
     private final String gxPath;
     private final TaskListener listener;
     private final GXSConnection gxsConnection;
@@ -93,7 +95,7 @@ public class CreateLogTask  extends MasterToSlaveFileCallable<Boolean> {
                 }
             }
          }
-        catch (Exception e) {
+        catch (RuntimeException e) {
             listener.getLogger().println("Error checking history: "+e.getMessage());
         }
         

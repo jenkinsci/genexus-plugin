@@ -41,6 +41,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import javax.annotation.Nonnull;
 import org.kohsuke.stapler.export.Exported;
 import org.kohsuke.stapler.export.ExportedBean;
 
@@ -79,6 +80,7 @@ public final class GXSChangeLogSet extends ChangeLogSet {
         return "GXserver";
     }
 
+    @Nonnull
     public synchronized GXSRevisionState getRevisionState() throws IOException {
         if(revisionState==null)
             revisionState = GeneXusServerSCM.parseRevisionFile(getRun());
@@ -107,25 +109,7 @@ public final class GXSChangeLogSet extends ChangeLogSet {
      */
     static List<LogEntry> removeDuplicatedEntries(List<LogEntry> items) {
         Set<LogEntry> entries = new HashSet<>(items);
-        return new ArrayList<LogEntry>(entries);
-    }
-
-    @Exported
-    public List<RevisionInfo> getRevisions() throws IOException {
-        List<RevisionInfo> revisions = new ArrayList<>();
-        GXSRevisionState r = getRevisionState();
-        if (r != null)
-            revisions.add(new RevisionInfo(r.getRevision()));
-        
-        return revisions;
-    }
-
-    @ExportedBean(defaultVisibility=999)
-    public static final class RevisionInfo {
-        @Exported public final long revision;
-        public RevisionInfo(long revision) {
-            this.revision = revision;
-        }
+        return new ArrayList<>(entries);
     }
 
     /**
@@ -139,7 +123,7 @@ public final class GXSChangeLogSet extends ChangeLogSet {
         private User author;
         private Date date;
         private String msg;
-        private List<Action> actions = new ArrayList<Action>();
+        private final List<Action> actions = new ArrayList<>();
 
         /**
          * Gets the {@link GXSChangeLogSet} to which this change set belongs.
@@ -268,13 +252,10 @@ public final class GXSChangeLogSet extends ChangeLogSet {
         }
         
         void finish() {
-            Collections.sort(actions, new Comparator<Action>() {
-                @Override
-                public int compare(Action o1, Action o2) {
-                    String path1 = Util.fixNull(o1.getObjectName());
-                    String path2 = Util.fixNull(o2.getObjectName());
-                    return path1.compareTo(path2);
-                }
+            Collections.sort(actions, (Action o1, Action o2) -> {
+                String path1 = Util.fixNull(o1.getObjectName());
+                String path2 = Util.fixNull(o2.getObjectName());
+                return path1.compareTo(path2);
             });
         }
         
