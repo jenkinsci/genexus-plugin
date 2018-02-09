@@ -117,13 +117,17 @@ public class GeneXusBuilder extends Builder {
 
         String msBuildFile = installation.getFilePath("TeamDev.msbuild", launcher);
         if (msBuildFile == null) {
-            listener.fatalError("Could not find msbuild file: " + msBuildFile);
+            listener.fatalError("Could not find TeamDev.msbuild from GeneXus Installation " + installation.getName());
             return false;
         }
         
         MsBuildArgsHelper argsHelper = new MsBuildArgsHelper("Build");
         argsHelper.addNoLogo();
-        argsHelper.addProperty("GX_PROGRAM_DIR", installation.getHome());
+        
+        String gxHome = installation.getHome();
+        if (gxHome != null)
+            argsHelper.addProperty("GX_PROGRAM_DIR", gxHome);
+        
         argsHelper.addProperty("WorkingDirectory", kbPath);
         argsHelper.addProperty("WorkingVersion", kbVersion);
         argsHelper.addProperty("WorkingEnvironment", kbEnvironment);
