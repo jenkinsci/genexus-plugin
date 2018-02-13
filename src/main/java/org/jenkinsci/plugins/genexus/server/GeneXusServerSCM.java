@@ -97,11 +97,15 @@ public class GeneXusServerSCM extends SCM implements Serializable {
     private final String serverURL;
     private final String credentialsId;
 
-    // KB info
+    // Server KB info
     private final String kbName;
     private final String kbVersion;
 
     // Local KB DB info
+    // TODO: get localKbVersion to update by looking in the working copy
+    // which one is conected to the 'kbVersion' in the server
+    private final String localKbPath;
+    private final String localKbVersion;
     private final String kbDbServerInstance;
     private final String kbDbCredentialsId;
     private final String kbDbName;
@@ -114,6 +118,8 @@ public class GeneXusServerSCM extends SCM implements Serializable {
             String credentialsId,
             String kbName,
             String kbVersion,
+            String localKbPath,
+            String localKbVersion,
             String kbDbServerInstance,
             String kbDbCredentialsId,
             String kbDbName,
@@ -127,6 +133,8 @@ public class GeneXusServerSCM extends SCM implements Serializable {
         this.kbName = kbName;
         this.kbVersion = kbVersion;
 
+        this.localKbPath = localKbPath;
+        this.localKbVersion = localKbVersion;
         this.kbDbServerInstance = kbDbServerInstance;
         this.kbDbCredentialsId = kbDbCredentialsId;
         this.kbDbName = kbDbName;
@@ -178,6 +186,16 @@ public class GeneXusServerSCM extends SCM implements Serializable {
     @Exported
     public String getKbVersion() {
         return kbVersion;
+    }
+
+    @Exported
+    public String getLocalKbPath() {
+        return localKbPath;
+    }
+
+    @Exported
+    public String getLocalKbVersion() {
+        return localKbVersion;
     }
 
     @Exported
@@ -405,7 +423,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
     }
 
     private Builder createCheckoutOrUpdateAction(FilePath workspace) {
-        if (!kbAlreadyExists(workspace.child(getKbName()))) {
+        if (!kbAlreadyExists(getWorkingDirectory(workspace))) {
             return createCheckoutAction(workspace);
         }
 
@@ -428,14 +446,16 @@ public class GeneXusServerSCM extends SCM implements Serializable {
             msbArgs.addProperty("ServerKbVersion", getKbVersion());
         }
 
-        FilePath kbPath = workspace.child(getKbName());
-        msbArgs.addProperty("WorkingDirectory", kbPath);
+        msbArgs.addProperty("WorkingDirectory", getWorkingDirectory(workspace));
 
         return msbArgs;
     }
 
     private Builder createUpdateAction(FilePath workspace) {
         MsBuildArgsHelper msbArgs = createBaseMsBuildArgs(workspace, "Update");
+        
+        msbArgs.addProperty("WorkingVersion", getLocalKbVersion());
+        
         return createMsBuildAction(msbArgs);
     }
 
@@ -466,6 +486,14 @@ public class GeneXusServerSCM extends SCM implements Serializable {
         return createMsBuildAction(msbArgs);
     }
 
+    private FilePath getWorkingDirectory(FilePath workspace) {
+        if (!StringUtils.isBlank(getLocalKbPath())) {
+            return new FilePath(workspace, getLocalKbPath());
+        }
+        
+        return workspace.child(getKbName());
+    }
+    
     private String getMsBuildFile() {
         final String teamDevMsBuildFile = "TeamDev.msbuild";
         Path teamDevPath = Paths.get(getGxPath(), teamDevMsBuildFile);
@@ -526,9 +554,9 @@ public class GeneXusServerSCM extends SCM implements Serializable {
 
     private static final Logger LOGGER = Logger.getLogger(GeneXusServerSCM.class.getName());
 
-    private boolean kbAlreadyExists(FilePath workspace) {
+    private boolean kbAlreadyExists(FilePath workingDirectory) {
         try {
-            return !(workspace.list(new WildcardFileFilter("*.gxw", IOCase.INSENSITIVE)).isEmpty());
+            return !(workingDirectory.list(new WildcardFileFilter("*.gxw", IOCase.INSENSITIVE)).isEmpty());
         } catch (Exception ex) {
             Logger.getLogger(GeneXusServerSCM.class.getName()).log(Level.SEVERE, null, ex);
             return false;
