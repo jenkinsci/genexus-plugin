@@ -330,8 +330,10 @@ public class GeneXusServerSCM extends SCM implements Serializable {
             // TODO: we should get the actual revision as an output from the checkout or update
             // Meanwhile we resort to get the latest revision up to the current time
             Date updateTimestamp = new Date();
-            if (!builder.perform((AbstractBuild) build, launcher, (BuildListener) listener))
-                throw new IOException("error executing checkout");
+            if (!builder.perform((AbstractBuild) build, launcher, (BuildListener) listener)) {
+                listener.error("Checkout (or update) from  GeneXus Server failed");
+                throw new IOException("error executing checkout/update from GeneXus Server");
+            }
 
             GXSConnection gxs = new GXSConnection(getServerURL(), getCredentialsId(), getKbName(), getKbVersion());
             GXSInfo currentInfo = calcCurrentInfo(workspace, listener, gxs, baseline, updateTimestamp);
@@ -454,7 +456,9 @@ public class GeneXusServerSCM extends SCM implements Serializable {
     private Builder createUpdateAction(FilePath workspace) {
         MsBuildArgsHelper msbArgs = createBaseMsBuildArgs(workspace, "Update");
         
-        msbArgs.addProperty("WorkingVersion", getLocalKbVersion());
+        if (StringUtils.isNotBlank(getLocalKbVersion())) {
+            msbArgs.addProperty("WorkingVersion", getLocalKbVersion());
+        }
         
         return createMsBuildAction(msbArgs);
     }
