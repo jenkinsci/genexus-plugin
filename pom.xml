@@ -41,7 +41,7 @@ THE SOFTWARE.
     </properties>
     <name>GeneXus Plugin</name>
     <description>Adds support for GeneXus Knowledge Bases (SCM, build, etc.)</description>
-    <url>https://wiki.jenkins-ci.org/display/JENKINS/genexus+Plugin</url>
+    <url>https://wiki.jenkins.io/display/JENKINS/GeneXus+Plugin</url>
     <organization>
         <name>GeneXus S.A.</name>
         <url>https://genexus.com</url>
@@ -65,8 +65,8 @@ THE SOFTWARE.
         <connection>scm:git:ssh://github.com/jenkinsci/genexus-plugin.git</connection>
         <developerConnection>scm:git:ssh://git@github.com:jenkinsci/genexus-plugin.git</developerConnection>
         <url>https://github.com/jenkinsci/genexus-plugin</url>
-      <tag>genexus-1.0-beta-1</tag>
-  </scm>
+       <tag>genexus-1.0-beta-1</tag>
+    </scm>
     
     <repositories>
         <repository>
