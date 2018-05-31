@@ -362,7 +362,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
                 // That might happen if after building for revision #42
                 // the server got back to when the last revision was #41
                 // (for example by restoring from a backup)
-                if (!baseDate.before(baseInfo.revisionDate)) {
+                if (baseDate.before(baseInfo.revisionDate)) {
                     return baseInfo;
                 }
             } 
