@@ -24,18 +24,11 @@
 package org.jenkinsci.plugins.genexus.helpers;
 
 import org.jenkinsci.plugins.genexus.server.GXSConnection;
-import com.cloudbees.plugins.credentials.CredentialsMatchers;
-import com.cloudbees.plugins.credentials.CredentialsProvider;
-import com.cloudbees.plugins.credentials.common.StandardCredentials;
-import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
-import com.cloudbees.plugins.credentials.domains.URIRequirementBuilder;
-import hudson.security.ACL;
 import hudson.util.ArgumentListBuilder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
-import jenkins.model.Jenkins;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -58,7 +51,8 @@ public class TeamDevArgumentListBuilder extends ArgumentListBuilder {
         this(
                 gxPath,
                 gxsConnection.getServerURL(),
-                gxsConnection.getCredentialsId(),
+                gxsConnection.getUserName(),
+                gxsConnection.getUserPassword(),
                 gxsConnection.getKbName(),
                 gxsConnection.getKbVersion(),
                 fromTimestamp,
@@ -66,7 +60,7 @@ public class TeamDevArgumentListBuilder extends ArgumentListBuilder {
                 fromExcluding);
     }
 
-    private TeamDevArgumentListBuilder(String gxPath, String serverURL, String credentialsId, String kbName, String kbVersion, Date fromTimestamp, Date toTimestamp, boolean fromExcluding) {
+    private TeamDevArgumentListBuilder(String gxPath, String serverURL, String userName, String userPassword, String kbName, String kbVersion, Date fromTimestamp, Date toTimestamp, boolean fromExcluding) {
         
         String pathToTeamDev = gxPath + "\\teamdev.exe";
 
@@ -76,11 +70,9 @@ public class TeamDevArgumentListBuilder extends ArgumentListBuilder {
         add("/utc");
         add("/s:" + serverURL);
 
-        StandardCredentials credentials = lookupCredentials(serverURL, credentialsId);
-        if (credentials instanceof StandardUsernamePasswordCredentials) {
-            StandardUsernamePasswordCredentials upCredentials = (StandardUsernamePasswordCredentials) credentials;
-            add("/u:" + upCredentials.getUsername());
-            add("/p:" + upCredentials.getPassword().getPlainText());
+        if (!userName.isEmpty()) {
+            add("/u:" + userName);
+            add("/p:" + userPassword);
         }
 
         add("/kb:" + kbName);
@@ -114,19 +106,6 @@ public class TeamDevArgumentListBuilder extends ArgumentListBuilder {
         return getDateFormat().format(date);
     }
     
-    private StandardCredentials lookupCredentials(String serverURL, String credentialsId) {
-        return credentialsId == null ? null
-                : CredentialsMatchers.firstOrNull(
-                        CredentialsProvider.lookupCredentials(
-                                StandardCredentials.class,
-                                Jenkins.getInstance(),
-                                ACL.SYSTEM,
-                                URIRequirementBuilder.fromUri(serverURL).build()
-                        ),
-                        CredentialsMatchers.withId(credentialsId)
-                );
-    }
-
     private Date actualFromTimestamp(Date fromTimestamp, boolean fromExcluding) {
         if (!fromExcluding)
             return fromTimestamp;

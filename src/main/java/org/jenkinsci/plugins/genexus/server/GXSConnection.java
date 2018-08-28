@@ -42,16 +42,18 @@ public class GXSConnection extends AbstractDescribableImpl<GXSConnection> implem
     private static final long serialVersionUID = 1L;
 
     private final String serverURL;
-    private final String credentialsId;
+    private final String userName;
+    private final String userPassword;
     private final String kbName;
     private final String kbVersion;
-
+    
     private static final String DEFAULT_SERVER_URL = "https://sandbox.genexusserver.com/v15";
 
     @DataBoundConstructor
-    public GXSConnection(String serverURL, String credentialsId, String kbName, String kbVersion) {
+    public GXSConnection(String serverURL, String userName, String userPassword, String kbName, String kbVersion) {
         this.serverURL = serverURL;
-        this.credentialsId = credentialsId;
+        this.userName = userName;
+        this.userPassword = userPassword;
         this.kbName = kbName;
         this.kbVersion = kbVersion;
     }
@@ -62,8 +64,13 @@ public class GXSConnection extends AbstractDescribableImpl<GXSConnection> implem
     }
 
     @Exported
-    public String getCredentialsId() {
-        return credentialsId;
+    public String getUserName() {
+        return userName;
+    }
+
+    @Exported
+    public String getUserPassword() {
+        return userPassword;
     }
 
     @Exported
