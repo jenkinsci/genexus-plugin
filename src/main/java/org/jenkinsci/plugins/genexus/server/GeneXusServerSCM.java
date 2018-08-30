@@ -392,18 +392,19 @@ public class GeneXusServerSCM extends SCM implements Serializable {
             Date baseDate = ((GXSRevisionState) baseline).getRevisionDate();
             if (baseDate.after(minDate)) {
                 // ask for changes at or after baseDate
-                GXSInfo baseInfo = calcCurrentInfo(workspace, listener, gxs, baseDate, updateTimestamp);
+                GXSInfo currentInfo = calcCurrentInfo(workspace, listener, gxs, baseDate, updateTimestamp);
                 
-                // Check if the baseInfo is actually at or after baseDate
+                // Verify curentInfo is actually at or after baseDate
                 // because if there are no changes in the asked range we will
                 // get a {0, minDate} state.
                 
                 // That might happen if after building for revision #42
                 // the server got back to when the last revision was #41
                 // (for example by restoring from a backup)
-                if (baseDate.before(baseInfo.revisionDate)) {
-                    return baseInfo;
+                if (currentInfo.revisionDate.compareTo(baseDate) >= 0) {
+                    return currentInfo;
                 }
+                listener.getLogger().println("Found no revision on or after base line " + baseline.toString() + ". Server reverted to past state?");
             } 
         }
         
