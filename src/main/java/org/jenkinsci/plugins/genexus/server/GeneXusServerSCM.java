@@ -40,9 +40,12 @@ import hudson.model.AbstractBuild;
 import hudson.model.BuildListener;
 import hudson.model.Item;
 import hudson.model.Job;
+import hudson.model.Node;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.plugins.msbuild.MsBuildBuilder;
+import hudson.remoting.Channel;
+import hudson.remoting.VirtualChannel;
 import hudson.scm.ChangeLogParser;
 import hudson.scm.PollingResult;
 import hudson.scm.PollingResult.Change;
@@ -60,6 +63,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.DateFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -233,7 +237,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
         final GXSRevisionState baseline = getSafeBaseline(project, launcher, workspace, listener, _baseline);
         
         FilePath workingPath = workspace!=null? workspace : new FilePath(project.getRootDir());
-        
+
         GXSConnection gxs = getGXSConnection();
         GXSInfo currentInfo = workingPath.act(new GetLastRevisionTask(listener, getGxPath(), gxs, baseline.getRevisionDate(), new Date()));
         GXSRevisionState currentState = new GXSRevisionState(currentInfo.revision, currentInfo.revisionDate);
@@ -304,7 +308,12 @@ public class GeneXusServerSCM extends SCM implements Serializable {
      */
     @Override
     public boolean requiresWorkspaceForPolling() {
-        return false;
+        // We don't actually require a workspace but at least for now
+        // we do require a node on which we can find an executable TeamDev.exe.
+        // Returning true means the SCM poll will be called on the workspace
+        // node, which in turn means we can find a GeneXus Installation there,
+        // which includes a TeamDev.exe
+        return true;
     }
 
     @Override
@@ -423,9 +432,11 @@ public class GeneXusServerSCM extends SCM implements Serializable {
         
         GXSRevisionState _baseline = getSafeBaseline(build, baseline);
         
+        FilePath changelogFilePath = new FilePath(changelogFile);
+        
         boolean created = false;
         if (currentInfo.revisionDate.after(_baseline.getRevisionDate())) {
-            created = workspace.act(new CreateLogTask(listener, getGxPath(), gxs, changelogFile, _baseline.getRevisionDate(), currentInfo.revisionDate));
+            created = workspace.act(new CreateLogTask(listener, getGxPath(), gxs, changelogFilePath, _baseline.getRevisionDate(), currentInfo.revisionDate));
         }
         
         if (!created) {
@@ -586,7 +597,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
     private boolean kbAlreadyExists(FilePath workingDirectory) {
         try {
             return !(workingDirectory.list(new WildcardFileFilter("*.gxw", IOCase.INSENSITIVE)).isEmpty());
-        } catch (Exception ex) {
+        } catch (IOException | InterruptedException ex) {
             Logger.getLogger(GeneXusServerSCM.class.getName()).log(Level.SEVERE, null, ex);
             return false;
         }

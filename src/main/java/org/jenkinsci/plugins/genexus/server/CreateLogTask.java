@@ -23,11 +23,13 @@
  */
 package org.jenkinsci.plugins.genexus.server;
 
+import hudson.FilePath;
 import hudson.model.TaskListener;
 import hudson.remoting.VirtualChannel;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.text.MessageFormat;
 import java.util.Date;
 import java.util.stream.Stream;
 import jenkins.MasterToSlaveFileCallable;
@@ -40,29 +42,29 @@ import org.jenkinsci.plugins.genexus.helpers.TeamDevArgumentListBuilder;
  */
 public class CreateLogTask  extends MasterToSlaveFileCallable<Boolean> {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
     private final String gxPath;
     private final TaskListener listener;
     private final GXSConnection gxsConnection;
-    private final File logFile;
+    private final FilePath logFile;
     private final Date fromTimestamp;
     private final Date toTimestamp;
     private final boolean fromExcluding;
 
-    public CreateLogTask(TaskListener listener, String gxPath, GXSConnection gxsConnection, File logFile) {
-        this(listener, gxPath, gxsConnection, logFile, null, null);
+    public CreateLogTask(TaskListener listener, String gxPath, GXSConnection gxsConnection, FilePath logFilePath) {
+        this(listener, gxPath, gxsConnection, logFilePath, null, null);
     }
 
-    public CreateLogTask(TaskListener listener, String gxPath, GXSConnection gxsConnection, File logFile, Date fromTimestamp, Date toTimestamp) {
-        this(listener, gxPath, gxsConnection, logFile, fromTimestamp, toTimestamp, true);
+    public CreateLogTask(TaskListener listener, String gxPath, GXSConnection gxsConnection, FilePath logFilePath, Date fromTimestamp, Date toTimestamp) {
+        this(listener, gxPath, gxsConnection, logFilePath, fromTimestamp, toTimestamp, true);
     }
     
-    public CreateLogTask(TaskListener listener, String gxPath, GXSConnection gxsConnection, File logFile, Date fromTimestamp, Date toTimestamp, boolean fromExcluding) {
+    public CreateLogTask(TaskListener listener, String gxPath, GXSConnection gxsConnection, FilePath logFilePath, Date fromTimestamp, Date toTimestamp, boolean fromExcluding) {
         this.gxPath = gxPath;
         this.listener = listener;
         this.gxsConnection = gxsConnection;
-        this.logFile = logFile;
+        this.logFile = logFilePath;
         this.fromTimestamp = DateUtils.cloneIfNotNull(fromTimestamp);
         this.toTimestamp = DateUtils.cloneIfNotNull(toTimestamp);
         this.fromExcluding = fromExcluding;
@@ -79,26 +81,48 @@ public class CreateLogTask  extends MasterToSlaveFileCallable<Boolean> {
         listener.getLogger().println("Checking GeneXus Server history");
         listener.getLogger().println(args.toString());
 
-        boolean success = false;
+        File localFile = logFile.isRemote()?
+                new File(ws, "tempLog.xml") :
+                new File(logFile.getRemote());
+        
+        boolean success;
         try {
             ProcessBuilder procBuilder = new ProcessBuilder(args.toCommandArray());
             procBuilder.redirectErrorStream(true);
-            procBuilder.redirectOutput(logFile);
+            procBuilder.redirectOutput(localFile);
             Process proc = procBuilder.start();
             int exitCode = proc.waitFor();
             success = (exitCode == 0);
-            
+
             if (!success) {
                 listener.getLogger().println("Error checking history:");
-                try (Stream<String> stream = Files.lines(logFile.toPath())) {
+                try (Stream<String> stream = Files.lines(localFile.toPath())) {
                     stream.forEach(listener.getLogger()::println);
                 }
             }
-         }
+            
+        }
         catch (RuntimeException e) {
             listener.getLogger().println("Error checking history: "+e.getMessage());
+            success = false;
         }
-        
+
+        if (success && logFile.isRemote()) {
+            try {
+                logFile.copyFrom(new FilePath(localFile));
+            }
+            catch (IOException | InterruptedException e) {
+                listener.getLogger().println(
+                        MessageFormat.format("Error copying local logFile ({0}) to master node ({1}): {3}",
+                                localFile.toPath(),
+                                logFile.getRemote(),
+                                e.getMessage()
+                        )
+                );
+                success = false;
+            }
+        }
+
         return success;
     }
 }

@@ -23,13 +23,19 @@
  */
 package org.jenkinsci.plugins.genexus.server;
 
+import hudson.FilePath;
 import hudson.model.TaskListener;
 import hudson.remoting.VirtualChannel;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
-import java.util.List;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 import jenkins.MasterToSlaveFileCallable;
+import org.w3c.dom.Node;
+import org.xml.sax.InputSource;
 
 /**
  *
@@ -65,23 +71,35 @@ public class GetLastRevisionTask extends MasterToSlaveFileCallable<GXSInfo> {
     public GXSInfo invoke(File ws, VirtualChannel channel) throws IOException, InterruptedException {
         
         File logFile = new File(ws, "scm-polling.txt");
+        FilePath logFilePath = new FilePath(logFile);
         
         // we avoid excluding the fromTimestamp so that we get at least the
         // last known revision
-        CreateLogTask createLogTask = new CreateLogTask(listener, gxPath, gxsConnection, logFile, fromTimestamp, toTimestamp, /* fromExcluding= */ false);
-        if (!createLogTask.invoke(ws, channel)) {
+        CreateLogTask createLogTask = new CreateLogTask(listener, gxPath, gxsConnection, logFilePath, fromTimestamp, toTimestamp, /* fromExcluding= */ false);
+        if (!createLogTask.invoke(ws, channel)) {   
             throw new IOException("Error checking for last revision");
         }
         
-        List<GXSChangeLogSet.LogEntry> logEntries = GXSChangeLogParser.parse(logFile);
-        if (logEntries.isEmpty())
-            return new GXSInfo(gxsConnection, 0, new Date(0));
-        
-        // We are assuming revisions always come in descending order, so we
-        // just take the first revision as the most recent one.
-        GXSChangeLogSet.LogEntry lastRevision = logEntries.get(0);
-        GXSInfo gxsInfo = new GXSInfo(gxsConnection, lastRevision.getRevision(), new Date(lastRevision.getTimestamp()));
-        return gxsInfo;
+        return GetLastRevisionInfo(logFile);
+    }
+
+    private GXSInfo GetLastRevisionInfo(File logFile) throws IOException {
+        XPath xpath = XPathFactory.newInstance().newXPath();
+        InputSource inputSource = new InputSource(logFile.getPath());
+        try {
+            // We are assuming revisions always come in descending order, so we
+            // just take the first revision as the most recent one.
+            Node lastEntry = (Node) xpath.evaluate("/log/logentry[1]", inputSource, XPathConstants.NODE);
+            if (lastEntry == null)
+                return new GXSInfo(gxsConnection, 0, new Date(0));
+                
+            Number nRev = (Number) xpath.evaluate("@revision", lastEntry, XPathConstants.NUMBER);
+            String utcDate = (String) xpath.evaluate("date", lastEntry, XPathConstants.STRING);
+            return new GXSInfo(gxsConnection, nRev.intValue(), DateUtils.fromUTCstring(utcDate));
+        }
+        catch (XPathExpressionException ex) {
+            throw new IOException("Error checking for last revision", ex);
+        }
     }
     
     private static final long serialVersionUID = 1L;
