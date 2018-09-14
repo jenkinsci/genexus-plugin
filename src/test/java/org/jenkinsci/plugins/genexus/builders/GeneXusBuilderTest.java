@@ -89,21 +89,21 @@ public class GeneXusBuilderTest {
         TestCases testCases = new TestCases();
         
         // existing id
-        testCases.addCase(new GeneXusBuilder("Evo3", "kbpath", "kbversion", "kbenvironment", true));
+        testCases.addCase(new GeneXusBuilder("Evo3", "kbpath", "kbversion", "kbenvironment", "kbDbServerInstance","kbDbCredentialsId", true));
 
         // non existing id results in ""
         testCases.addCase(
-                new GeneXusBuilder("NotAnId", "kbpath", "kbversion", "kbenvironment", true),
-                new GeneXusBuilder(""       , "kbpath", "kbversion", "kbenvironment", true)
+                new GeneXusBuilder("NotAnId", "kbpath", "kbversion", "kbenvironment", "kbDbServerInstance","kbDbCredentialsId",true),
+                new GeneXusBuilder(""       , "kbpath", "kbversion", "kbenvironment", "kbDbServerInstance","kbDbCredentialsId",true)
         );
 
         // false is also preserved 
-        testCases.addCase(new GeneXusBuilder("Evo3", "kbpath", "kbversion", "kbenvironment", false));
+        testCases.addCase(new GeneXusBuilder("Evo3", "kbpath", "kbversion", "kbenvironment", "kbDbServerInstance","kbDbCredentialsId", false));
         
         // null values are converted to default values
         testCases.addCase(
-                new GeneXusBuilder(null, null    , null, null, true),
-                new GeneXusBuilder(""  , "KBpath", ""  , ""  , true)
+                new GeneXusBuilder(null, null    , null, null, "kbDbServerInstance","kbDbCredentialsId", true),
+                new GeneXusBuilder(""  , "KBpath", ""  , ""  , "kbDbServerInstance","kbDbCredentialsId", true)
         );
         
         return testCases;
@@ -116,7 +116,7 @@ public class GeneXusBuilderTest {
     public void testGetGxInstallationId() {
         System.out.println("getGxInstallationId");
         String expResult = "v15";
-        GeneXusBuilder instance = new GeneXusBuilder(expResult, "C:\\", "version", "environment", false);
+        GeneXusBuilder instance = new GeneXusBuilder(expResult, "C:\\", "version", "environment", "kbDbServerInstance","kbDbCredentialsId", false);
         String result = instance.getGxInstallationId();
         assertEquals(expResult, result);
     }
