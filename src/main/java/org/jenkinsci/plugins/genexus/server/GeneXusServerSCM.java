@@ -237,12 +237,20 @@ public class GeneXusServerSCM extends SCM implements Serializable {
         final GXSRevisionState baseline = getSafeBaseline(project, launcher, workspace, listener, _baseline);
         
         FilePath workingPath = workspace!=null? workspace : new FilePath(project.getRootDir());
+        
+        try
+        {
+            GXSConnection gxs = getGXSConnection();
+            GXSInfo currentInfo = workingPath.act(new GetLastRevisionTask(listener, getGxPath(), gxs, baseline.getRevisionDate(), new Date()));
+            GXSRevisionState currentState = new GXSRevisionState(currentInfo.revision, currentInfo.revisionDate);
 
-        GXSConnection gxs = getGXSConnection();
-        GXSInfo currentInfo = workingPath.act(new GetLastRevisionTask(listener, getGxPath(), gxs, baseline.getRevisionDate(), new Date()));
-        GXSRevisionState currentState = new GXSRevisionState(currentInfo.revision, currentInfo.revisionDate);
-
-        return new PollingResult(baseline, currentState, currentState.getRevision() > baseline.getRevision() ? Change.SIGNIFICANT : Change.NONE);
+            return new PollingResult(baseline, currentState, currentState.getRevision() > baseline.getRevision() ? Change.SIGNIFICANT : Change.NONE);
+        }
+        catch (IOException | InterruptedException ex)
+        {
+            listener.error(ex.getMessage());
+            return PollingResult.BUILD_NOW;
+        }
     }
 
     @Nonnull
