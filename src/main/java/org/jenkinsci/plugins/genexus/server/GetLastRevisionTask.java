@@ -84,8 +84,13 @@ public class GetLastRevisionTask extends MasterToSlaveFileCallable<GXSInfo> {
     }
 
     private GXSInfo GetLastRevisionInfo(File logFile) throws IOException {
+        // Use URI to avoid errors when the path contains accented characters
+        // (eg: Ô ç á)
+        String systemId = logFile.toURI().toString();
+        listener.getLogger().println("Trying to get last revision info from " + systemId);
+        InputSource inputSource = new InputSource(systemId);
+
         XPath xpath = XPathFactory.newInstance().newXPath();
-        InputSource inputSource = new InputSource(logFile.getPath());
         try {
             // We are assuming revisions always come in descending order, so we
             // just take the first revision as the most recent one.
