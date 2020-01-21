@@ -32,7 +32,7 @@ THE SOFTWARE.
         <relativePath />
     </parent>
     <artifactId>genexus</artifactId>
-    <version>1.9-SNAPSHOT</version>
+    <version>1.9-beta-1-SNAPSHOT</version>
     <packaging>hpi</packaging>
     <properties>
         <jenkins.version>2.150.2</jenkins.version>
@@ -54,11 +54,11 @@ THE SOFTWARE.
         </license>
     </licenses>
     <developers>
-      <developer>
-        <id>jlr</id>
-        <name>José Lamas Ríos</name>
-        <email>jlr@genexus.com</email>
-      </developer>
+        <developer>
+            <id>jlr</id>
+            <name>José Lamas Ríos</name>
+            <email>jlr@genexus.com</email>
+        </developer>
     </developers>
 
     <scm>
@@ -66,7 +66,7 @@ THE SOFTWARE.
         <developerConnection>scm:git:git@github.com:jenkinsci/${project.artifactId}-plugin.git</developerConnection>
         <url>https://github.com/jenkinsci/genexus-plugin</url>
         <tag>HEAD</tag>
-  </scm>
+    </scm>
     
     <repositories>
         <repository>
