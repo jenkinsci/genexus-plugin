@@ -16,5 +16,10 @@
             </jws:handler-chain>
         </jws:handler-chains>
     </bindings>
+    
+    <!-- Avoid JAXBElement<T> types. See https://docs.oracle.com/cd/E19355-01/820-1072/6ncp48v9m/index.html -->
+    <jaxb:bindings node="//xsd:schema">
+        <jaxb:globalBindings generateElementProperty="false" />
+    </jaxb:bindings>
 </bindings>
 

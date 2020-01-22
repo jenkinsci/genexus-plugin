@@ -122,7 +122,7 @@ public class ServerHelperClient extends BaseClient {
             ServerInfo serverInfo = new ServerInfo();
             
             properties.value.getTransferProp().forEach((prop) -> {
-                switch (prop.getName().getValue()) {
+                switch (prop.getName()) {
                     case TransferPropConstants.SERVER_GXVERSION:
                         serverInfo.serverVersion = TransferPropHelper.getStringValue(prop);
                         break;

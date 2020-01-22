@@ -41,9 +41,9 @@ import org.jenkinsci.plugins.genexus.server.services.XmlProp;
 public class TransferPropHelper {
     public static StringProp CreateStringProp(String propName, String propValue) {
         ObjectFactory of = new ObjectFactory();
-        StringProp sp = of.createStringProp();
-        sp.setName(of.createTransferPropName(propName));
-        sp.setValue(of.createStringPropValue(propValue));
+        StringProp sp = of.createStringProp(); 
+        sp.setName(propName);
+        sp.setValue(propValue);
         return sp;
     }
     
@@ -68,10 +68,10 @@ public class TransferPropHelper {
     }
 
     public static String getStringValue(TransferProp prop) {
-        return ((StringProp) prop).getValue().getValue();
+        return ((StringProp) prop).getValue();
     }
 
     public static String getXmlValue(TransferProp prop) {
-        return ((XmlProp) prop).getValue().getValue();
+        return ((XmlProp) prop).getValue();
     }
 }
