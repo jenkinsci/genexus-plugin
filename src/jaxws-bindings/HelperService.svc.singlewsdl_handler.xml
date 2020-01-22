@@ -6,7 +6,7 @@
     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
     xmlns="http://java.sun.com/xml/ns/jaxws" wsdlLocation="../wsdl/HelperService.svc.singlewsdl.wsdl">
 
-    <bindings node="wsdl:definitions" xmlns:jws="http://java.sun.com/xml/ns/javaee">
+    <jaxb:bindings node="wsdl:definitions" xmlns:jws="http://java.sun.com/xml/ns/javaee">
         <jws:handler-chains>
             <jws:handler-chain>
                 <jws:handler>
@@ -15,7 +15,7 @@
                 </jws:handler>
             </jws:handler-chain>
         </jws:handler-chains>
-    </bindings>
+    </jaxb:bindings>
     
     <!-- Avoid JAXBElement<T> types. See https://docs.oracle.com/cd/E19355-01/820-1072/6ncp48v9m/index.html -->
     <jaxb:bindings node="//xsd:schema">
