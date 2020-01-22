@@ -97,6 +97,12 @@ THE SOFTWARE.
             <artifactId>jackson-databind</artifactId>
             <version>2.9.8</version>
         </dependency>
+        <dependency>
+            <groupId>com.sun.xml.xws</groupId>
+            <artifactId>xws-security</artifactId>
+            <version>3.0</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
     <build>
         <resources>
@@ -137,6 +143,7 @@ THE SOFTWARE.
                             <goal>wsimport</goal>
                         </goals>
                         <configuration>
+                            <args>-XadditionalHeaders</args>
                             <wsdlFiles>
                                 <wsdlFile>HelperService.svc.singlewsdl.wsdl</wsdlFile>
                             </wsdlFiles>
@@ -146,6 +153,10 @@ THE SOFTWARE.
                             </vmArgs>
                             <wsdlLocation>file:/${project.basedir}/src/wsdl/HelperService.svc.singlewsdl.wsdl</wsdlLocation>
                             <staleFile>${project.build.directory}/jaxws/stale/HelperService.svc.singlewsdl.stale</staleFile>
+                            <bindingDirectory>${basedir}/src/jaxws-bindings</bindingDirectory>
+                            <bindingFiles>
+                                <bindingFile>HelperService.svc.singlewsdl_handler.xml</bindingFile>
+                            </bindingFiles>
                         </configuration>
                         <id>wsimport-generate-HelperService.svc.singlewsdl</id>
                         <phase>generate-sources</phase>
