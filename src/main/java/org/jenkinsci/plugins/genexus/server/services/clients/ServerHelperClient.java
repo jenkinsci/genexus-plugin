@@ -35,13 +35,13 @@ import org.jenkinsci.plugins.genexus.server.services.common.ServiceData;
 import org.jenkinsci.plugins.genexus.server.services.common.ServiceInfo;
 import org.jenkinsci.plugins.genexus.server.services.common.TransferPropConstants;
 import org.jenkinsci.plugins.genexus.server.services.common.TransferPropHelper;
-import org.jenkinsci.plugins.genexus.server.services.ArrayOfServerMessage;
-import org.jenkinsci.plugins.genexus.server.services.ArrayOfTransferProp;
-import org.jenkinsci.plugins.genexus.server.services.IServerHelper;
-import org.jenkinsci.plugins.genexus.server.services.IServerHelperIsServerAliveGXServerExceptionFaultFaultMessage;
-import org.jenkinsci.plugins.genexus.server.services.IServerHelperServerInfoGXServerExceptionFaultFaultMessage;
-import org.jenkinsci.plugins.genexus.server.services.ServerHelper;
-import org.jenkinsci.plugins.genexus.server.services.SimpleTransfer;
+import org.jenkinsci.plugins.genexus.server.services.contracts.ArrayOfServerMessage;
+import org.jenkinsci.plugins.genexus.server.services.contracts.ArrayOfTransferProp;
+import org.jenkinsci.plugins.genexus.server.services.helper.IServerHelper;
+import org.jenkinsci.plugins.genexus.server.services.helper.IServerHelperIsServerAliveGXServerExceptionFaultFaultMessage;
+import org.jenkinsci.plugins.genexus.server.services.helper.IServerHelperServerInfoGXServerExceptionFaultFaultMessage;
+import org.jenkinsci.plugins.genexus.server.services.helper.ServerHelper;
+import org.jenkinsci.plugins.genexus.server.services.helper.SimpleTransfer;
 
 /**
  *

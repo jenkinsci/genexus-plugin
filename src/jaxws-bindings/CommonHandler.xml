@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+    <!-- Set package name for referenced schemas -->
+    <!-- We should use these same bindings for all services so they share the generated packages -->
+    <jaxb:bindings node="//xsd:schema[@targetNamespace='http://schemas.microsoft.com/2003/10/Serialization/Arrays']" schemaLocation="xs:http://schemas.microsoft.com/2003/10/Serialization/Arrays">
+        <jaxb:schemaBindings>
+            <jaxb:package name="org.jenkinsci.plugins.genexus.server.services.serialization.arrays"/>
+        </jaxb:schemaBindings>
+    </jaxb:bindings>
+    <jaxb:bindings node="//xsd:schema[@targetNamespace='http://schemas.microsoft.com/2003/10/Serialization/']" schemaLocation="xs:http://schemas.microsoft.com/2003/10/Serialization/">
+        <jaxb:schemaBindings>
+            <jaxb:package name="org.jenkinsci.plugins.genexus.server.services.serialization"/>
+        </jaxb:schemaBindings>
+    </jaxb:bindings>
+    <jaxb:bindings node="//xsd:schema[@targetNamespace='http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts']" schemaLocation="xs:http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts">
+        <jaxb:schemaBindings>
+            <jaxb:package name="org.jenkinsci.plugins.genexus.server.services.contracts"/>
+        </jaxb:schemaBindings>
+    </jaxb:bindings>

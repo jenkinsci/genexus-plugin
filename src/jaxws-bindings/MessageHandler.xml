@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+    <jaxb:bindings node="//xsd:schema[@targetNamespace='http://schemas.microsoft.com/Message']" schemaLocation="xs:http://schemas.microsoft.com/Message">
+        <jaxb:schemaBindings>
+            <jaxb:package name="org.jenkinsci.plugins.genexus.server.services.message"/>
+        </jaxb:schemaBindings>
+    </jaxb:bindings>

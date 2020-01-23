@@ -24,15 +24,15 @@
 package org.jenkinsci.plugins.genexus.server.services.common;
 
 import javax.xml.datatype.XMLGregorianCalendar;
-import org.jenkinsci.plugins.genexus.server.services.BoolProp;
-import org.jenkinsci.plugins.genexus.server.services.DateTimeProp;
-import org.jenkinsci.plugins.genexus.server.services.GuidProp;
-import org.jenkinsci.plugins.genexus.server.services.IntProp;
-import org.jenkinsci.plugins.genexus.server.services.LongProp;
-import org.jenkinsci.plugins.genexus.server.services.ObjectFactory;
-import org.jenkinsci.plugins.genexus.server.services.StringProp;
-import org.jenkinsci.plugins.genexus.server.services.TransferProp;
-import org.jenkinsci.plugins.genexus.server.services.XmlProp;
+import org.jenkinsci.plugins.genexus.server.services.contracts.BoolProp;
+import org.jenkinsci.plugins.genexus.server.services.contracts.DateTimeProp;
+import org.jenkinsci.plugins.genexus.server.services.contracts.GuidProp;
+import org.jenkinsci.plugins.genexus.server.services.contracts.IntProp;
+import org.jenkinsci.plugins.genexus.server.services.contracts.LongProp;
+import org.jenkinsci.plugins.genexus.server.services.contracts.ObjectFactory;
+import org.jenkinsci.plugins.genexus.server.services.contracts.StringProp;
+import org.jenkinsci.plugins.genexus.server.services.contracts.TransferProp;
+import org.jenkinsci.plugins.genexus.server.services.contracts.XmlProp;
 
 /**
  *

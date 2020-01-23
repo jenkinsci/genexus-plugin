@@ -1,12 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
+<!DOCTYPE jaxb:bindings [
+<!ENTITY commonHandler SYSTEM "commonHandler.xml">
+]>
 <bindings
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:jaxws="http://java.sun.com/xml/ns/jaxws"
     xmlns="http://java.sun.com/xml/ns/jaxws" wsdlLocation="../wsdl/HelperService.svc.singlewsdl.wsdl">
 
     <jaxb:bindings node="wsdl:definitions" xmlns:jws="http://java.sun.com/xml/ns/javaee">
+        <!-- Classes specific to this service (Helper) use this package name -->
+        <jaxws:package name="org.jenkinsci.plugins.genexus.server.services.helper"/>
+        
+        <!-- Use this handler to resolve SOAPHeaders for authentication -->
         <jws:handler-chains>
             <jws:handler-chain>
                 <jws:handler>
@@ -21,5 +28,15 @@
     <jaxb:bindings node="//xsd:schema">
         <jaxb:globalBindings generateElementProperty="false" />
     </jaxb:bindings>
+
+    <!-- Set packange name binding for our specicic schema -->
+    <jaxb:bindings node="//xsd:schema[@targetNamespace='http://tempuri.org/']" schemaLocation="xs:http://tempuri.org/">
+        <jaxb:schemaBindings>
+            <jaxb:package name="org.jenkinsci.plugins.genexus.server.services.helper"/>
+        </jaxb:schemaBindings>
+    </jaxb:bindings>
+
+    <!-- Set package name binding for referenced schemas through commonHandler -->
+    &commonHandler;
 </bindings>
 
