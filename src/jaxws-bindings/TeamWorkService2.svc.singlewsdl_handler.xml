@@ -7,7 +7,7 @@
     xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
     xmlns:jaxws="http://java.sun.com/xml/ns/jaxws"
-    xmlns="http://java.sun.com/xml/ns/jaxws" wsdlLocation="../wsdl/HelperService.svc.singlewsdl.wsdl">
+    xmlns="http://java.sun.com/xml/ns/jaxws" wsdlLocation="../wsdl/TeamWorkService2.svc.singlewsdl.wsdl">
 
     <!-- Include common binding info -->
     &commonHandler;
@@ -20,15 +20,15 @@
     <!-- Set packange name binding for our specicic schema -->
     <jaxb:bindings node="//xsd:schema[@targetNamespace='http://tempuri.org/']" schemaLocation="xs:http://tempuri.org/">
         <jaxb:schemaBindings>
-            <jaxb:package name="org.jenkinsci.plugins.genexus.server.services.helper"/>
+            <jaxb:package name="org.jenkinsci.plugins.genexus.server.services.teamwork2"/>
         </jaxb:schemaBindings>
     </jaxb:bindings>
 
-    <jaxb:bindings node="//xsd:schema[@targetNamespace='http://schemas.microsoft.com/2003/10/Serialization/Arrays']" schemaLocation="xs:http://schemas.microsoft.com/2003/10/Serialization/Arrays">
+    <jaxb:bindings node="//xsd:schema[@targetNamespace='http://schemas.microsoft.com/Message']" schemaLocation="xs:http://schemas.microsoft.com/Message">
         <jaxb:schemaBindings>
-            <jaxb:package name="org.jenkinsci.plugins.genexus.server.services.serialization.arrays"/>
+            <jaxb:package name="org.jenkinsci.plugins.genexus.server.services.message"/>
         </jaxb:schemaBindings>
     </jaxb:bindings>
-
+    
 </bindings>
 
