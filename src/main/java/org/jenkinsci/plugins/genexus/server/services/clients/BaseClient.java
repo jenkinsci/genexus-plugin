@@ -24,8 +24,10 @@
 package org.jenkinsci.plugins.genexus.server.services.clients;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import javax.net.ssl.HttpsURLConnection;
 import org.jenkinsci.plugins.genexus.server.services.common.NaiveSSLHelper;
 import org.jenkinsci.plugins.genexus.server.services.common.ServiceData;
@@ -60,31 +62,71 @@ public abstract class BaseClient {
 
     protected BindingData getBindingData(ServiceData serviceData) throws MalformedURLException {
         ServiceInfo serviceInfo = getServiceInfo();
-        
+
         BindingData bindingData = new BindingData();
+
+        URL secureURL = getSecureServiceURL(serviceData.getServerURL());
+        bindingData.url = secureURL;
         bindingData.isSecure = true;
-        bindingData.url = getServiceURL(serviceData.getServerURL(), serviceInfo.secureIdentifier, true);
         bindingData.bindingName = serviceInfo.secureBindingName;
 
-        HttpsURLConnection connection = null;
+        if (checkForNotFound(secureURL)) {
+            // If the "secure" URL is not found (404) it might be an old gxserver
+            // configured without authentication.
+            
+            // If the "non-secure" URL does resolve the (404) we fall back on it.
+            URL nonSecureURL = getNonSecureServiceURL(serviceData.getServerURL());
+            if (!checkForNotFound(nonSecureURL)) {
+                bindingData.url = nonSecureURL;
+                bindingData.isSecure = false;
+                bindingData.bindingName = serviceInfo.nonSecureBindingName;
+            }           
+        }
+
+        return bindingData;
+    }
+    
+    private Boolean checkForNotFound(URL url)
+    {
+        HttpURLConnection connection = null;
         try {
-            connection = (HttpsURLConnection) bindingData.url.openConnection();
+            connection = (HttpURLConnection) url.openConnection();
+            if (connection == null)
+                return false;
+            
             connection.setRequestMethod("HEAD");
-            NaiveSSLHelper.makeHttpsURLConnectionTrustEveryone(connection);
-            connection.connect();
+            
+            if (connection instanceof HttpsURLConnection) {
+                NaiveSSLHelper.makeHttpsURLConnectionTrustEveryone((HttpsURLConnection)connection);
+            }
+            
+            int response = connection.getResponseCode();
+            return response == HttpURLConnection.HTTP_NOT_FOUND;
         } catch (IOException ioEx) {
-            bindingData.isSecure = false;
-            bindingData.url = getServiceURL(serviceData.getServerURL(), serviceInfo.nonSecureIdentifier, false);
-            bindingData.bindingName = serviceInfo.nonSecureBindingName;
+            return false;
         } finally {
             if (connection != null) {
                 connection.disconnect();
             }
         }
-
-        return bindingData;
     }
+    
+    private URL getServiceURL(URL baseURL, Boolean secure) throws MalformedURLException {
+        return BaseClient.getServiceURL(
+                baseURL,
+                secure? getServiceInfo().secureIdentifier : getServiceInfo().nonSecureIdentifier,
+                secure);
 
+    }
+    
+    private URL getSecureServiceURL(URL baseURL) throws MalformedURLException {
+        return getServiceURL(baseURL, true);
+    }
+    
+    private URL getNonSecureServiceURL(URL baseURL) throws MalformedURLException {
+        return getServiceURL(baseURL, false);
+    }
+    
     private static URL getServiceURL(URL serverURL, String service, boolean useHTTPS) throws MalformedURLException {
         String HTTP_PROTOCOL = "http";
         String HTTPS_PROTOCOL = "https";
