@@ -4,10 +4,15 @@
     http://open.genexusserver.com/v16/TeamWorkService2.svc?singleWsdl in order to
     avoid errors reported by wsimport.exe (using JDK Version 1.8.0_152):
     
-    - Added <xs:import> on schemas that reference
-      http://schemas.microsoft.com/2003/10/Serialization/
+    - Reordered schema declarations so referenced schemas are before their
+      referrers.
+          
+    - Added <xs:import> on for referenced schemas
     
     - Removed 'namespace=""' atributes from <soap:fault> and <soap12:fault> nodes
+      
+    - Changed FileTransfer declaration to directly reference type StreamBody in
+      order to avoid import errors.
 -->
 <wsdl:definitions name="TeamWorkService2" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:tns="http://tempuri.org/" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <wsp:Policy wsu:Id="CustomBinding_ITeamWorkService2_policy">
@@ -57,19 +62,10 @@
     </wsp:ExactlyOne>
   </wsp:Policy>
   <wsdl:types>
-    <xs:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-      <xs:element name="SimpleTransfer">
-        <xs:complexType>
-          <xs:sequence/>
-        </xs:complexType>
-      </xs:element>
-      <xs:element name="FileTransfer">
-        <xs:complexType>
-          <xs:sequence>
-            <xs:element ref="q1:FileByteStream" xmlns:q1="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts"/>
-          </xs:sequence>
-        </xs:complexType>
-      </xs:element>
+    <xs:schema elementFormDefault="qualified" targetNamespace="http://schemas.microsoft.com/Message" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://schemas.microsoft.com/Message">
+      <xs:simpleType name="StreamBody">
+        <xs:restriction base="xs:base64Binary"/>
+      </xs:simpleType>
     </xs:schema>
     <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://schemas.microsoft.com/2003/10/Serialization/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://schemas.microsoft.com/2003/10/Serialization/">
       <xs:element name="anyType" nillable="true" type="xs:anyType"/>
@@ -113,6 +109,8 @@
       <xs:attribute name="Ref" type="xs:IDREF"/>
     </xs:schema>
     <xs:schema elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ser="http://schemas.microsoft.com/2003/10/Serialization/" xmlns:tns="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts">
+      <xs:import namespace="http://schemas.microsoft.com/Message"/>
+      <xs:import namespace="http://schemas.microsoft.com/2003/10/Serialization/"/>
       <xs:complexType name="ArrayOfServerMessage">
         <xs:sequence>
           <xs:element minOccurs="0" maxOccurs="unbounded" name="ServerMessage" nillable="true" type="tns:ServerMessage"/>
@@ -228,10 +226,20 @@
       </xs:complexType>
       <xs:element name="GXServerException" nillable="true" type="tns:GXServerException"/>
     </xs:schema>
-    <xs:schema elementFormDefault="qualified" targetNamespace="http://schemas.microsoft.com/Message" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://schemas.microsoft.com/Message">
-      <xs:simpleType name="StreamBody">
-        <xs:restriction base="xs:base64Binary"/>
-      </xs:simpleType>
+    <xs:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <xs:import namespace="http://schemas.microsoft.com/Message"/>
+      <xs:element name="SimpleTransfer">
+        <xs:complexType>
+          <xs:sequence/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="FileTransfer">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="FileTransfer" type="q1:StreamBody" xmlns:q1="http://schemas.microsoft.com/Message"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
     </xs:schema>
   </wsdl:types>
   <wsdl:message name="SimpleTransfer">
@@ -474,7 +482,7 @@
         <soap12:body use="literal"/>
       </wsdl:output>
       <wsdl:fault name="GXServerExceptionFault">
-        <soap12:fault use="literal" name="GXServerExceptionFault" namespace=""/>
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
       </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="Commit">
@@ -490,7 +498,7 @@
         <soap12:body use="literal"/>
       </wsdl:output>
       <wsdl:fault name="GXServerExceptionFault">
-        <soap12:fault use="literal" name="GXServerExceptionFault" namespace=""/>
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
       </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="Update2">
@@ -506,7 +514,7 @@
         <soap12:body use="literal"/>
       </wsdl:output>
       <wsdl:fault name="GXServerExceptionFault">
-        <soap12:fault use="literal" name="GXServerExceptionFault" namespace=""/>
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
       </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="Commit2">
@@ -522,7 +530,7 @@
         <soap12:body use="literal"/>
       </wsdl:output>
       <wsdl:fault name="GXServerExceptionFault">
-        <soap12:fault use="literal" name="GXServerExceptionFault" namespace=""/>
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
       </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="CheckOut">
@@ -538,7 +546,7 @@
         <soap12:body use="literal"/>
       </wsdl:output>
       <wsdl:fault name="GXServerExceptionFault">
-        <soap12:fault use="literal" name="GXServerExceptionFault" namespace=""/>
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
       </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="PublishKB">
@@ -554,7 +562,7 @@
         <soap12:body use="literal"/>
       </wsdl:output>
       <wsdl:fault name="GXServerExceptionFault">
-        <soap12:fault use="literal" name="GXServerExceptionFault" namespace=""/>
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
       </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="WhatsUp">
@@ -570,7 +578,7 @@
         <soap12:body use="literal"/>
       </wsdl:output>
       <wsdl:fault name="GXServerExceptionFault">
-        <soap12:fault use="literal" name="GXServerExceptionFault" namespace=""/>
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
       </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="GetServerVersion">
@@ -586,7 +594,7 @@
         <soap12:body use="literal"/>
       </wsdl:output>
       <wsdl:fault name="GXServerExceptionFault">
-        <soap12:fault use="literal" name="GXServerExceptionFault" namespace=""/>
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
       </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="CancelCommitOparation">
@@ -602,7 +610,7 @@
         <soap12:body use="literal"/>
       </wsdl:output>
       <wsdl:fault name="GXServerExceptionFault">
-        <soap12:fault use="literal" name="GXServerExceptionFault" namespace=""/>
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
       </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="WasCommitOk">
@@ -618,7 +626,7 @@
         <soap12:body use="literal"/>
       </wsdl:output>
       <wsdl:fault name="GXServerExceptionFault">
-        <soap12:fault use="literal" name="GXServerExceptionFault" namespace=""/>
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
       </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="GetCommitFile">
@@ -634,7 +642,7 @@
         <soap12:body use="literal"/>
       </wsdl:output>
       <wsdl:fault name="GXServerExceptionFault">
-        <soap12:fault use="literal" name="GXServerExceptionFault" namespace=""/>
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
       </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="GetCurrentVersionObject">
@@ -650,7 +658,7 @@
         <soap12:body use="literal"/>
       </wsdl:output>
       <wsdl:fault name="GXServerExceptionFault">
-        <soap12:fault use="literal" name="GXServerExceptionFault" namespace=""/>
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
       </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="PartialUpdate">
@@ -666,7 +674,7 @@
         <soap12:body use="literal"/>
       </wsdl:output>
       <wsdl:fault name="GXServerExceptionFault">
-        <soap12:fault use="literal" name="GXServerExceptionFault" namespace=""/>
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
       </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="LockObjects">
@@ -682,7 +690,7 @@
         <soap12:body use="literal"/>
       </wsdl:output>
       <wsdl:fault name="GXServerExceptionFault">
-        <soap12:fault use="literal" name="GXServerExceptionFault" namespace=""/>
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
       </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="StealObjects">
@@ -698,7 +706,7 @@
         <soap12:body use="literal"/>
       </wsdl:output>
       <wsdl:fault name="GXServerExceptionFault">
-        <soap12:fault use="literal" name="GXServerExceptionFault" namespace=""/>
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
       </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="UnlockObjects">
@@ -714,7 +722,7 @@
         <soap12:body use="literal"/>
       </wsdl:output>
       <wsdl:fault name="GXServerExceptionFault">
-        <soap12:fault use="literal" name="GXServerExceptionFault" namespace=""/>
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
       </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="Resynchronize">
@@ -730,7 +738,7 @@
         <soap12:body use="literal"/>
       </wsdl:output>
       <wsdl:fault name="GXServerExceptionFault">
-        <soap12:fault use="literal" name="GXServerExceptionFault" namespace=""/>
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
       </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="GetVersions">
@@ -746,7 +754,7 @@
         <soap12:body use="literal"/>
       </wsdl:output>
       <wsdl:fault name="GXServerExceptionFault">
-        <soap12:fault use="literal" name="GXServerExceptionFault" namespace=""/>
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
       </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="GetRevisions">
@@ -762,7 +770,7 @@
         <soap12:body use="literal"/>
       </wsdl:output>
       <wsdl:fault name="GXServerExceptionFault">
-        <soap12:fault use="literal" name="GXServerExceptionFault" namespace=""/>
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
       </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="RemoveBringChangesMark">
@@ -778,7 +786,7 @@
         <soap12:body use="literal"/>
       </wsdl:output>
       <wsdl:fault name="GXServerExceptionFault">
-        <soap12:fault use="literal" name="GXServerExceptionFault" namespace=""/>
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
       </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="GetRevisionChanges">
@@ -794,7 +802,7 @@
         <soap12:body use="literal"/>
       </wsdl:output>
       <wsdl:fault name="GXServerExceptionFault">
-        <soap12:fault use="literal" name="GXServerExceptionFault" namespace=""/>
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
       </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="GetObjectRevisions">
@@ -810,7 +818,7 @@
         <soap12:body use="literal"/>
       </wsdl:output>
       <wsdl:fault name="GXServerExceptionFault">
-        <soap12:fault use="literal" name="GXServerExceptionFault" namespace=""/>
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
       </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="CreateVersion">
@@ -826,7 +834,7 @@
         <soap12:body use="literal"/>
       </wsdl:output>
       <wsdl:fault name="GXServerExceptionFault">
-        <soap12:fault use="literal" name="GXServerExceptionFault" namespace=""/>
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
       </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="DeleteVersion">
@@ -842,7 +850,7 @@
         <soap12:body use="literal"/>
       </wsdl:output>
       <wsdl:fault name="GXServerExceptionFault">
-        <soap12:fault use="literal" name="GXServerExceptionFault" namespace=""/>
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
       </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="HostedKBs">
@@ -858,7 +866,7 @@
         <soap12:body use="literal"/>
       </wsdl:output>
       <wsdl:fault name="GXServerExceptionFault">
-        <soap12:fault use="literal" name="GXServerExceptionFault" namespace=""/>
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
       </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="GetVersionMetadata">
@@ -874,7 +882,7 @@
         <soap12:body use="literal"/>
       </wsdl:output>
       <wsdl:fault name="GXServerExceptionFault">
-        <soap12:fault use="literal" name="GXServerExceptionFault" namespace=""/>
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
       </wsdl:fault>
     </wsdl:operation>
   </wsdl:binding>

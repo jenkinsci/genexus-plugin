@@ -13,8 +13,8 @@
     &commonHandler;
 
     <jaxb:bindings node="wsdl:definitions" xmlns:jws="http://java.sun.com/xml/ns/javaee">
-        <!-- Classes specific to this service (Helper) use this package name -->
-        <jaxws:package name="org.jenkinsci.plugins.genexus.server.services.helper"/>
+        <!-- Classes specific to this service (TeamWorkService2) use this package name -->
+        <jaxws:package name="org.jenkinsci.plugins.genexus.server.services.teamwork2"/>
     </jaxb:bindings>
 
     <!-- Set packange name binding for our specicic schema -->

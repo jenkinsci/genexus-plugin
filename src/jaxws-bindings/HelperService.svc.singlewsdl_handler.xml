@@ -13,7 +13,7 @@
     &commonHandler;
 
     <jaxb:bindings node="wsdl:definitions" xmlns:jws="http://java.sun.com/xml/ns/javaee">
-        <!-- Classes specific to this service (Helper) use this package name -->
+        <!-- Classes specific to this service (HelperService) use this package name -->
         <jaxws:package name="org.jenkinsci.plugins.genexus.server.services.helper"/>
     </jaxb:bindings>
 

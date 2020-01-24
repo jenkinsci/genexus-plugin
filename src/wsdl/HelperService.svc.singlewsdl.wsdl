@@ -4,12 +4,10 @@
     http://open.genexusserver.com/v16/HelperService.svc?singleWsdl in order to
     avoid errors reported by wsimport.exe (using JDK Version 1.8.0_152):
     
-    - Schema for http://schemas.microsoft.com/2003/10/Serialization/Arrays was
-      moved to the top of <wsdl:types> so it gets declared before it's referenced.
-    
-    - Added <xs:import> on schemas that reference
-      http://schemas.microsoft.com/2003/10/Serialization/ and
-      http://schemas.microsoft.com/2003/10/Serialization/Arrays
+    - Reordered schema declarations so referenced schemas are before their
+      referrers.
+          
+    - Added <xs:import> on for referenced schemas
     
     - Removed 'namespace=""' atributes from <soap:fault> and <soap12:fault> nodes
 -->
