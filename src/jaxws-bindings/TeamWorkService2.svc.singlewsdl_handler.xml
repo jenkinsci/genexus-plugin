@@ -14,13 +14,13 @@
 
     <jaxb:bindings node="wsdl:definitions" xmlns:jws="http://java.sun.com/xml/ns/javaee">
         <!-- Classes specific to this service (TeamWorkService2) use this package name -->
-        <jaxws:package name="org.jenkinsci.plugins.genexus.server.services.teamwork2"/>
+        <jaxws:package name="org.jenkinsci.plugins.genexus.server.services.teamwork"/>
     </jaxb:bindings>
 
     <!-- Set packange name binding for our specicic schema -->
     <jaxb:bindings node="//xsd:schema[@targetNamespace='http://tempuri.org/']" schemaLocation="xs:http://tempuri.org/">
         <jaxb:schemaBindings>
-            <jaxb:package name="org.jenkinsci.plugins.genexus.server.services.teamwork2"/>
+            <jaxb:package name="org.jenkinsci.plugins.genexus.server.services.teamwork"/>
         </jaxb:schemaBindings>
     </jaxb:bindings>
 
