@@ -96,7 +96,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
 
     // GX installation
     private final String gxInstallationId;
-    
+
     // GXserver connection data
     private final String serverURL;
     private final String credentialsId;
@@ -130,7 +130,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
             boolean kbDbInSameFolder) {
 
         this.gxInstallationId = gxInstallationId;
-        
+
         this.serverURL = serverURL;
         this.credentialsId = credentialsId;
 
@@ -149,17 +149,17 @@ public class GeneXusServerSCM extends SCM implements Serializable {
     public String getGxInstallationId() {
         return gxInstallationId;
     }
-    
+
     private GeneXusInstallation getGeneXusInstallation() {
         return GeneXusInstallation.getInstallation(gxInstallationId);
     }
-    
+
     private String getGxPath() {
         GeneXusInstallation installation = getGeneXusInstallation();
         if (installation!=null) {
             return installation.getHome();
         }
-        
+
         return "";
     }
 
@@ -168,7 +168,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
         if (installation!=null) {
             return installation.getMsBuildInstallationId();
         }
-        
+
         return "";
     }
 
@@ -235,12 +235,12 @@ public class GeneXusServerSCM extends SCM implements Serializable {
     @Override
     public PollingResult compareRemoteRevisionWith(@Nonnull Job<?, ?> project, @Nullable Launcher launcher, @Nullable FilePath workspace, @Nonnull TaskListener listener, @Nonnull SCMRevisionState _baseline) throws IOException, InterruptedException {
         final GXSRevisionState baseline = getSafeBaseline(project, launcher, workspace, listener, _baseline);
-        
+
         FilePath workingPath = workspace!=null? workspace : new FilePath(project.getRootDir());
-        
+
         try
         {
-            GXSConnection gxs = getGXSConnection();
+            GXSConnection gxs = getGXSConnection(project);
             GXSInfo currentInfo = workingPath.act(new GetLastRevisionTask(listener, getGxPath(), gxs, baseline.getRevisionDate(), new Date()));
             GXSRevisionState currentState = new GXSRevisionState(currentInfo.revision, currentInfo.revisionDate);
 
@@ -262,14 +262,14 @@ public class GeneXusServerSCM extends SCM implements Serializable {
             baseline = (GXSRevisionState) calcRevisionsFromBuild(project.getLastBuild(), launcher != null ? workspace
                     : null, launcher, listener);
         }
-        
+
         if (baseline == null) {
             baseline = GXSRevisionState.MIN_REVISION;
         }
-        
+
         return baseline;
     }
-    
+
     /**
      * Please consider using the non-static version
      * {@link #parseGxServerRevisionFile(Run)}!
@@ -342,7 +342,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
                 EnvVarsUtils.overrideAll(env, ((AbstractBuild) build).getBuildVariables());
             }
              */
-            Builder builder = createCheckoutOrUpdateAction(workspace);
+            Builder builder = createCheckoutOrUpdateAction(workspace, build.getParent());
 
             // TODO: we should get the actual revision as an output from the checkout or update
             // Meanwhile we resort to get the latest revision up to the current time
@@ -352,7 +352,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
                 throw new IOException("error executing checkout/update from GeneXus Server");
             }
 
-            GXSConnection gxs = getGXSConnection();
+            GXSConnection gxs = getGXSConnection(build.getParent());
             GXSInfo currentInfo = calcCurrentInfo(workspace, listener, gxs, baseline, updateTimestamp);
             saveRevisionFile(build, currentInfo);
 
@@ -362,11 +362,11 @@ public class GeneXusServerSCM extends SCM implements Serializable {
         }
     }
 
-    private GXSConnection getGXSConnection() {
+    private GXSConnection getGXSConnection(Item context) {
         String userName = "";
         String userPassword = "";
-        
-        StandardUsernamePasswordCredentials upCredentials = getServerCredentials();
+
+        StandardUsernamePasswordCredentials upCredentials = getServerCredentials(context);
         if (upCredentials != null) {
             userName = upCredentials.getUsername();
             userPassword = upCredentials.getPassword().getPlainText();
@@ -375,25 +375,25 @@ public class GeneXusServerSCM extends SCM implements Serializable {
         return gxs;
     }
 
-    private StandardUsernamePasswordCredentials getServerCredentials() {
-        return getUserNameCredentials(getCredentialsId(), getServerURL());
+    private StandardUsernamePasswordCredentials getServerCredentials(Item context) {
+        return getUserNameCredentials(context, getCredentialsId(), getServerURL());
     }
 
-    private StandardUsernamePasswordCredentials getKbDbCredentials() {
-        return getUserNameCredentials(getKbDbCredentialsId(), getKbDbServerInstance());
+    private StandardUsernamePasswordCredentials getKbDbCredentials(Item context) {
+        return getUserNameCredentials(context, getKbDbCredentialsId(), getKbDbServerInstance());
     }
-    
-    private StandardUsernamePasswordCredentials getUserNameCredentials(String credentialsId, String url) {
-        StandardCredentials credentials = lookupCredentials(credentialsId, url);
+
+    private StandardUsernamePasswordCredentials getUserNameCredentials(Item context, String credentialsId, String url) {
+        StandardCredentials credentials = lookupCredentials(context, credentialsId, url);
         return (credentials instanceof StandardUsernamePasswordCredentials) ? (StandardUsernamePasswordCredentials) credentials : null;
     }
-    
-    private StandardCredentials lookupCredentials(String credentialsId, String serverURL) {
+
+    private StandardCredentials lookupCredentials(Item context, String credentialsId, String serverURL) {
         return credentialsId == null ? null
                 : CredentialsMatchers.firstOrNull(
                         CredentialsProvider.lookupCredentials(
                                 StandardCredentials.class,
-                                Jenkins.getInstance(),
+                                context,
                                 ACL.SYSTEM,
                                 URIRequirementBuilder.fromUri(serverURL).build()
                         ),
@@ -410,11 +410,11 @@ public class GeneXusServerSCM extends SCM implements Serializable {
             if (baseDate.after(minDate)) {
                 // ask for changes at or after baseDate
                 GXSInfo currentInfo = calcCurrentInfo(workspace, listener, gxs, baseDate, updateTimestamp);
-                
+
                 // Verify curentInfo is actually at or after baseDate
                 // because if there are no changes in the asked range we will
                 // get a {0, minDate} state.
-                
+
                 // That might happen if after building for revision #42
                 // the server got back to when the last revision was #41
                 // (for example by restoring from a backup)
@@ -422,31 +422,31 @@ public class GeneXusServerSCM extends SCM implements Serializable {
                     return currentInfo;
                 }
                 listener.getLogger().println("Found no revision on or after base line " + baseline.toString() + ". Server reverted to past state?");
-            } 
+            }
         }
-        
+
         // fall back to the last resort (asking from all changes up to updateTimestamp
         return calcCurrentInfo(workspace, listener, gxs, minDate, updateTimestamp);
     }
-    
+
     private GXSInfo calcCurrentInfo(FilePath workspace, TaskListener listener, GXSConnection gxs, Date minDate, Date maxDate) throws IOException, InterruptedException {
         return workspace.act(new GetLastRevisionTask(listener, getGxPath(), gxs, minDate, maxDate));
     }
-    
+
     /**
      * Called after checkout/update has finished to compute the changelog.
      */
     private void calcChangeLog(Run<?, ?> build, FilePath workspace, File changelogFile, SCMRevisionState baseline, TaskListener listener, GXSConnection gxs, GXSInfo currentInfo) throws IOException, InterruptedException {
-        
+
         GXSRevisionState _baseline = getSafeBaseline(build, baseline);
-        
+
         FilePath changelogFilePath = new FilePath(changelogFile);
-        
+
         boolean created = false;
         if (currentInfo.revisionDate.after(_baseline.getRevisionDate())) {
             created = workspace.act(new CreateLogTask(listener, getGxPath(), gxs, changelogFilePath, _baseline.getRevisionDate(), currentInfo.revisionDate));
         }
-        
+
         if (!created) {
             createEmptyChangeLog(changelogFile, listener, "log");
         }
@@ -462,13 +462,13 @@ public class GeneXusServerSCM extends SCM implements Serializable {
             if (build != null) {
                 // parseRevisionFile() keeps going back looking for a previous
                 // build with a revision file
-                _baseline = parseRevisionFile(build, /* findClosest= */ true); 
+                _baseline = parseRevisionFile(build, /* findClosest= */ true);
             }
         }
-        
+
         return _baseline;
     }
-    
+
     private static void saveRevisionFile(Run<?, ?> build, GXSInfo info) throws IOException {
         saveRevisionFile(getRevisionFile(build), info);
     }
@@ -483,20 +483,20 @@ public class GeneXusServerSCM extends SCM implements Serializable {
         return mapper.readValue(file, GXSInfo.class);
     }
 
-    private Builder createCheckoutOrUpdateAction(FilePath workspace) {
+    private Builder createCheckoutOrUpdateAction(FilePath workspace, Item context) {
         if (!kbAlreadyExists(getWorkingDirectory(workspace))) {
-            return createCheckoutAction(workspace);
+            return createCheckoutAction(workspace, context);
         }
 
-        return createUpdateAction(workspace);
+        return createUpdateAction(workspace, context);
     }
 
-    private MsBuildArgsHelper createBaseMsBuildArgs(FilePath workspace, String... targetNames) {
+    private MsBuildArgsHelper createBaseMsBuildArgs(FilePath workspace, Item context, String... targetNames) {
         MsBuildArgsHelper msbArgs = new MsBuildArgsHelper(targetNames);
 
         msbArgs.addProperty("GX_PROGRAM_DIR", getGxPath());
 
-        StandardUsernamePasswordCredentials upCredentials = getServerCredentials();
+        StandardUsernamePasswordCredentials upCredentials = getServerCredentials(context);
         if (upCredentials != null) {
             msbArgs.addProperty("ServerUsername", upCredentials.getUsername());
             msbArgs.addProperty("ServerPassword", upCredentials.getPassword().getPlainText());
@@ -511,18 +511,18 @@ public class GeneXusServerSCM extends SCM implements Serializable {
         return msbArgs;
     }
 
-    private Builder createUpdateAction(FilePath workspace) {
-        MsBuildArgsHelper msbArgs = createBaseMsBuildArgs(workspace, "Update");
-        
+    private Builder createUpdateAction(FilePath workspace, Item context) {
+        MsBuildArgsHelper msbArgs = createBaseMsBuildArgs(workspace, context, "Update");
+
         if (StringUtils.isNotBlank(getLocalKbVersion())) {
             msbArgs.addProperty("WorkingVersion", getLocalKbVersion());
         }
-        
+
         return createMsBuildAction(msbArgs);
     }
 
-    private Builder createCheckoutAction(FilePath workspace) {
-        MsBuildArgsHelper msbArgs = createBaseMsBuildArgs(workspace, "Checkout");
+    private Builder createCheckoutAction(FilePath workspace, Item context) {
+        MsBuildArgsHelper msbArgs = createBaseMsBuildArgs(workspace, context, "Checkout");
 
         msbArgs.addProperty("ServerUrl", getServerURL());
         msbArgs.addProperty("ServerKbAlias", getKbName());
@@ -534,7 +534,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
             msbArgs.addProperty("DbaseServerInstance", getKbDbServerInstance());
         }
 
-        StandardUsernamePasswordCredentials upCredentials = getKbDbCredentials();
+        StandardUsernamePasswordCredentials upCredentials = getKbDbCredentials(context);
         if (upCredentials != null) {
             msbArgs.addProperty("DbaseUseIntegratedSecurity", false);
             msbArgs.addProperty("DbaseServerUsername", upCredentials.getUsername());
@@ -551,16 +551,16 @@ public class GeneXusServerSCM extends SCM implements Serializable {
         if (!StringUtils.isBlank(getLocalKbPath())) {
             return new FilePath(workspace, getLocalKbPath());
         }
-        
+
         return workspace.child(getKbName());
     }
-    
+
     private String getMsBuildFile() {
         final String teamDevMsBuildFile = "TeamDev.msbuild";
         Path teamDevPath = Paths.get(getGxPath(), teamDevMsBuildFile);
         return teamDevPath.toString();
     }
-    
+
     private Builder createMsBuildAction(MsBuildArgsHelper msbArgs) {
         MsBuildBuilder builder = new MsBuildBuilder(
                 getMSBuildInstallationId(),
@@ -585,7 +585,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
 
     /**
      * Gets the file that stores the revision.
-     * 
+     *
      * @param build a build instance for which the revision file is requested
      * @return File that stores the revision
      */
@@ -643,7 +643,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
             save();
             return super.configure(req, formData);
         }
-        
+
         public ListBoxModel doFillGxInstallationIdItems() {
             ListBoxModel items = new ListBoxModel();
             items.add("(Default)", "");
@@ -652,7 +652,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
             }
             return items;
         }
-        
+
         public ListBoxModel doFillCredentialsIdItems(@AncestorInPath Item item, @QueryParameter String credentialsId, @QueryParameter String serverURL) {
             StandardListBoxModel result = new StandardListBoxModel();
             if (!userCanSelect(item)) {
@@ -704,7 +704,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
 
         /**
          * Validate the value for a GeneXus Server connection.
-         * 
+         *
          * @param value URL of a GeneXus Server installation
          * @return a FormValidation of a specific kind (OK, ERROR, WARNING)
          */
@@ -729,7 +729,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
 
         /**
          * Validate the value for GeneXus Server credentials.
-         * 
+         *
          * @param item Item to which the credentials apply
          * @param value id of credentials to validate
          * @param serverURL URL of a GeneXus Server installation
@@ -744,7 +744,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
             if (value == null || value.isEmpty()) {
                 return FormValidation.ok(); // pre v15 GXservers may allow using no credentials
             }
-            
+
             String url = Util.fixEmptyAndTrim(serverURL);
             if (url == null) {
                 return FormValidation.ok();
@@ -779,7 +779,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
 
         /**
          * Validate the value for a SQL Server Instance.
-         * 
+         *
          * @param value SQL Server instance
          * @return a FormValidation of a specific kind (OK, ERROR, WARNING)
          */
@@ -789,7 +789,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
 
         /**
          * Validate the value for the SQL Server credentials.
-         * 
+         *
          * @param item Item to which the credentials apply
          * @param value id of credentials to validate
          * @param kBDbServerInstance SQL Server instance used for the KB
@@ -804,7 +804,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
             if (value == null || value.isEmpty()) {
                 return FormValidation.ok(); // pre v15 GXservers may allow using no credentials
             }
-            
+
             String url = Util.fixEmptyAndTrim(kBDbServerInstance);
             if (url == null) {
                 return FormValidation.ok();
