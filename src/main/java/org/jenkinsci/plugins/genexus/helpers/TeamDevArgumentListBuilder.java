@@ -38,7 +38,7 @@ import org.apache.commons.lang.StringUtils;
 public class TeamDevArgumentListBuilder extends ArgumentListBuilder {
 
     private static final long serialVersionUID = 1L;
-        
+
     public TeamDevArgumentListBuilder(String gxPath, GXSConnection gxsConnection) {
         this(gxPath, gxsConnection, /*fromTimestamp=*/ null, /*toTimestamp=*/ null);
     }
@@ -46,7 +46,7 @@ public class TeamDevArgumentListBuilder extends ArgumentListBuilder {
     public TeamDevArgumentListBuilder(String gxPath, GXSConnection gxsConnection, Date fromTimestamp, Date toTimestamp) {
         this(gxPath, gxsConnection, fromTimestamp, toTimestamp, /*fromExcluding=*/ false);
     }
-    
+
     public TeamDevArgumentListBuilder(String gxPath, GXSConnection gxsConnection, Date fromTimestamp, Date toTimestamp, boolean fromExcluding) {
         this(
                 gxPath,
@@ -61,7 +61,7 @@ public class TeamDevArgumentListBuilder extends ArgumentListBuilder {
     }
 
     private TeamDevArgumentListBuilder(String gxPath, String serverURL, String userName, String userPassword, String kbName, String kbVersion, Date fromTimestamp, Date toTimestamp, boolean fromExcluding) {
-        
+
         String pathToTeamDev = gxPath + "\\teamdev.exe";
 
         add(pathToTeamDev);
@@ -71,8 +71,8 @@ public class TeamDevArgumentListBuilder extends ArgumentListBuilder {
         add("/s:" + serverURL);
 
         if (!userName.isEmpty()) {
-            add("/u:" + userName);
-            add("/p:" + userPassword);
+            addMasked("/u:" + userName);
+            addMasked("/p:" + userPassword);
         }
 
         add("/kb:" + kbName);
@@ -80,7 +80,7 @@ public class TeamDevArgumentListBuilder extends ArgumentListBuilder {
         if (StringUtils.isNotBlank(kbVersion)) {
             add("/v:" + kbVersion);
         }
-        
+
         if (fromTimestamp != null) {
             add("/from:" + formatDate(actualFromTimestamp(fromTimestamp, fromExcluding)));
         }
@@ -98,18 +98,18 @@ public class TeamDevArgumentListBuilder extends ArgumentListBuilder {
             String pattern = sdf.toPattern().replace("Z", "").replace("z", "").trim();
             sdf.applyPattern(pattern);
         }
-        
+
         return dateFormat;
     }
-            
+
     private static String formatDate(Date date) {
         return getDateFormat().format(date);
     }
-    
+
     private Date actualFromTimestamp(Date fromTimestamp, boolean fromExcluding) {
         if (!fromExcluding)
             return fromTimestamp;
-        
+
         // returns a datetime 1 second later, so that the initial fromTimestamp is excluded
         return new Date(fromTimestamp.getTime() + 1 * 1000);
     }
