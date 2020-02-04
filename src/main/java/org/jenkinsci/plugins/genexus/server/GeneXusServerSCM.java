@@ -517,6 +517,11 @@ public class GeneXusServerSCM extends SCM implements Serializable {
         if (StringUtils.isNotBlank(getLocalKbVersion())) {
             msbArgs.addProperty("WorkingVersion", getLocalKbVersion());
         }
+        StandardUsernamePasswordCredentials upCredentials = getKbDbCredentials(context);
+        if (upCredentials != null) {
+            msbArgs.addProperty("DbaseServerUsername", upCredentials.getUsername());
+            msbArgs.addProperty("DbaseServerPassword", upCredentials.getPassword().getPlainText());
+        }
 
         return createMsBuildAction(msbArgs);
     }
