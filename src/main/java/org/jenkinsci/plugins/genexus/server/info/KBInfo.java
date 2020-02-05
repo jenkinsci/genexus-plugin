@@ -27,6 +27,8 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlEnumValue;
@@ -38,6 +40,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *
  * @author jlr
  */
+@XmlAccessorType(XmlAccessType.NONE)
 public class KBInfo {
 
     @XmlType
@@ -50,29 +53,29 @@ public class KBInfo {
     }
 
     @XmlAttribute(name = "Name")
-    String name = "";
+    public String name = "";
 
     @XmlAttribute(name = "Description")
-    String description = "";
+    public String description = "";
 
     @XmlAttribute(name = "URL")
-    URL url;
+    public URL url;
 
     @XmlAttribute(name = "KBImage")
-    String base64Image = "";
+    public String base64Image = "";
 
     @XmlAttribute(name = "Tags")
-    String tags = "";
+    public String tags = "";
 
     @XmlAttribute(name = "TeamDevMode")
-    TeamDevMode teamDevMode;
+    public TeamDevMode teamDevMode;
 
     @XmlAttribute(name = "PublishUser")
-    String publishUser = "";
+    public String publishUser = "";
 
     @XmlAttribute(name = "PublishDate")
     @XmlJavaTypeAdapter(PublishDateAdapter.class)
-    LocalDate publishDate;
+    public LocalDate publishDate;
 
     public KBInfo() {
         this.teamDevMode = TeamDevMode.MERGE;

@@ -26,6 +26,8 @@ package org.jenkinsci.plugins.genexus.server.services.clients;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import org.jenkinsci.plugins.genexus.helpers.XmlHelper;
+import org.jenkinsci.plugins.genexus.server.info.KBList;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -91,10 +93,9 @@ public class KBListTest {
         System.out.println("parse");
         InputStream stream = new ByteArrayInputStream(xmlSample.getBytes(Charset.forName("UTF-8")));
 
-        KBList result = KBList.parse(stream);
+        KBList result = XmlHelper.parse(stream, KBList.class);
         assertNotNull(result);
-        assertNotNull(result.getKBs());
 
-        assertEquals(result.getKBs().size(), 2);
+        assertEquals(result.size(), 2);
     }
 }

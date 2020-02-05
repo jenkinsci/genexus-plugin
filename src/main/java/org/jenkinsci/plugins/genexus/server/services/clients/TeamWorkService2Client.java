@@ -37,6 +37,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
 import javax.xml.ws.soap.MTOMFeature;
+import org.jenkinsci.plugins.genexus.helpers.XmlHelper;
 import org.jenkinsci.plugins.genexus.server.info.KBList;
 import org.jenkinsci.plugins.genexus.server.info.KBInfo;
 import org.jenkinsci.plugins.genexus.server.services.common.ServiceData;
@@ -107,7 +108,7 @@ public class TeamWorkService2Client extends BaseClient {
             //String xmlContent = getString(bytes);
             InputStream stream = new ByteArrayInputStream(bytes);
 
-            return KBList.parse(stream).getKBs();
+            return XmlHelper.parse(stream, KBList.class);
         } catch (ITeamWorkService2HostedKBsGXServerExceptionFaultFaultMessage ex) {
             Logger.getLogger(TeamWorkService2Client.class.getName()).log(Level.SEVERE, null, ex);
             throw new IOException("Error accessing GXserver", ex);
