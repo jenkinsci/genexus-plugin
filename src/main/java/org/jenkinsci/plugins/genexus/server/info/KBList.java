@@ -52,13 +52,13 @@ import org.xml.sax.SAXException;
 public class KBList {
 
     @XmlElement(name = "KB")
-    private List<KbInfo> kbs = null;
+    private List<KBInfo> kbs = null;
 
-    public List<KbInfo> getKBs() {
+    public List<KBInfo> getKBs() {
         return kbs;
     }
 
-    public void setKBs(List<KbInfo> kbs) {
+    public void setKBs(List<KBInfo> kbs) {
         this.kbs = kbs;
     }
 

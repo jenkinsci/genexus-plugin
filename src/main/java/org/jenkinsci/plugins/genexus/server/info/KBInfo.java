@@ -38,7 +38,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *
  * @author jlr
  */
-public class KbInfo {
+public class KBInfo {
 
     @XmlType
     @XmlEnum(String.class)
@@ -74,7 +74,7 @@ public class KbInfo {
     @XmlJavaTypeAdapter(PublishDateAdapter.class)
     LocalDate publishDate;
 
-    public KbInfo() {
+    public KBInfo() {
         this.teamDevMode = TeamDevMode.MERGE;
         this.publishDate = LocalDate.of(1970, 1, 1);
     }

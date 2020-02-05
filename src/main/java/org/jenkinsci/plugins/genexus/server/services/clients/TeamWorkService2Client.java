@@ -38,7 +38,7 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
 import javax.xml.ws.soap.MTOMFeature;
 import org.jenkinsci.plugins.genexus.server.info.KBList;
-import org.jenkinsci.plugins.genexus.server.info.KbInfo;
+import org.jenkinsci.plugins.genexus.server.info.KBInfo;
 import org.jenkinsci.plugins.genexus.server.services.common.ServiceData;
 import org.jenkinsci.plugins.genexus.server.services.common.ServiceInfo;
 import org.jenkinsci.plugins.genexus.server.services.common.TransferPropConstants;
@@ -89,7 +89,7 @@ public class TeamWorkService2Client extends BaseClient {
         return teamWorkService2;
     }
 
-    public Iterable<KbInfo> GetHostedKBs() throws IOException, ParserConfigurationException, SAXException {
+    public Iterable<KBInfo> GetHostedKBs() throws IOException, ParserConfigurationException, SAXException {
         try {
             SimpleTransfer parameters = new SimpleTransfer();
             Holder<ArrayOfServerMessage> messages = new Holder<>(new ArrayOfServerMessage());
