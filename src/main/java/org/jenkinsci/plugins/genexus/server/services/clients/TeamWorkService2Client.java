@@ -23,22 +23,39 @@
  */
 package org.jenkinsci.plugins.genexus.server.services.clients;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.util.Map;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.UUID;
+import javax.xml.bind.JAXBException;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.ws.BindingProvider;
-import org.jenkinsci.plugins.genexus.server.services.common.NaiveSSLHelper;
+import javax.xml.ws.Holder;
+import javax.xml.ws.soap.MTOMFeature;
 import org.jenkinsci.plugins.genexus.server.services.common.ServiceData;
 import org.jenkinsci.plugins.genexus.server.services.common.ServiceInfo;
+import org.jenkinsci.plugins.genexus.server.services.common.TransferPropConstants;
+import org.jenkinsci.plugins.genexus.server.services.common.TransferPropHelper;
+import org.jenkinsci.plugins.genexus.server.services.contracts.ArrayOfServerMessage;
+import org.jenkinsci.plugins.genexus.server.services.contracts.ArrayOfTransferProp;
+import org.jenkinsci.plugins.genexus.server.services.teamwork.FileTransfer;
+import org.jenkinsci.plugins.genexus.server.services.teamwork.SimpleTransfer;
 import org.jenkinsci.plugins.genexus.server.services.teamwork.ITeamWorkService2;
+import org.jenkinsci.plugins.genexus.server.services.teamwork.ITeamWorkService2HostedKBsGXServerExceptionFaultFaultMessage;
 import org.jenkinsci.plugins.genexus.server.services.teamwork.TeamWorkService2;
+import org.xml.sax.SAXException;
 
 /**
  *
  * @author jlr
  */
 public class TeamWorkService2Client extends BaseClient {
-    
+
     private static final ServiceInfo TEAMWORK_SERVICE2_INFO = new ServiceInfo(
             "TeamWorkService2.svc/secure",
             "TeamWorkService2.svc",
@@ -50,41 +67,55 @@ public class TeamWorkService2Client extends BaseClient {
     protected ServiceInfo getServiceInfo() {
         return TEAMWORK_SERVICE2_INFO;
     }
-    
+
     public TeamWorkService2Client(String serverURL, String user, String password) throws MalformedURLException {
         super(new ServiceData(serverURL, user, password));
     }
-    
+
     private ITeamWorkService2 teamWorkService2 = null;
 
     private ITeamWorkService2 getTeamWorkService2() throws IOException {
         if (teamWorkService2 == null) {
-            BindingData bindingData = getBindingData(serviceData);
             TeamWorkService2 service = new TeamWorkService2();
+            ITeamWorkService2 port = service.getCustomBindingITeamWorkService2(new MTOMFeature(true));
 
-            ITeamWorkService2 port = bindingData.isSecure
-                    ? service.getCustomBindingITeamWorkService2()
-                    : service.getCustomBindingITeamWorkService2();
-
-            BindingProvider bindingProvider = (BindingProvider) port;
-            Map requestContext = bindingProvider.getRequestContext();
-
-            requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, bindingData.url.toString());
-            if (bindingData.isSecure) {
-                requestContext.put(BindingProvider.USERNAME_PROPERTY, serviceData.getUserName());
-                requestContext.put(BindingProvider.PASSWORD_PROPERTY, serviceData.getUserPassword());
-            }
-
-            NaiveSSLHelper.makeWebServiceClientTrustEveryone(port);
+            PrepareClient((BindingProvider) port);
 
             teamWorkService2 = port;
         }
+
         return teamWorkService2;
     }
-    
-    public Boolean CheckService() throws IOException {
-        ITeamWorkService2 service = getTeamWorkService2();
-        return true;
+
+    public Iterable<KbInfo> GetHostedKBs() throws IOException, ParserConfigurationException, SAXException {
+        try {
+            SimpleTransfer parameters = new SimpleTransfer();
+            Holder<ArrayOfServerMessage> messages = new Holder<>(new ArrayOfServerMessage());
+            Holder<ArrayOfTransferProp> properties = new Holder<>(new ArrayOfTransferProp());
+
+            properties.value.getTransferProp().addAll(Arrays.asList(
+                    TransferPropHelper.CreateStringProp(TransferPropConstants.CLIENT_GXVERSION, getClientVersion()),
+                    TransferPropHelper.CreateStringProp(TransferPropConstants.CLIENT_USER, "Anonymous"),
+                    TransferPropHelper.CreateGuidProp(TransferPropConstants.CLIENT_INSTANCE, UUID.randomUUID().toString())
+            ));
+
+            FileTransfer transfer = getTeamWorkService2().hostedKBs(parameters, messages, properties);
+            byte[] bytes = transfer.getFileByteStream();
+
+            //String xmlContent = getString(bytes);
+            InputStream stream = new ByteArrayInputStream(bytes);
+
+            return KBList.parse(stream).getKBs();
+        } catch (ITeamWorkService2HostedKBsGXServerExceptionFaultFaultMessage ex) {
+            Logger.getLogger(TeamWorkService2Client.class.getName()).log(Level.SEVERE, null, ex);
+            throw new IOException("Error accessing GXserver", ex);
+        } catch (IOException | SAXException | ParserConfigurationException | JAXBException ex) {
+            throw new IOException("Failed to parse KB list", ex);
+        }
     }
-            
+
+    private String getString(byte[] bytes) throws IOException {
+        String s = new String(bytes, StandardCharsets.UTF_8);
+        return s;
+    }
 }

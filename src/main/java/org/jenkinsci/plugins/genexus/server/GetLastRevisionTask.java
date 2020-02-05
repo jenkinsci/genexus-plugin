@@ -72,14 +72,14 @@ public class GetLastRevisionTask extends MasterToSlaveFileCallable<GXSInfo> {
         
         File logFile = new File(ws, "scm-polling.txt");
         FilePath logFilePath = new FilePath(logFile);
-        
+
         // we avoid excluding the fromTimestamp so that we get at least the
         // last known revision
         CreateLogTask createLogTask = new CreateLogTask(listener, gxPath, gxsConnection, logFilePath, fromTimestamp, toTimestamp, /* fromExcluding= */ false);
-        if (!createLogTask.invoke(ws, channel)) {   
+        if (!createLogTask.invoke(ws, channel)) {
             throw new IOException("Error checking for last revision");
         }
-        
+
         return GetLastRevisionInfo(logFile);
     }
 
@@ -97,12 +97,11 @@ public class GetLastRevisionTask extends MasterToSlaveFileCallable<GXSInfo> {
             Node lastEntry = (Node) xpath.evaluate("/log/logentry[1]", inputSource, XPathConstants.NODE);
             if (lastEntry == null)
                 return new GXSInfo(gxsConnection, 0, new Date(0));
-                
+
             Number nRev = (Number) xpath.evaluate("@revision", lastEntry, XPathConstants.NUMBER);
             String utcDate = (String) xpath.evaluate("date", lastEntry, XPathConstants.STRING);
             return new GXSInfo(gxsConnection, nRev.intValue(), DateUtils.fromUTCstring(utcDate));
-        }
-        catch (XPathExpressionException ex) {
+        } catch (XPathExpressionException ex) {
             throw new IOException("Error checking for last revision", ex);
         }
     }

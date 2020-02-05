@@ -28,9 +28,11 @@ package org.jenkinsci.plugins.genexus.server.services.clients;
  * @author jlr
  */
 public class ServerInfo {
+
     String serverVersion = "";
     Boolean isAvailable = false;
     Boolean isSecure = false;
     Boolean supportsTokenAuthentication = false;
     Boolean allowsGXtest = false;
+    Boolean allowsCustomBinding = false;
 }

@@ -25,6 +25,8 @@ package org.jenkinsci.plugins.genexus.server.services.common;
 
 import com.sun.xml.wss.impl.MessageConstants;
 import com.sun.xml.wss.impl.config.ConfigurationConstants;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -36,11 +38,9 @@ import javax.xml.soap.SOAPEnvelope;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPHeader;
 import javax.xml.soap.SOAPHeaderElement;
-import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
-import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.DOMException;
 
 /**
@@ -48,6 +48,8 @@ import org.w3c.dom.DOMException;
  * @author jlr
  */
 public class SOAPHeaderHandler implements SOAPHandler<SOAPMessageContext> {
+
+    private final int MESSAGE_TIME_RANGE_MILLISECONDS = 5 * 60 * 1000;
 
     @Override
     public Set<QName> getHeaders() {
@@ -66,8 +68,8 @@ public class SOAPHeaderHandler implements SOAPHandler<SOAPMessageContext> {
         }
 
         // nothing to do when there are no credentials
-        String username = getUsername(context);
-        if (StringUtils.isEmpty(username)) {
+        Boolean isSecure = getIsSecure(context);
+        if (!isSecure) {
             return true;
         }
 
@@ -83,27 +85,47 @@ public class SOAPHeaderHandler implements SOAPHandler<SOAPMessageContext> {
                 security.setMustUnderstand(true);
             }
 
-            SOAPElement usernameToken = security.addChildElement(MessageConstants.USERNAME_TOKEN_LNAME, MessageConstants.WSSE_PREFIX);
+            addTimestampToken(security, context);
+            addUsernameToken(security, context);
 
-            usernameToken.addAttribute(
-                    new QName(MessageConstants.WSU_NS, ConfigurationConstants.ID_ATTRIBUTE_NAME, MessageConstants.WSU_PREFIX),
-                    getNewUsernameTokenId());
-
-            SOAPElement usernameNode = usernameToken.addChildElement("Username", MessageConstants.WSSE_PREFIX);
-
-            usernameNode.addTextNode(username);
-
-            SOAPElement passwordNode = usernameToken.addChildElement("Password", MessageConstants.WSSE_PREFIX);
-
-            passwordNode.setAttribute("Type", MessageConstants.PASSWORD_TEXT_NS);
-
-            passwordNode.addTextNode(getPassword(context));
         } catch (SOAPException | DOMException e) {
             Logger.getLogger(SOAPHeaderHandler.class.getName()).log(Level.SEVERE, null, e);
             return false;
         }
 
         return true;
+    }
+
+    private void addUsernameToken(SOAPHeaderElement security, SOAPMessageContext context) throws SOAPException {
+        SOAPElement usernameToken = security.addChildElement(MessageConstants.USERNAME_TOKEN_LNAME, MessageConstants.WSSE_PREFIX);
+
+        usernameToken.addAttribute(
+                new QName(MessageConstants.WSU_NS, ConfigurationConstants.ID_ATTRIBUTE_NAME, MessageConstants.WSU_PREFIX),
+                getNewUsernameTokenId());
+
+        SOAPElement usernameNode = usernameToken.addChildElement("Username", MessageConstants.WSSE_PREFIX);
+        usernameNode.addTextNode(getUsername(context));
+
+        SOAPElement passwordNode = usernameToken.addChildElement("Password", MessageConstants.WSSE_PREFIX);
+        passwordNode.setAttribute("Type", MessageConstants.PASSWORD_TEXT_NS);
+        passwordNode.addTextNode(getPassword(context));
+    }
+
+    private void addTimestampToken(SOAPHeaderElement security, SOAPMessageContext context) throws SOAPException {
+        SOAPElement timestampToken = security.addChildElement(
+                new QName(MessageConstants.WSU_NS, MessageConstants.TIMESTAMP_LNAME, MessageConstants.WSU_PREFIX));
+
+        timestampToken.addAttribute(
+                new QName(MessageConstants.WSU_NS, ConfigurationConstants.ID_ATTRIBUTE_NAME, MessageConstants.WSU_PREFIX),
+                "_0");
+
+        Instant createTime = Instant.now().truncatedTo(ChronoUnit.MILLIS);
+        SOAPElement createdNode = timestampToken.addChildElement("Created", MessageConstants.WSU_PREFIX);
+        createdNode.addTextNode(createTime.toString());
+
+        Instant expireTime = createTime.plusMillis(MESSAGE_TIME_RANGE_MILLISECONDS);
+        SOAPElement expiresdNode = timestampToken.addChildElement("Expires", MessageConstants.WSU_PREFIX);
+        expiresdNode.addTextNode(expireTime.toString());
     }
 
     @Override
@@ -115,17 +137,26 @@ public class SOAPHeaderHandler implements SOAPHandler<SOAPMessageContext> {
     public void close(MessageContext mc) {
     }
 
+    private Boolean getIsSecure(MessageContext context) {
+        return getSafeBooleanProp(context, ServiceData.GXSERVER_ISSECURE_PROPERTY);
+    }
+
     private String getUsername(MessageContext context) {
-        return getSafeStringProp(context, BindingProvider.USERNAME_PROPERTY);
+        return getSafeStringProp(context, ServiceData.GXSERVER_USERNAME_PROPERTY);
     }
 
     private String getPassword(MessageContext context) {
-        return getSafeStringProp(context, BindingProvider.PASSWORD_PROPERTY);
+        return getSafeStringProp(context, ServiceData.GXSERVER_PASSWORD_PROPERTY);
     }
 
     private String getSafeStringProp(MessageContext context, String propName) {
         String value = (String) context.get(propName);
         return value != null ? value : "";
+    }
+
+    private Boolean getSafeBooleanProp(MessageContext context, String propName) {
+        String value = (String) context.get(propName);
+        return value != null ? Boolean.parseBoolean(value) : false;
     }
 
     private String getNewUsernameTokenId() {

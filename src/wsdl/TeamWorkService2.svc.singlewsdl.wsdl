@@ -10,9 +10,6 @@
     - Added <xs:import> on for referenced schemas
     
     - Removed 'namespace=""' atributes from <soap:fault> and <soap12:fault> nodes
-      
-    - Changed FileTransfer declaration to directly reference type StreamBody in
-      order to avoid import errors.
 -->
 <wsdl:definitions name="TeamWorkService2" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:tns="http://tempuri.org/" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <wsp:Policy wsu:Id="CustomBinding_ITeamWorkService2_policy">
@@ -227,7 +224,7 @@
       <xs:element name="GXServerException" nillable="true" type="tns:GXServerException"/>
     </xs:schema>
     <xs:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-      <xs:import namespace="http://schemas.microsoft.com/Message"/>
+      <xs:import namespace="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts"/>
       <xs:element name="SimpleTransfer">
         <xs:complexType>
           <xs:sequence/>
@@ -236,7 +233,7 @@
       <xs:element name="FileTransfer">
         <xs:complexType>
           <xs:sequence>
-            <xs:element name="FileTransfer" type="q1:StreamBody" xmlns:q1="http://schemas.microsoft.com/Message"/>
+            <xs:element ref="q1:FileByteStream" xmlns:q1="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>

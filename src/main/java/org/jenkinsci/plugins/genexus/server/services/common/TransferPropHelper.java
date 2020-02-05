@@ -39,14 +39,23 @@ import org.jenkinsci.plugins.genexus.server.services.contracts.XmlProp;
  * @author jlr
  */
 public class TransferPropHelper {
+
     public static StringProp CreateStringProp(String propName, String propValue) {
         ObjectFactory of = new ObjectFactory();
-        StringProp sp = of.createStringProp(); 
+        StringProp sp = of.createStringProp();
         sp.setName(propName);
         sp.setValue(propValue);
         return sp;
     }
-    
+
+    public static GuidProp CreateGuidProp(String propName, String propValue) {
+        ObjectFactory of = new ObjectFactory();
+        GuidProp sp = of.createGuidProp();
+        sp.setName(propName);
+        sp.setValue(propValue);
+        return sp;
+    }
+
     public static Boolean getBooleanValue(TransferProp prop) {
         return ((BoolProp) prop).isValue();
     }
