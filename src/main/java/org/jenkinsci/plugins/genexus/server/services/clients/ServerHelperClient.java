@@ -29,6 +29,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
+import org.jenkinsci.plugins.genexus.server.info.ServerInfo;
 import org.jenkinsci.plugins.genexus.server.services.common.ServiceData;
 import org.jenkinsci.plugins.genexus.server.services.common.ServiceInfo;
 import org.jenkinsci.plugins.genexus.server.services.common.TransferPropConstants;

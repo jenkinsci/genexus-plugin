@@ -37,6 +37,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
 import javax.xml.ws.soap.MTOMFeature;
+import org.jenkinsci.plugins.genexus.server.info.KBList;
+import org.jenkinsci.plugins.genexus.server.info.KbInfo;
 import org.jenkinsci.plugins.genexus.server.services.common.ServiceData;
 import org.jenkinsci.plugins.genexus.server.services.common.ServiceInfo;
 import org.jenkinsci.plugins.genexus.server.services.common.TransferPropConstants;

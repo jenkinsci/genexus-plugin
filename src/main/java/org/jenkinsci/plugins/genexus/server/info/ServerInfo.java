@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.jenkinsci.plugins.genexus.server.services.clients;
+package org.jenkinsci.plugins.genexus.server.info;
 
 /**
  *
@@ -29,10 +29,10 @@ package org.jenkinsci.plugins.genexus.server.services.clients;
  */
 public class ServerInfo {
 
-    String serverVersion = "";
-    Boolean isAvailable = false;
-    Boolean isSecure = false;
-    Boolean supportsTokenAuthentication = false;
-    Boolean allowsGXtest = false;
-    Boolean allowsCustomBinding = false;
+    public String serverVersion = "";
+    public Boolean isAvailable = false;
+    public Boolean isSecure = false;
+    public Boolean supportsTokenAuthentication = false;
+    public Boolean allowsGXtest = false;
+    public Boolean allowsCustomBinding = false;
 }
