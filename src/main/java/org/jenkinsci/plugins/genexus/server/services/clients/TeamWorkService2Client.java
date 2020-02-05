@@ -89,7 +89,7 @@ public class TeamWorkService2Client extends BaseClient {
         return teamWorkService2;
     }
 
-    public KBList GetHostedKBs() throws IOException, ParserConfigurationException, SAXException {
+    public KBList GetHostedKBs() throws IOException {
         try {
             SimpleTransfer parameters = new SimpleTransfer();
             Holder<ArrayOfServerMessage> messages = new Holder<>(new ArrayOfServerMessage());
@@ -111,7 +111,8 @@ public class TeamWorkService2Client extends BaseClient {
         } catch (ITeamWorkService2HostedKBsGXServerExceptionFaultFaultMessage ex) {
             Logger.getLogger(TeamWorkService2Client.class.getName()).log(Level.SEVERE, null, ex);
             throw new IOException("Error accessing GXserver", ex);
-        } catch (IOException | SAXException | ParserConfigurationException | JAXBException ex) {
+        } catch (SAXException | ParserConfigurationException | JAXBException ex) {
+            Logger.getLogger(TeamWorkService2Client.class.getName()).log(Level.SEVERE, null, ex);
             throw new IOException("Failed to parse KB list", ex);
         }
     }
