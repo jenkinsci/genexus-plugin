@@ -21,13 +21,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.jenkinsci.plugins.genexus.server.services.clients;
+package org.jenkinsci.plugins.genexus.server.info;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import org.jenkinsci.plugins.genexus.helpers.XmlHelper;
-import org.jenkinsci.plugins.genexus.server.info.KBList;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
