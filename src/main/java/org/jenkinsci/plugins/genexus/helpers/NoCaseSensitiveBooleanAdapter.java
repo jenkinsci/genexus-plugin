@@ -21,26 +21,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.jenkinsci.plugins.genexus.server.info;
+package org.jenkinsci.plugins.genexus.helpers;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 /**
  *
  * @author jlr
  */
-@XmlRootElement(name = "Versions")
-@XmlAccessorType(XmlAccessType.NONE)
-public class VersionList extends ArrayList<VersionInfo> {
+public class NoCaseSensitiveBooleanAdapter extends XmlAdapter<String, Boolean> {
 
-    @XmlElement(name = "Version")
-    private List<VersionInfo> getVersions() {
-        return this;
+    @Override
+    public Boolean unmarshal(String strValue) throws Exception {
+        return strValue.compareToIgnoreCase("true") == 0;
+    }
+
+    @Override
+    public String marshal(Boolean booleanValue) throws Exception {
+        return booleanValue.toString();
     }
 }

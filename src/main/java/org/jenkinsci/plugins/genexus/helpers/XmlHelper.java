@@ -26,10 +26,13 @@ package org.jenkinsci.plugins.genexus.helpers;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.Reader;
+import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -43,7 +46,7 @@ import org.xml.sax.SAXException;
  * @author jlr
  */
 public class XmlHelper {
-    
+
     public static <T> T parse(InputStream stream, Class<T> tClass) throws IOException, ParserConfigurationException, SAXException, JAXBException {
         Reader reader = new InputStreamReader(stream, StandardCharsets.UTF_8.name());
         InputSource source = new InputSource(reader);
@@ -60,13 +63,22 @@ public class XmlHelper {
 
         return XmlHelper.parse(doc, tClass);
     }
-    
+
     public static <T> T parse(Document doc, Class<T> tClass) throws JAXBException {
         JAXBContext jaxbContext = JAXBContext.newInstance(tClass);
-
         Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-
         T result = (T) jaxbUnmarshaller.unmarshal(doc);
         return result;
+    }
+
+    public static <T> String createXml(T instance) throws JAXBException {
+        JAXBContext jaxbContext = JAXBContext.newInstance(instance.getClass());
+        Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+        jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, StandardCharsets.UTF_8.name());
+        jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        
+        StringWriter writer = new StringWriter();
+        jaxbMarshaller.marshal(instance, writer);
+        return writer.toString();
     }
 }

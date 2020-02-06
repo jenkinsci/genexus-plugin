@@ -27,6 +27,7 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+import java.util.Objects;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -35,6 +36,7 @@ import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import org.apache.commons.lang.ObjectUtils;
 
 /**
  *
@@ -82,6 +84,42 @@ public class KBInfo {
         this.publishDate = LocalDate.of(1970, 1, 1);
     }
 
+    @Override
+    public boolean equals(Object other) {
+        if (other == this) {
+            return true;
+        }
+
+        if (!(other instanceof KBInfo)) {
+            return false;
+        }
+
+        KBInfo otherKBInfo = (KBInfo) other;
+        return Objects.equals(otherKBInfo.name, this.name)
+            && Objects.equals(otherKBInfo.description, this.description)
+            && Objects.equals(otherKBInfo.url, this.url)
+            && Objects.equals(otherKBInfo.base64Image, this.base64Image)
+            && Objects.equals(otherKBInfo.tags, this.tags)
+            && Objects.equals(otherKBInfo.teamDevMode, this.teamDevMode)
+            && Objects.equals(otherKBInfo.publishUser, this.publishUser)
+            && Objects.equals(otherKBInfo.publishDate, this.publishDate)
+            && true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 29 * hash + Objects.hashCode(this.name);
+        hash = 29 * hash + Objects.hashCode(this.description);
+        hash = 29 * hash + Objects.hashCode(this.url);
+        hash = 29 * hash + Objects.hashCode(this.base64Image);
+        hash = 29 * hash + Objects.hashCode(this.tags);
+        hash = 29 * hash + Objects.hashCode(this.teamDevMode);
+        hash = 29 * hash + Objects.hashCode(this.publishUser);
+        hash = 29 * hash + Objects.hashCode(this.publishDate);
+        return hash;
+    }
+    
     public static class PublishDateAdapter extends XmlAdapter<String, LocalDate> {
 
         private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE, dd MMMM yyyy", Locale.ROOT);
