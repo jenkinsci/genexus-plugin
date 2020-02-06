@@ -91,7 +91,7 @@ public class TeamWorkService2Client extends BaseClient {
         return teamWorkService2;
     }
 
-    public KBList GetHostedKBs() throws IOException {
+    public KBList getHostedKBs() throws IOException {
         try {
             SimpleTransfer parameters = new SimpleTransfer();
             Holder<ArrayOfServerMessage> messages = new Holder<>(new ArrayOfServerMessage());
@@ -112,14 +112,14 @@ public class TeamWorkService2Client extends BaseClient {
         }
     }
 
-    public VersionList GetVersions(String KBname) throws IOException {
+    public VersionList getVersions(String kbName) throws IOException {
         try {
             SimpleTransfer parameters = new SimpleTransfer();
             Holder<ArrayOfServerMessage> messages = new Holder<>(new ArrayOfServerMessage());
             Holder<ArrayOfTransferProp> properties = getBasicProperties();
 
             properties.value.getTransferProp().add(
-                    TransferPropHelper.CreateStringProp(TransferPropConstants.SERVER_KB_NAME, KBname)
+                    TransferPropHelper.CreateStringProp(TransferPropConstants.SERVER_KB_NAME, kbName)
             );
 
             FileTransfer transfer = getTeamWorkService2().getVersions(parameters, messages, properties);
@@ -147,6 +147,7 @@ public class TeamWorkService2Client extends BaseClient {
         ));
         return properties;
     }
+
     private String getString(byte[] bytes) throws IOException {
         String s = new String(bytes, StandardCharsets.UTF_8);
         return s;
