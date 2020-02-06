@@ -95,20 +95,13 @@ public class TeamWorkService2Client extends BaseClient {
         try {
             SimpleTransfer parameters = new SimpleTransfer();
             Holder<ArrayOfServerMessage> messages = new Holder<>(new ArrayOfServerMessage());
-            Holder<ArrayOfTransferProp> properties = new Holder<>(new ArrayOfTransferProp());
-
-            properties.value.getTransferProp().addAll(Arrays.asList(
-                    TransferPropHelper.CreateStringProp(TransferPropConstants.CLIENT_GXVERSION, getClientVersion()),
-                    TransferPropHelper.CreateStringProp(TransferPropConstants.CLIENT_USER, "Anonymous"),
-                    TransferPropHelper.CreateGuidProp(TransferPropConstants.CLIENT_INSTANCE, UUID.randomUUID().toString())
-            ));
+            Holder<ArrayOfTransferProp> properties = getBasicProperties();
 
             FileTransfer transfer = getTeamWorkService2().hostedKBs(parameters, messages, properties);
             byte[] bytes = transfer.getFileByteStream();
-
             //String xmlContent = getString(bytes);
             InputStream stream = new ByteArrayInputStream(bytes);
-
+            
             return XmlHelper.parse(stream, KBList.class);
         } catch (ITeamWorkService2HostedKBsGXServerExceptionFaultFaultMessage ex) {
             Logger.getLogger(TeamWorkService2Client.class.getName()).log(Level.SEVERE, null, ex);
@@ -123,21 +116,17 @@ public class TeamWorkService2Client extends BaseClient {
         try {
             SimpleTransfer parameters = new SimpleTransfer();
             Holder<ArrayOfServerMessage> messages = new Holder<>(new ArrayOfServerMessage());
-            Holder<ArrayOfTransferProp> properties = new Holder<>(new ArrayOfTransferProp());
+            Holder<ArrayOfTransferProp> properties = getBasicProperties();
 
-            properties.value.getTransferProp().addAll(Arrays.asList(
-                    TransferPropHelper.CreateStringProp(TransferPropConstants.CLIENT_GXVERSION, getClientVersion()),
-                    TransferPropHelper.CreateStringProp(TransferPropConstants.CLIENT_USER, "Anonymous"),
-                    TransferPropHelper.CreateGuidProp(TransferPropConstants.CLIENT_INSTANCE, UUID.randomUUID().toString()),
+            properties.value.getTransferProp().add(
                     TransferPropHelper.CreateStringProp(TransferPropConstants.SERVER_KB_NAME, KBname)
-            ));
+            );
 
             FileTransfer transfer = getTeamWorkService2().getVersions(parameters, messages, properties);
             byte[] bytes = transfer.getFileByteStream();
-
             //String xmlContent = getString(bytes);
             InputStream stream = new ByteArrayInputStream(bytes);
-
+            
             return XmlHelper.parse(stream, VersionList.class);
         } catch (ITeamWorkService2GetVersionsGXServerExceptionFaultFaultMessage ex) {
             Logger.getLogger(TeamWorkService2Client.class.getName()).log(Level.SEVERE, null, ex);
@@ -148,6 +137,16 @@ public class TeamWorkService2Client extends BaseClient {
         }
     }
 
+    private Holder<ArrayOfTransferProp> getBasicProperties() {
+        Holder<ArrayOfTransferProp> properties = new Holder<>(new ArrayOfTransferProp());
+
+        properties.value.getTransferProp().addAll(Arrays.asList(
+                TransferPropHelper.CreateStringProp(TransferPropConstants.CLIENT_GXVERSION, getClientVersion()),
+                TransferPropHelper.CreateStringProp(TransferPropConstants.CLIENT_USER, "Anonymous"),
+                TransferPropHelper.CreateGuidProp(TransferPropConstants.CLIENT_INSTANCE, UUID.randomUUID().toString())
+        ));
+        return properties;
+    }
     private String getString(byte[] bytes) throws IOException {
         String s = new String(bytes, StandardCharsets.UTF_8);
         return s;
