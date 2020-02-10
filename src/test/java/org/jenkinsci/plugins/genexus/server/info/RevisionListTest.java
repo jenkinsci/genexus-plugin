@@ -93,25 +93,7 @@ public class RevisionListTest {
     public void testXmlSerialization() throws Exception {
         System.out.println("XmlSerialization");
 
-        testRoundTrip(getEmptyCase(), "Empty List");
-        testRoundTrip(getCase1(), "1");
-    }
-
-    protected RevisionList testRoundTrip(RevisionList input, String caseDescription) throws Exception {
-        System.out.println("Case: " + caseDescription);
-
-        String xmlString = XmlHelper.createXml(input);
-        RevisionList output = XmlHelper.parse(new ByteArrayInputStream(xmlString.getBytes(StandardCharsets.UTF_8)), RevisionList.class);
-        assertEquals(input, output);
-        return output;
-    }
-
-    protected void testRoundTrip(String inputString, String caseDescription) throws Exception {
-        RevisionList inputList = XmlHelper.parse(new ByteArrayInputStream(inputString.getBytes(StandardCharsets.UTF_8)), RevisionList.class);
-        RevisionList outputList = testRoundTrip(inputList, caseDescription);
-
-        String normalizedInput = XmlHelper.normalizeXmlString(inputString);
-        String normalizedOutput = XmlHelper.createXml(outputList, true);
-        assertEquals(normalizedInput, normalizedOutput);
+        XmlRoundtripHelper.testRoundTrip(getEmptyCase(), "Empty List", RevisionList.class);
+        XmlRoundtripHelper.testRoundTrip(getCase1(), "1", RevisionList.class);
     }
 }

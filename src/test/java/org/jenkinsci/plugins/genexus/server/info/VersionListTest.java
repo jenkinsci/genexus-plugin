@@ -117,26 +117,8 @@ public class VersionListTest {
 
         System.out.println("XmlSerialization");
 
-        testRoundTrip(getEmptyCase(), "Empty List");
-        testRoundTrip(getCase1(), "Phabricated");
-        testRoundTrip(getCase2(), "Obtained from an actual GXserver");
-    }
-
-    protected VersionList testRoundTrip(VersionList input, String caseDescription) throws Exception {
-        System.out.println("Case: " + caseDescription);
-
-        String xmlString = XmlHelper.createXml(input);
-        VersionList output = XmlHelper.parse(new ByteArrayInputStream(xmlString.getBytes(StandardCharsets.UTF_8)), VersionList.class);
-        assertEquals(input, output);
-        return output;
-    }
-
-    protected void testRoundTrip(String inputString, String caseDescription) throws Exception {
-        VersionList inputList = XmlHelper.parse(new ByteArrayInputStream(inputString.getBytes(StandardCharsets.UTF_8)), VersionList.class);
-        VersionList outputList = testRoundTrip(inputList, caseDescription);
-
-        String normalizedInput = XmlHelper.normalizeXmlString(inputString);
-        String normalizedOutput = XmlHelper.createXml(outputList, true);
-        assertEquals(normalizedInput, normalizedOutput);
+        XmlRoundtripHelper.testRoundTrip(getEmptyCase(), "Empty List", VersionList.class);
+        XmlRoundtripHelper.testRoundTrip(getCase1(), "Phabricated", VersionList.class);
+        XmlRoundtripHelper.testRoundTrip(getCase2(), "Obtained from an actual GXserver", VersionList.class);
     }
 }

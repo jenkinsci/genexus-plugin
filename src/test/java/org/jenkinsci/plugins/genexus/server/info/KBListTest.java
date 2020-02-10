@@ -119,26 +119,8 @@ public class KBListTest {
     public void testXmlSerialization() throws Exception {
         System.out.println("XmlSerialization");
 
-        testRoundTrip(getEmptyCase(), "Empty List");
-        testRoundTrip(getCase1(), "1");
-        testRoundTrip(getCase2(), "2");
-    }
-
-    protected KBList testRoundTrip(KBList input, String caseDescription) throws Exception {
-        System.out.println("Case: " + caseDescription);
-
-        String xmlString = XmlHelper.createXml(input);
-        KBList output = XmlHelper.parse(new ByteArrayInputStream(xmlString.getBytes(StandardCharsets.UTF_8)), KBList.class);
-        assertEquals(input, output);
-        return output;
-    }
-
-    protected void testRoundTrip(String inputString, String caseDescription) throws Exception {
-        KBList inputList = XmlHelper.parse(new ByteArrayInputStream(inputString.getBytes(StandardCharsets.UTF_8)), KBList.class);
-        KBList outputList = testRoundTrip(inputList, caseDescription);
-
-        String normalizedInput = XmlHelper.normalizeXmlString(inputString);
-        String normalizedOutput = XmlHelper.createXml(outputList, true);
-        assertEquals(normalizedInput, normalizedOutput);
+        XmlRoundtripHelper.testRoundTrip(getEmptyCase(), "Empty List", KBList.class);
+        XmlRoundtripHelper.testRoundTrip(getCase1(), "1", KBList.class);
+        XmlRoundtripHelper.testRoundTrip(getCase2(), "2", KBList.class);
     }
 }
