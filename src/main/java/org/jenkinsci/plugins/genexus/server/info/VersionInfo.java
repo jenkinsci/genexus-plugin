@@ -29,7 +29,8 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import org.jenkinsci.plugins.genexus.helpers.NoCaseSensitiveBooleanAdapter;
+import org.jenkinsci.plugins.genexus.helpers.PositiveOrNothingIntegerAdapter;
+import org.jenkinsci.plugins.genexus.helpers.TrueOrNothingBooleanAdapter;
 
 /**
  *
@@ -51,14 +52,15 @@ public class VersionInfo {
     public UUID type;
 
     @XmlAttribute(name = "isTrunk", required = false)
-    @XmlJavaTypeAdapter(NoCaseSensitiveBooleanAdapter.class)
+    @XmlJavaTypeAdapter(TrueOrNothingBooleanAdapter.class)
     public Boolean isTrunk;
 
     @XmlAttribute(name = "parentId", required = false)
+    @XmlJavaTypeAdapter(type=int.class, value=PositiveOrNothingIntegerAdapter.class)
     public int parentId;
 
     @XmlAttribute(name = "isFrozen", required = false)
-    @XmlJavaTypeAdapter(NoCaseSensitiveBooleanAdapter.class)
+    @XmlJavaTypeAdapter(TrueOrNothingBooleanAdapter.class)
     public Boolean isFrozen;
 
     @XmlAttribute(name = "remindsCount")
@@ -87,14 +89,14 @@ public class VersionInfo {
 
         VersionInfo otherVersionInfo = (VersionInfo) other;
         return Objects.equals(otherVersionInfo.name, this.name)
-            && otherVersionInfo.id ==  this.id
-            && Objects.equals(otherVersionInfo.guid, this.guid)
-            && Objects.equals(otherVersionInfo.type, this.type)
-            && Objects.equals(otherVersionInfo.isTrunk, this.isTrunk)
-            && Objects.equals(otherVersionInfo.isFrozen, this.isFrozen)
-            && otherVersionInfo.parentId == this.parentId
-            && otherVersionInfo.remindsCount == this.remindsCount
-            && true;
+                && otherVersionInfo.id == this.id
+                && Objects.equals(otherVersionInfo.guid, this.guid)
+                && Objects.equals(otherVersionInfo.type, this.type)
+                && Objects.equals(otherVersionInfo.isTrunk, this.isTrunk)
+                && Objects.equals(otherVersionInfo.isFrozen, this.isFrozen)
+                && otherVersionInfo.parentId == this.parentId
+                && otherVersionInfo.remindsCount == this.remindsCount
+                && true;
     }
 
     @Override

@@ -23,10 +23,10 @@
  */
 package org.jenkinsci.plugins.genexus.helpers;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
@@ -37,7 +37,16 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -72,13 +81,62 @@ public class XmlHelper {
     }
 
     public static <T> String createXml(T instance) throws JAXBException {
+        return createXml(instance, false);
+    }
+
+    public static <T> String createXml(T instance, boolean normalized) throws JAXBException {
         JAXBContext jaxbContext = JAXBContext.newInstance(instance.getClass());
         Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
         jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, StandardCharsets.UTF_8.name());
         jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-        
+
         StringWriter writer = new StringWriter();
         jaxbMarshaller.marshal(instance, writer);
-        return writer.toString();
+        String xmlString = writer.toString();
+        if (normalized) {
+            try {
+                xmlString = normalizeXmlString(xmlString);
+            } catch (IOException | ParserConfigurationException | TransformerException | SAXException ex) {
+                throw new JAXBException("Error normalizing string", ex);
+            }
+        }
+        return xmlString;
+    }
+
+    public static String normalizeXmlString(String inputString) throws ParserConfigurationException, SAXException, IOException, TransformerConfigurationException, TransformerException {
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setNamespaceAware(true);
+        dbf.setCoalescing(true);
+        dbf.setIgnoringElementContentWhitespace(true);
+        dbf.setIgnoringComments(true);
+
+        DocumentBuilder db = dbf.newDocumentBuilder();
+
+        Document doc = db.parse(new ByteArrayInputStream(inputString.getBytes(StandardCharsets.UTF_8)));
+        trimWhitespace(doc.getDocumentElement());
+        doc.normalizeDocument();
+
+        StringWriter sw = new StringWriter();
+        TransformerFactory tf = TransformerFactory.newInstance();
+        Transformer transformer = tf.newTransformer();
+        transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
+        transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+        transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+
+        transformer.transform(new DOMSource(doc), new StreamResult(sw));
+        return sw.toString();
+    }
+
+    public static void trimWhitespace(Node node) {
+        NodeList children = node.getChildNodes();
+        for (int i = 0; i < children.getLength(); ++i) {
+            Node child = children.item(i);
+            if (child.getNodeType() == Node.TEXT_NODE) {
+                child.setTextContent(child.getTextContent().trim());
+            }
+            trimWhitespace(child);
+        }
     }
 }

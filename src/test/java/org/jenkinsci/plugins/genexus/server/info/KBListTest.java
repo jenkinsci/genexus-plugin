@@ -24,8 +24,6 @@
 package org.jenkinsci.plugins.genexus.server.info;
 
 import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import org.jenkinsci.plugins.genexus.helpers.XmlHelper;
 import org.junit.After;
@@ -126,16 +124,21 @@ public class KBListTest {
         testRoundTrip(getCase2(), "2");
     }
 
-    protected void testRoundTrip(KBList input, String caseDescription) throws Exception {
+    protected KBList testRoundTrip(KBList input, String caseDescription) throws Exception {
         System.out.println("Case: " + caseDescription);
 
         String xmlString = XmlHelper.createXml(input);
         KBList output = XmlHelper.parse(new ByteArrayInputStream(xmlString.getBytes(StandardCharsets.UTF_8)), KBList.class);
         assertEquals(input, output);
+        return output;
     }
 
     protected void testRoundTrip(String inputString, String caseDescription) throws Exception {
         KBList inputList = XmlHelper.parse(new ByteArrayInputStream(inputString.getBytes(StandardCharsets.UTF_8)), KBList.class);
-        testRoundTrip(inputList, caseDescription);
+        KBList outputList = testRoundTrip(inputList, caseDescription);
+
+        String normalizedInput = XmlHelper.normalizeXmlString(inputString);
+        String normalizedOutput = XmlHelper.createXml(outputList, true);
+        assertEquals(normalizedInput, normalizedOutput);
     }
 }

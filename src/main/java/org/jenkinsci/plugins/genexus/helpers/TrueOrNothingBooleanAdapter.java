@@ -28,8 +28,17 @@ import javax.xml.bind.annotation.adapters.XmlAdapter;
 /**
  *
  * @author jlr
+ *
+ * For TeamWorkService2.GetVersions() GXserver exports boolean elements only if
+ * they are true, and it uses "True" (title case) if that's the case.
+ *
+ * This adapter checks string values ignoring case (so as to recognize "True")
+ * and converts to null when the value is false (so as to avoid writing it).
+ *
+ * This makes sure the roundtrip (converting the received XML string to Document
+ * and back to string) returns the same result.
  */
-public class NoCaseSensitiveBooleanAdapter extends XmlAdapter<String, Boolean> {
+public class TrueOrNothingBooleanAdapter extends XmlAdapter<String, Boolean> {
 
     @Override
     public Boolean unmarshal(String strValue) throws Exception {
@@ -38,6 +47,6 @@ public class NoCaseSensitiveBooleanAdapter extends XmlAdapter<String, Boolean> {
 
     @Override
     public String marshal(Boolean booleanValue) throws Exception {
-        return booleanValue.toString();
+        return booleanValue ? "True" : null;
     }
 }

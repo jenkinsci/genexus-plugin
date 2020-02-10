@@ -39,6 +39,7 @@ import javax.xml.ws.Holder;
 import javax.xml.ws.soap.MTOMFeature;
 import org.jenkinsci.plugins.genexus.helpers.XmlHelper;
 import org.jenkinsci.plugins.genexus.server.info.KBList;
+import org.jenkinsci.plugins.genexus.server.info.RevisionList;
 import org.jenkinsci.plugins.genexus.server.info.VersionList;
 import org.jenkinsci.plugins.genexus.server.services.common.ServiceData;
 import org.jenkinsci.plugins.genexus.server.services.common.ServiceInfo;
@@ -49,6 +50,7 @@ import org.jenkinsci.plugins.genexus.server.services.contracts.ArrayOfTransferPr
 import org.jenkinsci.plugins.genexus.server.services.teamwork.FileTransfer;
 import org.jenkinsci.plugins.genexus.server.services.teamwork.SimpleTransfer;
 import org.jenkinsci.plugins.genexus.server.services.teamwork.ITeamWorkService2;
+import org.jenkinsci.plugins.genexus.server.services.teamwork.ITeamWorkService2GetRevisionsGXServerExceptionFaultFaultMessage;
 import org.jenkinsci.plugins.genexus.server.services.teamwork.ITeamWorkService2GetVersionsGXServerExceptionFaultFaultMessage;
 import org.jenkinsci.plugins.genexus.server.services.teamwork.ITeamWorkService2HostedKBsGXServerExceptionFaultFaultMessage;
 import org.jenkinsci.plugins.genexus.server.services.teamwork.TeamWorkService2;
@@ -101,7 +103,7 @@ public class TeamWorkService2Client extends BaseClient {
             byte[] bytes = transfer.getFileByteStream();
             //String xmlContent = getString(bytes);
             InputStream stream = new ByteArrayInputStream(bytes);
-            
+
             return XmlHelper.parse(stream, KBList.class);
         } catch (ITeamWorkService2HostedKBsGXServerExceptionFaultFaultMessage ex) {
             Logger.getLogger(TeamWorkService2Client.class.getName()).log(Level.SEVERE, null, ex);
@@ -126,7 +128,7 @@ public class TeamWorkService2Client extends BaseClient {
             byte[] bytes = transfer.getFileByteStream();
             //String xmlContent = getString(bytes);
             InputStream stream = new ByteArrayInputStream(bytes);
-            
+
             return XmlHelper.parse(stream, VersionList.class);
         } catch (ITeamWorkService2GetVersionsGXServerExceptionFaultFaultMessage ex) {
             Logger.getLogger(TeamWorkService2Client.class.getName()).log(Level.SEVERE, null, ex);
@@ -134,6 +136,34 @@ public class TeamWorkService2Client extends BaseClient {
         } catch (SAXException | ParserConfigurationException | JAXBException ex) {
             Logger.getLogger(TeamWorkService2Client.class.getName()).log(Level.SEVERE, null, ex);
             throw new IOException("Failed to parse Version list", ex);
+        }
+    }
+
+    public RevisionList getRevisions(String kbName, int versionId, String query, int page) throws IOException {
+        try {
+            SimpleTransfer parameters = new SimpleTransfer();
+            Holder<ArrayOfServerMessage> messages = new Holder<>(new ArrayOfServerMessage());
+            Holder<ArrayOfTransferProp> properties = getBasicProperties();
+
+            properties.value.getTransferProp().addAll(Arrays.asList(
+                    TransferPropHelper.CreateStringProp(TransferPropConstants.SERVER_KB_NAME, kbName),
+                    TransferPropHelper.CreateIntProp(TransferPropConstants.SERVER_VERSION_ID, versionId),
+                    TransferPropHelper.CreateStringProp(TransferPropConstants.SERVER_REVISIONS_QUERY, query),
+                    TransferPropHelper.CreateIntProp(TransferPropConstants.SERVER_REVISIONS_PAGE, page)
+            ));
+
+            FileTransfer transfer = getTeamWorkService2().getRevisions(parameters, messages, properties);
+            byte[] bytes = transfer.getFileByteStream();
+            //String xmlContent = getString(bytes);
+            InputStream stream = new ByteArrayInputStream(bytes);
+
+            return XmlHelper.parse(stream, RevisionList.class);
+        } catch (ITeamWorkService2GetRevisionsGXServerExceptionFaultFaultMessage ex) {
+            Logger.getLogger(TeamWorkService2Client.class.getName()).log(Level.SEVERE, null, ex);
+            throw new IOException("Error accessing GXserver", ex);
+        } catch (SAXException | ParserConfigurationException | JAXBException ex) {
+            Logger.getLogger(TeamWorkService2Client.class.getName()).log(Level.SEVERE, null, ex);
+            throw new IOException("Failed to parse Revision list", ex);
         }
     }
 

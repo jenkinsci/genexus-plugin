@@ -24,19 +24,12 @@
 package org.jenkinsci.plugins.genexus.server.info;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
-import javax.xml.bind.JAXBException;
-import javax.xml.parsers.ParserConfigurationException;
 import org.jenkinsci.plugins.genexus.helpers.XmlHelper;
 import org.junit.After;
 import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -69,7 +62,8 @@ public class VersionListTest {
     protected String getEmptyCase() {
         return "<Versions/>";
     }
-        protected VersionList getCase1() {
+
+    protected VersionList getCase1() {
         VersionList list = new VersionList();
 
         VersionInfo item;
@@ -102,15 +96,15 @@ public class VersionListTest {
 
         return list;
     }
-    
+
     protected String getCase2() {
-        return  "<Versions>\n" +
-                "  <Version remindsCount=\"0\" type=\"00000000-0000-0000-0000-000000000010\" id=\"0\" name=\"EnableGAM\" guid=\"c8ca22d3-7a2c-438e-a1b3-1c592319195c\" isTrunk=\"True\" />\n" +
-                "  <Version remindsCount=\"0\" type=\"00000000-0000-0000-0000-000000000010\" id=\"2\" name=\"BeforeOperationalTables\" guid=\"9337adb2-22bc-44e2-9a6c-e151e4aaebb6\" parentId=\"0\" isFrozen=\"True\" />\n" +
-                "  <Version remindsCount=\"0\" type=\"00000000-0000-0000-0000-000000000010\" id=\"3\" name=\"OperationalTables\" guid=\"a7a499fd-dfc3-44cb-8889-19ab73e8dd20\" parentId=\"2\" />\n" +
-                "  <Version remindsCount=\"0\" type=\"00000000-0000-0000-0000-000000000010\" id=\"5\" name=\"BeforeGAMUpdate\" guid=\"ea64282c-3154-45da-b20e-ff1d0a63df47\" parentId=\"3\" isFrozen=\"True\" />\n" +
-                "  <Version remindsCount=\"0\" type=\"00000000-0000-0000-0000-000000000010\" id=\"6\" name=\"GAMUpdate\" guid=\"95954da9-79bc-4419-bd83-0902bc7bba50\" parentId=\"5\" />\n" +
-                "</Versions>";
+        return "<Versions>\n"
+                + "  <Version remindsCount=\"0\" type=\"00000000-0000-0000-0000-000000000010\" id=\"0\" name=\"EnableGAM\" guid=\"c8ca22d3-7a2c-438e-a1b3-1c592319195c\" isTrunk=\"True\" />\n"
+                + "  <Version remindsCount=\"0\" type=\"00000000-0000-0000-0000-000000000010\" id=\"2\" name=\"BeforeOperationalTables\" guid=\"9337adb2-22bc-44e2-9a6c-e151e4aaebb6\" isFrozen=\"True\" />\n"
+                + "  <Version remindsCount=\"0\" type=\"00000000-0000-0000-0000-000000000010\" id=\"3\" name=\"OperationalTables\" guid=\"a7a499fd-dfc3-44cb-8889-19ab73e8dd20\" parentId=\"2\" />\n"
+                + "  <Version remindsCount=\"0\" type=\"00000000-0000-0000-0000-000000000010\" id=\"5\" name=\"BeforeGAMUpdate\" guid=\"ea64282c-3154-45da-b20e-ff1d0a63df47\" parentId=\"3\" isFrozen=\"True\" />\n"
+                + "  <Version remindsCount=\"0\" type=\"00000000-0000-0000-0000-000000000010\" id=\"6\" name=\"GAMUpdate\" guid=\"95954da9-79bc-4419-bd83-0902bc7bba50\" parentId=\"5\" />\n"
+                + "</Versions>";
     }
 
     /**
@@ -128,16 +122,21 @@ public class VersionListTest {
         testRoundTrip(getCase2(), "Obtained from an actual GXserver");
     }
 
-    protected void testRoundTrip(VersionList input, String caseDescription) throws Exception {
+    protected VersionList testRoundTrip(VersionList input, String caseDescription) throws Exception {
         System.out.println("Case: " + caseDescription);
 
         String xmlString = XmlHelper.createXml(input);
         VersionList output = XmlHelper.parse(new ByteArrayInputStream(xmlString.getBytes(StandardCharsets.UTF_8)), VersionList.class);
         assertEquals(input, output);
+        return output;
     }
 
     protected void testRoundTrip(String inputString, String caseDescription) throws Exception {
         VersionList inputList = XmlHelper.parse(new ByteArrayInputStream(inputString.getBytes(StandardCharsets.UTF_8)), VersionList.class);
-        testRoundTrip(inputList, caseDescription);
+        VersionList outputList = testRoundTrip(inputList, caseDescription);
+
+        String normalizedInput = XmlHelper.normalizeXmlString(inputString);
+        String normalizedOutput = XmlHelper.createXml(outputList, true);
+        assertEquals(normalizedInput, normalizedOutput);
     }
 }

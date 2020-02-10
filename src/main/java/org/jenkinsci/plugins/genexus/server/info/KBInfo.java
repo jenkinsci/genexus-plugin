@@ -36,7 +36,6 @@ import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import org.apache.commons.lang.ObjectUtils;
 
 /**
  *
@@ -61,6 +60,7 @@ public class KBInfo {
     public String description = "";
 
     @XmlAttribute(name = "URL")
+    @XmlJavaTypeAdapter(EmptyURLAdapter.class)
     public URL url;
 
     @XmlAttribute(name = "KBImage")
@@ -96,14 +96,14 @@ public class KBInfo {
 
         KBInfo otherKBInfo = (KBInfo) other;
         return Objects.equals(otherKBInfo.name, this.name)
-            && Objects.equals(otherKBInfo.description, this.description)
-            && Objects.equals(otherKBInfo.url, this.url)
-            && Objects.equals(otherKBInfo.base64Image, this.base64Image)
-            && Objects.equals(otherKBInfo.tags, this.tags)
-            && Objects.equals(otherKBInfo.teamDevMode, this.teamDevMode)
-            && Objects.equals(otherKBInfo.publishUser, this.publishUser)
-            && Objects.equals(otherKBInfo.publishDate, this.publishDate)
-            && true;
+                && Objects.equals(otherKBInfo.description, this.description)
+                && Objects.equals(otherKBInfo.url, this.url)
+                && Objects.equals(otherKBInfo.base64Image, this.base64Image)
+                && Objects.equals(otherKBInfo.tags, this.tags)
+                && Objects.equals(otherKBInfo.teamDevMode, this.teamDevMode)
+                && Objects.equals(otherKBInfo.publishUser, this.publishUser)
+                && Objects.equals(otherKBInfo.publishDate, this.publishDate)
+                && true;
     }
 
     @Override
@@ -119,7 +119,7 @@ public class KBInfo {
         hash = 29 * hash + Objects.hashCode(this.publishDate);
         return hash;
     }
-    
+
     public static class PublishDateAdapter extends XmlAdapter<String, LocalDate> {
 
         private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE, dd MMMM yyyy", Locale.ROOT);
@@ -146,6 +146,25 @@ public class KBInfo {
         @Override
         public String marshal(TeamDevMode mode) throws Exception {
             return mode == TeamDevMode.MERGE ? "Yes" : "No";
+        }
+    }
+
+    public static class EmptyURLAdapter extends XmlAdapter<String, URL> {
+
+        @Override
+        public URL unmarshal(String stringValue) throws Exception {
+            if ("".equals(stringValue)) {
+                return null;
+            }
+            return new URL(stringValue);
+        }
+
+        @Override
+        public String marshal(URL urlValue) throws Exception {
+            if (urlValue == null) {
+                return "";
+            }
+            return urlValue.toString();
         }
     }
 }

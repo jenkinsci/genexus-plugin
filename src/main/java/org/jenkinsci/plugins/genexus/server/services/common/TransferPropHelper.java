@@ -56,6 +56,14 @@ public class TransferPropHelper {
         return sp;
     }
 
+    public static IntProp CreateIntProp(String propName, int propValue) {
+        ObjectFactory of = new ObjectFactory();
+        IntProp sp = of.createIntProp();
+        sp.setName(propName);
+        sp.setValue(propValue);
+        return sp;
+    }
+
     public static Boolean getBooleanValue(TransferProp prop) {
         return ((BoolProp) prop).isValue();
     }

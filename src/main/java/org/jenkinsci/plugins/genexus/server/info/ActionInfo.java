@@ -23,22 +23,105 @@
  */
 package org.jenkinsci.plugins.genexus.server.info;
 
+import java.util.Date;
+import java.util.Objects;
+import java.util.UUID;
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import org.jenkinsci.plugins.genexus.helpers.UTCDateTimeAdapter;
 
 /**
  *
  * @author jlr
  */
 public class ActionInfo {
-    
+
     @XmlType
     @XmlEnum(String.class)
     public enum ActionType {
-        @XmlEnumValue("Yes")
-        MERGE,
-        @XmlEnumValue("No")
-        LOCK
+        @XmlEnumValue("Unchanged")
+        Unchanged,
+        @XmlEnumValue("Inserted")
+        Inserted,
+        @XmlEnumValue("Modified")
+        Modified,
+        @XmlEnumValue("Deleted")
+        Deleted,
+        @XmlEnumValue("Unknown")
+        Unknown
+    }
+
+    @XmlAttribute(name = "guid")
+    public UUID objectGuid;
+
+    @XmlAttribute(name = "key")
+    public String objectKey;
+
+    @XmlAttribute(name = "typeDescriptor")
+    public String objectType;
+
+    @XmlAttribute(name = "name")
+    public String objectName;
+
+    @XmlAttribute(name = "description")
+    public String objectDescription;
+
+    @XmlAttribute(name = "operation")
+    public ActionInfo.ActionType actionType;
+
+    @XmlAttribute(name = "userName")
+    public String userName;
+
+    @XmlAttribute(name = "timestamp", required = false)
+    @XmlJavaTypeAdapter(UTCDateTimeAdapter.class)
+    public Date editedTimestamp;
+
+    public ActionInfo() {
+        this.objectGuid = new UUID(0, 0);
+        this.objectKey = "";
+        this.objectType = "";
+        this.objectName = "";
+        this.objectDescription = "";
+        this.actionType = ActionType.Unknown;
+        this.userName = "";
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == this) {
+            return true;
+        }
+
+        if (!(other instanceof ActionInfo)) {
+            return false;
+        }
+
+        ActionInfo otherActionInfo = (ActionInfo) other;
+        return Objects.equals(otherActionInfo.objectGuid, this.objectGuid)
+                && Objects.equals(otherActionInfo.objectKey, this.objectKey)
+                && Objects.equals(otherActionInfo.objectType, this.objectType)
+                && Objects.equals(otherActionInfo.objectName, this.objectName)
+                && Objects.equals(otherActionInfo.objectDescription, this.objectDescription)
+                && Objects.equals(otherActionInfo.actionType, this.actionType)
+                && Objects.equals(otherActionInfo.userName, this.userName)
+                && Objects.equals(otherActionInfo.editedTimestamp, this.editedTimestamp)
+                && true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 89 * hash + Objects.hashCode(this.objectGuid);
+        hash = 89 * hash + Objects.hashCode(this.objectKey);
+        hash = 89 * hash + Objects.hashCode(this.objectType);
+        hash = 89 * hash + Objects.hashCode(this.objectName);
+        hash = 89 * hash + Objects.hashCode(this.objectDescription);
+        hash = 89 * hash + Objects.hashCode(this.actionType);
+        hash = 89 * hash + Objects.hashCode(this.userName);
+        hash = 89 * hash + Objects.hashCode(this.editedTimestamp);
+        return hash;
     }
 }
