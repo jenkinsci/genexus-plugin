@@ -97,7 +97,7 @@ public class TeamWorkService2Client extends BaseClient {
         try {
             SimpleTransfer parameters = new SimpleTransfer();
             Holder<ArrayOfServerMessage> messages = new Holder<>(new ArrayOfServerMessage());
-            Holder<ArrayOfTransferProp> properties = getBasicProperties();
+            Holder<ArrayOfTransferProp> properties = new Holder<>(createBasicProperties());
 
             FileTransfer transfer = getTeamWorkService2().hostedKBs(parameters, messages, properties);
             byte[] bytes = transfer.getFileByteStream();
@@ -118,11 +118,7 @@ public class TeamWorkService2Client extends BaseClient {
         try {
             SimpleTransfer parameters = new SimpleTransfer();
             Holder<ArrayOfServerMessage> messages = new Holder<>(new ArrayOfServerMessage());
-            Holder<ArrayOfTransferProp> properties = getBasicProperties();
-
-            properties.value.getTransferProp().add(
-                    TransferPropHelper.CreateStringProp(TransferPropConstants.SERVER_KB_NAME, kbName)
-            );
+            Holder<ArrayOfTransferProp> properties = new Holder<>(createGetVersionsProperties(kbName));
 
             FileTransfer transfer = getTeamWorkService2().getVersions(parameters, messages, properties);
             byte[] bytes = transfer.getFileByteStream();
@@ -143,14 +139,7 @@ public class TeamWorkService2Client extends BaseClient {
         try {
             SimpleTransfer parameters = new SimpleTransfer();
             Holder<ArrayOfServerMessage> messages = new Holder<>(new ArrayOfServerMessage());
-            Holder<ArrayOfTransferProp> properties = getBasicProperties();
-
-            properties.value.getTransferProp().addAll(Arrays.asList(
-                    TransferPropHelper.CreateStringProp(TransferPropConstants.SERVER_KB_NAME, kbName),
-                    TransferPropHelper.CreateIntProp(TransferPropConstants.SERVER_VERSION_ID, versionId),
-                    TransferPropHelper.CreateStringProp(TransferPropConstants.SERVER_REVISIONS_QUERY, query),
-                    TransferPropHelper.CreateIntProp(TransferPropConstants.SERVER_REVISIONS_PAGE, page)
-            ));
+            Holder<ArrayOfTransferProp> properties = new Holder<>(createGetRevisionsProperties(kbName, versionId, query, page));
 
             FileTransfer transfer = getTeamWorkService2().getRevisions(parameters, messages, properties);
             byte[] bytes = transfer.getFileByteStream();
@@ -167,10 +156,10 @@ public class TeamWorkService2Client extends BaseClient {
         }
     }
 
-    private Holder<ArrayOfTransferProp> getBasicProperties() {
-        Holder<ArrayOfTransferProp> properties = new Holder<>(new ArrayOfTransferProp());
+    private ArrayOfTransferProp createBasicProperties() {
+        ArrayOfTransferProp properties = new ArrayOfTransferProp();
 
-        properties.value.getTransferProp().addAll(Arrays.asList(
+        properties.getTransferProp().addAll(Arrays.asList(
                 TransferPropHelper.CreateStringProp(TransferPropConstants.CLIENT_GXVERSION, getClientVersion()),
                 TransferPropHelper.CreateStringProp(TransferPropConstants.CLIENT_USER, "Anonymous"),
                 TransferPropHelper.CreateGuidProp(TransferPropConstants.CLIENT_INSTANCE, UUID.randomUUID().toString())
@@ -178,6 +167,29 @@ public class TeamWorkService2Client extends BaseClient {
         return properties;
     }
 
+    private ArrayOfTransferProp createGetVersionsProperties(String kbName) {
+        ArrayOfTransferProp properties = createBasicProperties();
+
+        properties.getTransferProp().add(
+                TransferPropHelper.CreateStringProp(TransferPropConstants.SERVER_KB_NAME, kbName)
+        );
+
+        return properties;
+    }
+
+     private ArrayOfTransferProp createGetRevisionsProperties(String kbName, int versionId, String query, int page) {
+        ArrayOfTransferProp properties = createBasicProperties();
+
+        properties.getTransferProp().addAll(Arrays.asList(
+                TransferPropHelper.CreateStringProp(TransferPropConstants.SERVER_KB_NAME, kbName),
+                TransferPropHelper.CreateIntProp(TransferPropConstants.SERVER_VERSION_ID, versionId),
+                TransferPropHelper.CreateStringProp(TransferPropConstants.SERVER_REVISIONS_QUERY, query),
+                TransferPropHelper.CreateIntProp(TransferPropConstants.SERVER_REVISIONS_PAGE, page)
+        ));
+
+        return properties;
+    }
+   
     private String getString(byte[] bytes) throws IOException {
         String s = new String(bytes, StandardCharsets.UTF_8);
         return s;
