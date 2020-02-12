@@ -82,6 +82,7 @@ public class RevisionsQuery implements Iterable<RevisionInfo> {
                     getNextPage();
                 } catch (IOException ex) {
                     Logger.getLogger(TeamWorkService2Client.class.getName()).log(Level.SEVERE, null, ex);
+                    throw new IllegalStateException(ex.getClass().getSimpleName() + " getting revisions from GXserver: " + ex.toString(), ex);
                 }
             }
 
