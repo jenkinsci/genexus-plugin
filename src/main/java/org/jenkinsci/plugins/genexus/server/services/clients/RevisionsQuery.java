@@ -24,10 +24,14 @@
 package org.jenkinsci.plugins.genexus.server.services.clients;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.lang.StringUtils;
+import org.jenkinsci.plugins.genexus.helpers.UTCDateTimeFormatter;
 import org.jenkinsci.plugins.genexus.server.info.RevisionInfo;
 import org.jenkinsci.plugins.genexus.server.info.RevisionList;
 
@@ -42,16 +46,56 @@ public class RevisionsQuery implements Iterable<RevisionInfo> {
     private final String kbName;
     private final int versionId;
     private final String query;
+    private final Date minDate;
+    private final Date maxDate;
 
     public RevisionsQuery(TeamWorkService2Client twClient, String kbName, int versionId) {
-        this(twClient, kbName, versionId, "");
+        this(twClient, kbName, versionId, null);
     }
 
-    public RevisionsQuery(TeamWorkService2Client twClient, String kbName, int versionId, String query) {
+    public RevisionsQuery(TeamWorkService2Client twClient, String kbName, int versionId, Date minDate) {
+        this(twClient, kbName, versionId, minDate, null);
+    }
+
+    public RevisionsQuery(TeamWorkService2Client twClient, String kbName, int versionId, Date minDate, Date maxDate) {
+        this(twClient, kbName, versionId, minDate, maxDate, "");
+    }
+
+    public RevisionsQuery(TeamWorkService2Client twClient, String kbName, int versionId, Date minDate, Date maxDate, String query) {
         this.twClient = twClient;
         this.kbName = kbName;
         this.versionId = versionId;
-        this.query = query;
+        this.minDate = minDate;
+        this.maxDate = maxDate;
+        this.query = getQueryString(this.minDate, this.maxDate, query);
+    }
+
+    private static String PARM_SEPARATOR = " ";
+    private static String OPERATION_PARM = "operation:";
+    private static String COMMIT_OPERATION = "Commit";
+    private static String FROM_DATE_PARM = "after:";
+    private static String TO_DATE_PARM = "before:";
+
+    private static String getQueryString(Date minDate, Date maxDate, String query) {
+        DateFormat dateFormat = UTCDateTimeFormatter.getQueryFormat();
+
+        StringBuilder qb = new StringBuilder();
+
+        qb.append(OPERATION_PARM).append(COMMIT_OPERATION);
+
+        if (minDate != null) {
+            qb.append(PARM_SEPARATOR).append(FROM_DATE_PARM).append(dateFormat.format(minDate));
+        }
+
+        if (maxDate != null) {
+            qb.append(PARM_SEPARATOR).append(TO_DATE_PARM).append(dateFormat.format(maxDate));
+        }
+
+        if (StringUtils.isNotEmpty(query)) {
+            qb.append(PARM_SEPARATOR).append(query);
+        }
+        
+        return qb.toString();
     }
 
     @Override
@@ -59,7 +103,14 @@ public class RevisionsQuery implements Iterable<RevisionInfo> {
         return new RevisionsIterator();
     }
 
+    public RevisionInfo getFirstItem() {
+        Iterator<RevisionInfo> it = iterator();
+        return it.hasNext() ? it.next() : null;
+    }
+
     private class RevisionsIterator implements Iterator<RevisionInfo> {
+        
+        private int REVISIONS_PAGE_SIZE = 50;
 
         private int currentPageNumber;
         private RevisionList currentPageList;
@@ -104,6 +155,8 @@ public class RevisionsQuery implements Iterable<RevisionInfo> {
             if (newPage != null && newPage.size() > 0) {
                 currentPageNumber = newPageNumber;
                 currentPageList = newPage;
+                gotLastPage = (newPage.size() < REVISIONS_PAGE_SIZE);
+                
                 currentRevision = -1;
             } else {
                 gotLastPage = true;

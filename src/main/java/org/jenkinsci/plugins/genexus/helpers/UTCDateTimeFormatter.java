@@ -24,34 +24,24 @@
 package org.jenkinsci.plugins.genexus.helpers;
 
 import java.text.DateFormat;
-import java.util.Date;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
+import java.text.SimpleDateFormat;
+import java.util.TimeZone;
 
 /**
  *
  * @author jlr
  */
-public class UTCDateTimeAdapter extends XmlAdapter<String, Date> {
+public class UTCDateTimeFormatter {
 
-    private final DateFormat dateFormat = UTCDateTimeFormatter.getXmlResultFormat();
-
-    @Override
-    public String marshal(Date v) throws Exception {
-        synchronized (dateFormat) {
-            if (v == null) {
-                return null;
-            }
-
-            return dateFormat.format(v);
-        }
+    public static DateFormat getXmlResultFormat() {
+        DateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+        df.setTimeZone(TimeZone.getTimeZone("GMT"));
+        return df;
     }
 
-    @Override
-    public Date unmarshal(String v) throws Exception {
-        synchronized (dateFormat) {
-            Date d = dateFormat.parse(v);
-            return d;
-        }
+    public static DateFormat getQueryFormat() {
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        df.setTimeZone(TimeZone.getTimeZone("GMT"));
+        return df;
     }
-
 }
