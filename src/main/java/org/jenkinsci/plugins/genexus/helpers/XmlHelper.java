@@ -24,11 +24,16 @@
 package org.jenkinsci.plugins.genexus.helpers;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -85,13 +90,9 @@ public class XmlHelper {
     }
 
     public static <T> String createXml(T instance, boolean normalized) throws JAXBException {
-        JAXBContext jaxbContext = JAXBContext.newInstance(instance.getClass());
-        Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
-        jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, StandardCharsets.UTF_8.name());
-        jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
         StringWriter writer = new StringWriter();
-        jaxbMarshaller.marshal(instance, writer);
+        writeXml(instance, writer);
+        
         String xmlString = writer.toString();
         if (normalized) {
             try {
@@ -103,6 +104,26 @@ public class XmlHelper {
         return xmlString;
     }
 
+    public static <T> void writeXml(T instance, File file) throws FileNotFoundException, IOException, JAXBException {
+        FileOutputStream outputStream = new FileOutputStream(file);
+        OutputStreamWriter writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8.name());
+        writeXml(instance, writer);
+    }
+    
+    public static <T> void writeXml(T instance, Writer writer) throws JAXBException {
+        Marshaller jaxbMarshaller = createMarshaller(instance);
+        jaxbMarshaller.marshal(instance, writer);        
+    }
+    
+    public static <T> Marshaller createMarshaller(T instance) throws JAXBException {
+        JAXBContext jaxbContext = JAXBContext.newInstance(instance.getClass());
+        Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+        jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, StandardCharsets.UTF_8.name());
+        jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+        return jaxbMarshaller;
+    }
+    
     public static String normalizeXmlString(String inputString) throws ParserConfigurationException, SAXException, IOException, TransformerConfigurationException, TransformerException {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         dbf.setNamespaceAware(true);

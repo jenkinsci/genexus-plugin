@@ -25,10 +25,10 @@ package org.jenkinsci.plugins.genexus.server;
 
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
+import org.jenkinsci.plugins.genexus.helpers.UTCDateTimeFormatter;
 
 /**
  *
@@ -40,18 +40,23 @@ class DateUtils {
     }
     
     static Date fromUTCstring(String utcDate) {
-        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss", Locale.ROOT);            
-        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+        DateFormat df = UTCDateTimeFormatter.getXmlResultFormat();
+        df.setTimeZone(TimeZone.getTimeZone("GMT"));
 
         Date parsedDate;
         try {
-            parsedDate = sdf.parse(utcDate);
+            parsedDate = df.parse(utcDate);
         }
         catch (ParseException ex) {
             parsedDate = new Date(0);
         }
         
         return parsedDate;
+    }
+    
+    static String toUTCstring(Date date) {
+        DateFormat df = UTCDateTimeFormatter.getXmlResultFormat();
+        return df.format(date);
     }
     
     static String toDisplayDate(Date date) {

@@ -23,6 +23,8 @@
  */
 package org.jenkinsci.plugins.genexus.server.services.clients;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Date;
@@ -30,10 +32,13 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.xml.bind.JAXBException;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.genexus.helpers.UTCDateTimeFormatter;
+import org.jenkinsci.plugins.genexus.helpers.XmlHelper;
 import org.jenkinsci.plugins.genexus.server.info.RevisionInfo;
 import org.jenkinsci.plugins.genexus.server.info.RevisionList;
+import org.jenkinsci.plugins.genexus.server.info.VersionInfo;
 
 /**
  *
@@ -44,10 +49,28 @@ public class RevisionsQuery implements Iterable<RevisionInfo> {
     private final TeamWorkService2Client twClient;
 
     private final String kbName;
-    private final int versionId;
+    private String versionName;
+    private int versionId;
     private final String query;
     private final Date minDate;
     private final Date maxDate;
+
+    public RevisionsQuery(TeamWorkService2Client twClient, String kbName, String versionName) {
+        this(twClient, kbName, versionName, null);
+    }
+
+    public RevisionsQuery(TeamWorkService2Client twClient, String kbName, String versionName, Date minDate) {
+        this(twClient, kbName, versionName, minDate, null);
+    }
+
+    public RevisionsQuery(TeamWorkService2Client twClient, String kbName, String versionName, Date minDate, Date maxDate) {
+        this(twClient, kbName, versionName, minDate, maxDate, "");
+    }
+
+    public RevisionsQuery(TeamWorkService2Client twClient, String kbName, String versionName, Date minDate, Date maxDate, String query) {
+        this(twClient, kbName, -1, minDate, maxDate, query);
+        this.versionName = versionName;
+    }
 
     public RevisionsQuery(TeamWorkService2Client twClient, String kbName, int versionId) {
         this(twClient, kbName, versionId, null);
@@ -65,6 +88,7 @@ public class RevisionsQuery implements Iterable<RevisionInfo> {
         this.twClient = twClient;
         this.kbName = kbName;
         this.versionId = versionId;
+        this.versionName = null;
         this.minDate = minDate;
         this.maxDate = maxDate;
         this.query = getQueryString(this.minDate, this.maxDate, query);
@@ -94,7 +118,7 @@ public class RevisionsQuery implements Iterable<RevisionInfo> {
         if (StringUtils.isNotEmpty(query)) {
             qb.append(PARM_SEPARATOR).append(query);
         }
-        
+
         return qb.toString();
     }
 
@@ -108,9 +132,18 @@ public class RevisionsQuery implements Iterable<RevisionInfo> {
         return it.hasNext() ? it.next() : null;
     }
 
+    public void writeToFile(File file) throws IOException, FileNotFoundException, JAXBException {
+        RevisionList list = new RevisionList();
+        for (RevisionInfo rev : this) {
+            list.add(rev);
+        }
+
+        XmlHelper.writeXml(list, file);
+    }
+
     private class RevisionsIterator implements Iterator<RevisionInfo> {
-        
-        private int REVISIONS_PAGE_SIZE = 50;
+
+        private final int REVISIONS_PAGE_SIZE = 50;
 
         private int currentPageNumber;
         private RevisionList currentPageList;
@@ -151,16 +184,28 @@ public class RevisionsQuery implements Iterable<RevisionInfo> {
 
         private void getNextPage() throws IOException {
             int newPageNumber = currentPageNumber + 1;
-            RevisionList newPage = twClient.getRevisions(kbName, versionId, query, newPageNumber);
+            RevisionList newPage = twClient.getRevisions(kbName, getVersionId(), query, newPageNumber);
             if (newPage != null && newPage.size() > 0) {
                 currentPageNumber = newPageNumber;
                 currentPageList = newPage;
                 gotLastPage = (newPage.size() < REVISIONS_PAGE_SIZE);
-                
+
                 currentRevision = -1;
             } else {
                 gotLastPage = true;
             }
+        }
+
+        private int getVersionId() throws IOException {
+            if (versionId < 0) {
+                for (VersionInfo v : twClient.getVersions(kbName)) {
+                    if ((StringUtils.isEmpty(versionName) && v.isTrunk) || v.name.compareToIgnoreCase(versionName) == 0) {
+                        versionId = v.id;
+                        break;
+                    }
+                }
+            }
+            return versionId;
         }
     }
 }

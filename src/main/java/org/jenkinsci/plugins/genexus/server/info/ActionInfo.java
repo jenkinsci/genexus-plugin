@@ -26,17 +26,21 @@ package org.jenkinsci.plugins.genexus.server.info;
 import java.util.Date;
 import java.util.Objects;
 import java.util.UUID;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.genexus.helpers.UTCDateTimeAdapter;
 
 /**
  *
  * @author jlr
  */
+@XmlAccessorType(XmlAccessType.NONE)
 public class ActionInfo {
 
     @XmlType
@@ -89,6 +93,10 @@ public class ActionInfo {
         this.userName = "";
     }
 
+    public UUID getObjectTypeGuid() {
+        return UUID.fromString(StringUtils.left(objectKey, 36));
+    }
+    
     @Override
     public boolean equals(Object other) {
         if (other == this) {

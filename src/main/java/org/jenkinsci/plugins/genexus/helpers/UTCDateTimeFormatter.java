@@ -25,6 +25,7 @@ package org.jenkinsci.plugins.genexus.helpers;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 import java.util.TimeZone;
 
 /**
@@ -34,13 +35,13 @@ import java.util.TimeZone;
 public class UTCDateTimeFormatter {
 
     public static DateFormat getXmlResultFormat() {
-        DateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+        DateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss", Locale.ROOT);
         df.setTimeZone(TimeZone.getTimeZone("GMT"));
         return df;
     }
 
     public static DateFormat getQueryFormat() {
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.ROOT);
         df.setTimeZone(TimeZone.getTimeZone("GMT"));
         return df;
     }
