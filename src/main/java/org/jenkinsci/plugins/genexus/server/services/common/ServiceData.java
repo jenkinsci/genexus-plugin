@@ -74,4 +74,8 @@ public class ServiceData {
     public String getUserPassword() {
         return userPassword;
     }
+
+    public static final String GXSERVER_ISSECURE_PROPERTY = "org.jenkinsci.plugins.genexus.server.services.common.servicedata.issecure";
+    public static final String GXSERVER_USERNAME_PROPERTY = "org.jenkinsci.plugins.genexus.server.services.common.serviceinfo.username";
+    public static final String GXSERVER_PASSWORD_PROPERTY = "org.jenkinsci.plugins.genexus.server.services.common.serviceinfo.password";
 }

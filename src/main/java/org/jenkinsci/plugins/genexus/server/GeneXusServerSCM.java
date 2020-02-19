@@ -40,12 +40,9 @@ import hudson.model.AbstractBuild;
 import hudson.model.BuildListener;
 import hudson.model.Item;
 import hudson.model.Job;
-import hudson.model.Node;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.plugins.msbuild.MsBuildBuilder;
-import hudson.remoting.Channel;
-import hudson.remoting.VirtualChannel;
 import hudson.scm.ChangeLogParser;
 import hudson.scm.PollingResult;
 import hudson.scm.PollingResult.Change;
@@ -63,7 +60,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.DateFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -89,6 +85,7 @@ import org.kohsuke.stapler.interceptor.RequirePOST;
 /**
  *
  * @author jlr
+ * collaborator mmarsicano
  */
 public class GeneXusServerSCM extends SCM implements Serializable {
 
@@ -156,7 +153,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
 
     private String getGxPath() {
         GeneXusInstallation installation = getGeneXusInstallation();
-        if (installation!=null) {
+        if (installation != null) {
             return installation.getHome();
         }
 
@@ -165,7 +162,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
 
     private String getMSBuildInstallationId() {
         GeneXusInstallation installation = getGeneXusInstallation();
-        if (installation!=null) {
+        if (installation != null) {
             return installation.getMsBuildInstallationId();
         }
 
@@ -236,18 +233,15 @@ public class GeneXusServerSCM extends SCM implements Serializable {
     public PollingResult compareRemoteRevisionWith(@Nonnull Job<?, ?> project, @Nullable Launcher launcher, @Nullable FilePath workspace, @Nonnull TaskListener listener, @Nonnull SCMRevisionState _baseline) throws IOException, InterruptedException {
         final GXSRevisionState baseline = getSafeBaseline(project, launcher, workspace, listener, _baseline);
 
-        FilePath workingPath = workspace!=null? workspace : new FilePath(project.getRootDir());
+        FilePath workingPath = workspace != null ? workspace : new FilePath(project.getRootDir());
 
-        try
-        {
+        try {
             GXSConnection gxs = getGXSConnection(project);
-            GXSInfo currentInfo = workingPath.act(new GetLastRevisionTask(listener, getGxPath(), gxs, baseline.getRevisionDate(), new Date()));
+            GXSInfo currentInfo = workingPath.act(new GetLastRevisionTask(listener, gxs, baseline.getRevisionDate(), new Date()));
             GXSRevisionState currentState = new GXSRevisionState(currentInfo.revision, currentInfo.revisionDate);
 
             return new PollingResult(baseline, currentState, currentState.getRevision() > baseline.getRevision() ? Change.SIGNIFICANT : Change.NONE);
-        }
-        catch (IOException | InterruptedException ex)
-        {
+        } catch (IOException | InterruptedException ex) {
             listener.error(ex.getMessage());
             return PollingResult.BUILD_NOW;
         }
@@ -305,7 +299,9 @@ public class GeneXusServerSCM extends SCM implements Serializable {
 
         File file = getRevisionFile(build);
         if (!file.exists()) // nothing to compare against
+        {
             return GXSRevisionState.MIN_REVISION;
+        }
 
         GXSInfo info = loadRevisionFile(file);
         return new GXSRevisionState(info.revision, info.revisionDate);
@@ -316,12 +312,8 @@ public class GeneXusServerSCM extends SCM implements Serializable {
      */
     @Override
     public boolean requiresWorkspaceForPolling() {
-        // We don't actually require a workspace but at least for now
-        // we do require a node on which we can find an executable TeamDev.exe.
-        // Returning true means the SCM poll will be called on the workspace
-        // node, which in turn means we can find a GeneXus Installation there,
-        // which includes a TeamDev.exe
-        return true;
+        // Since polling is done through web service calls, we don't require a workspace
+        return false;
     }
 
     @Override
@@ -414,7 +406,6 @@ public class GeneXusServerSCM extends SCM implements Serializable {
                 // Verify curentInfo is actually at or after baseDate
                 // because if there are no changes in the asked range we will
                 // get a {0, minDate} state.
-
                 // That might happen if after building for revision #42
                 // the server got back to when the last revision was #41
                 // (for example by restoring from a backup)
@@ -430,7 +421,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
     }
 
     private GXSInfo calcCurrentInfo(FilePath workspace, TaskListener listener, GXSConnection gxs, Date minDate, Date maxDate) throws IOException, InterruptedException {
-        return workspace.act(new GetLastRevisionTask(listener, getGxPath(), gxs, minDate, maxDate));
+        return workspace.act(new GetLastRevisionTask(listener, gxs, minDate, maxDate));
     }
 
     /**
@@ -444,7 +435,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
 
         boolean created = false;
         if (currentInfo.revisionDate.after(_baseline.getRevisionDate())) {
-            created = workspace.act(new CreateLogTask(listener, getGxPath(), gxs, changelogFilePath, _baseline.getRevisionDate(), currentInfo.revisionDate));
+            created = workspace.act(new CreateLogTask(listener, gxs, changelogFilePath, _baseline.getRevisionDate(), currentInfo.revisionDate));
         }
 
         if (!created) {
@@ -454,7 +445,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
 
     private GXSRevisionState getSafeBaseline(Run<?, ?> build, SCMRevisionState baseline) throws IOException {
         GXSRevisionState _baseline = GXSRevisionState.MIN_REVISION;
-        if (baseline instanceof GXSRevisionState ) {
+        if (baseline instanceof GXSRevisionState) {
             _baseline = (GXSRevisionState) baseline;
         } else if (build != null) {
             // build is the current one, we are looking for a 'baseline'
@@ -517,8 +508,10 @@ public class GeneXusServerSCM extends SCM implements Serializable {
         if (StringUtils.isNotBlank(getLocalKbVersion())) {
             msbArgs.addProperty("WorkingVersion", getLocalKbVersion());
         }
+
         StandardUsernamePasswordCredentials upCredentials = getKbDbCredentials(context);
         if (upCredentials != null) {
+            msbArgs.addProperty("DbaseUseIntegratedSecurity", false);
             msbArgs.addProperty("DbaseServerUsername", upCredentials.getUsername());
             msbArgs.addProperty("DbaseServerPassword", upCredentials.getPassword().getPlainText());
         }
@@ -777,8 +770,8 @@ public class GeneXusServerSCM extends SCM implements Serializable {
                                     context,
                                     ACL.SYSTEM,
                                     URIRequirementBuilder.fromUri(serverURL).build()
-                        ),
-                        CredentialsMatchers.withId(credentialsId)
+                            ),
+                            CredentialsMatchers.withId(credentialsId)
                     );
         }
 

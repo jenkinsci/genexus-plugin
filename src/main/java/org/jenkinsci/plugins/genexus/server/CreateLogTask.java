@@ -28,23 +28,26 @@ import hudson.model.TaskListener;
 import hudson.remoting.VirtualChannel;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.text.MessageFormat;
 import java.util.Date;
-import java.util.stream.Stream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import jenkins.MasterToSlaveFileCallable;
-import org.jenkinsci.plugins.genexus.helpers.TeamDevArgumentListBuilder;
+import org.jenkinsci.plugins.genexus.helpers.XMLStreamWriterEx;
+import org.jenkinsci.plugins.genexus.server.info.ActionInfo;
+import org.jenkinsci.plugins.genexus.server.info.RevisionInfo;
+import org.jenkinsci.plugins.genexus.server.services.clients.RevisionsQuery;
+import org.jenkinsci.plugins.genexus.server.services.clients.TeamWorkService2Client;
 
 /**
  *
  * @author jlr
- * 
+ *
  */
-public class CreateLogTask  extends MasterToSlaveFileCallable<Boolean> {
+public class CreateLogTask extends MasterToSlaveFileCallable<Boolean> {
 
     private static final long serialVersionUID = 2L;
 
-    private final String gxPath;
     private final TaskListener listener;
     private final GXSConnection gxsConnection;
     private final FilePath logFile;
@@ -52,16 +55,15 @@ public class CreateLogTask  extends MasterToSlaveFileCallable<Boolean> {
     private final Date toTimestamp;
     private final boolean fromExcluding;
 
-    public CreateLogTask(TaskListener listener, String gxPath, GXSConnection gxsConnection, FilePath logFilePath) {
-        this(listener, gxPath, gxsConnection, logFilePath, null, null);
+    public CreateLogTask(TaskListener listener, GXSConnection gxsConnection, FilePath logFilePath) {
+        this(listener, gxsConnection, logFilePath, null, null);
     }
 
-    public CreateLogTask(TaskListener listener, String gxPath, GXSConnection gxsConnection, FilePath logFilePath, Date fromTimestamp, Date toTimestamp) {
-        this(listener, gxPath, gxsConnection, logFilePath, fromTimestamp, toTimestamp, true);
+    public CreateLogTask(TaskListener listener, GXSConnection gxsConnection, FilePath logFilePath, Date fromTimestamp, Date toTimestamp) {
+        this(listener, gxsConnection, logFilePath, fromTimestamp, toTimestamp, true);
     }
-    
-    public CreateLogTask(TaskListener listener, String gxPath, GXSConnection gxsConnection, FilePath logFilePath, Date fromTimestamp, Date toTimestamp, boolean fromExcluding) {
-        this.gxPath = gxPath;
+
+    public CreateLogTask(TaskListener listener, GXSConnection gxsConnection, FilePath logFilePath, Date fromTimestamp, Date toTimestamp, boolean fromExcluding) {
         this.listener = listener;
         this.gxsConnection = gxsConnection;
         this.logFile = logFilePath;
@@ -71,47 +73,36 @@ public class CreateLogTask  extends MasterToSlaveFileCallable<Boolean> {
     }
 
     /**
-     * @return true if success. The logFile may contain an actual log or the error 
-     * info.
+     * @return true if success. The logFile may contain an actual log or the
+     * error info.
      */
     @Override
     public Boolean invoke(File ws, VirtualChannel channel) throws IOException, InterruptedException {
-        TeamDevArgumentListBuilder args = new TeamDevArgumentListBuilder(gxPath, gxsConnection, fromTimestamp, toTimestamp, fromExcluding);
-
         listener.getLogger().println("Checking GeneXus Server history");
-        listener.getLogger().println(args.toString());
 
-        File localFile = logFile.isRemote()?
-                new File(ws, "tempLog.xml") :
-                new File(logFile.getRemote());
-        
+        File localFile = logFile.isRemote()
+                ? new File(ws, "tempLog.xml")
+                : new File(logFile.getRemote());
+
         boolean success;
         try {
-            ProcessBuilder procBuilder = new ProcessBuilder(args.toCommandArray());
-            procBuilder.redirectErrorStream(true);
-            procBuilder.redirectOutput(localFile);
-            Process proc = procBuilder.start();
-            int exitCode = proc.waitFor();
-            success = (exitCode == 0);
+            TeamWorkService2Client twClient = new TeamWorkService2Client(
+                    gxsConnection.getServerURL(),
+                    gxsConnection.getUserName(),
+                    gxsConnection.getUserPassword()
+            );
 
-            if (!success) {
-                listener.getLogger().println("Error checking history:");
-                try (Stream<String> stream = Files.lines(localFile.toPath())) {
-                    stream.forEach(listener.getLogger()::println);
-                }
-            }
-            
-        }
-        catch (RuntimeException e) {
-            listener.getLogger().println("Error checking history: "+e.getMessage());
+            RevisionsQuery query = new RevisionsQuery(twClient, gxsConnection.getKbName(), gxsConnection.getKbVersion(), actualFromTimestamp(), toTimestamp);
+            success = writeLog(localFile, query);
+        } catch (RuntimeException e) {
+            listener.getLogger().println("Error checking history: " + e.getMessage());
             success = false;
         }
 
         if (success && logFile.isRemote()) {
             try {
                 logFile.copyFrom(new FilePath(localFile));
-            }
-            catch (IOException | InterruptedException e) {
+            } catch (IOException | InterruptedException e) {
                 listener.getLogger().println(
                         MessageFormat.format("Error copying local logFile ({0}) to master node ({1}): {3}",
                                 localFile.toPath(),
@@ -124,5 +115,61 @@ public class CreateLogTask  extends MasterToSlaveFileCallable<Boolean> {
         }
 
         return success;
+    }
+
+    private Date actualFromTimestamp() {
+        if (!fromExcluding) {
+            return fromTimestamp;
+        }
+
+        // returns a datetime 1 second later, so that the initial fromTimestamp is excluded
+        return new Date(fromTimestamp.getTime() + 1 * 1000);
+    }
+
+    private boolean writeLog(File file, Iterable<RevisionInfo> revisions) throws IOException {
+        try {
+            XMLStreamWriterEx xmlWriter = XMLStreamWriterEx.newInstance(file);
+
+            try (AutoCloseable docTag = xmlWriter.startDocument()) {
+                try (AutoCloseable logTag = xmlWriter.startElement("log")) {
+                    for (RevisionInfo revision : revisions) {
+                        writeRevision(xmlWriter, revision);
+                    }
+                }
+            }
+
+            xmlWriter.close();
+            return true;
+        } catch (Exception ex) {
+            Logger.getLogger(CreateLogTask.class.getName()).log(Level.SEVERE, null, ex);
+            throw new IOException("Error saving log file", ex);
+        }
+    }
+
+    private void writeRevision(XMLStreamWriterEx xmlWriter, RevisionInfo revision) throws Exception {
+        try (AutoCloseable logEntryTag = xmlWriter.startElement("logentry")) {
+            xmlWriter.writeAttribute("revision", Integer.toString(revision.id));
+            xmlWriter.writeSimpleElement("author", revision.author);
+            xmlWriter.writeSimpleElement("date", DateUtils.toUTCstring(revision.date));
+
+            writeActions(xmlWriter, revision);
+
+            xmlWriter.writeSimpleElement("msg", revision.comment);
+        }
+    }
+
+    private void writeActions(XMLStreamWriterEx xmlWriter, RevisionInfo revision) throws Exception {
+        try (AutoCloseable actions = xmlWriter.startElement("actions")) {
+            for (ActionInfo action : revision.getActions()) {
+                try (AutoCloseable actionTag = xmlWriter.startElement("action")) {
+                    xmlWriter.writeAttribute("type", action.actionType.toString());
+                    xmlWriter.writeSimpleElement("objectGuid", action.objectGuid.toString());
+                    xmlWriter.writeSimpleElement("objectType", action.objectType);
+                    xmlWriter.writeSimpleElement("objectTypeGuid", action.getObjectTypeGuid().toString());
+                    xmlWriter.writeSimpleElement("objectName", action.objectName);
+                    xmlWriter.writeSimpleElement("objectDescription", action.objectDescription);
+                }
+            }
+        }
     }
 }

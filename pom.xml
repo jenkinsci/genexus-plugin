@@ -32,7 +32,7 @@ THE SOFTWARE.
         <relativePath />
     </parent>
     <artifactId>genexus</artifactId>
-    <version>1.9-beta-1-SNAPSHOT</version>
+    <version>1.9-beta-3-SNAPSHOT</version>
     <packaging>hpi</packaging>
     <properties>
         <jenkins.version>2.150.2</jenkins.version>
@@ -147,7 +147,6 @@ THE SOFTWARE.
                             <wsdlFiles>
                                 <wsdlFile>HelperService.svc.singlewsdl.wsdl</wsdlFile>
                             </wsdlFiles>
-                            <packageName>org.jenkinsci.plugins.genexus.server.services</packageName>
                             <vmArgs>
                                 <vmArg>-Djavax.xml.accessExternalSchema=all</vmArg>
                             </vmArgs>
@@ -159,6 +158,28 @@ THE SOFTWARE.
                             </bindingFiles>
                         </configuration>
                         <id>wsimport-generate-HelperService.svc.singlewsdl</id>
+                        <phase>generate-sources</phase>
+                    </execution>
+                    <execution>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                        <configuration>
+                            <args>-XadditionalHeaders</args>
+                            <wsdlFiles>
+                                <wsdlFile>TeamWorkService2.svc.singlewsdl.wsdl</wsdlFile>
+                            </wsdlFiles>
+                            <vmArgs>
+                                <vmArg>-Djavax.xml.accessExternalSchema=all</vmArg>
+                            </vmArgs>
+                            <wsdlLocation>file:/${project.basedir}/src/wsdl/TeamWorkService2.svc.singlewsdl.wsdl</wsdlLocation>
+                            <staleFile>${project.build.directory}/jaxws/stale/TeamWorkService2.svc.singlewsdl.stale</staleFile>
+                            <bindingDirectory>${basedir}/src/jaxws-bindings</bindingDirectory>
+                            <bindingFiles>
+                                <bindingFile>TeamWorkService2.svc.singlewsdl_handler.xml</bindingFile>
+                            </bindingFiles>
+                        </configuration>
+                        <id>wsimport-generate-TeamWorkService2.svc.singlewsdl</id>
                         <phase>generate-sources</phase>
                     </execution>
                 </executions>

@@ -21,16 +21,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.jenkinsci.plugins.genexus.server.services.clients;
+package org.jenkinsci.plugins.genexus.server.info;
+
+import java.util.ArrayList;
+import java.util.List;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
  * @author jlr
  */
-public class ServerInfo {
-    String serverVersion = "";
-    Boolean isAvailable = false;
-    Boolean isSecure = false;
-    Boolean supportsTokenAuthentication = false;
-    Boolean allowsGXtest = false;
+@XmlRootElement(name = "Versions")
+@XmlAccessorType(XmlAccessType.NONE)
+public class VersionList extends ArrayList<VersionInfo> {
+
+    @XmlElement(name = "Version")
+    private List<VersionInfo> getVersions() {
+        return this;
+    }
 }

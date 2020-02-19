@@ -24,29 +24,46 @@
 package org.jenkinsci.plugins.genexus.server.services.common;
 
 import javax.xml.datatype.XMLGregorianCalendar;
-import org.jenkinsci.plugins.genexus.server.services.BoolProp;
-import org.jenkinsci.plugins.genexus.server.services.DateTimeProp;
-import org.jenkinsci.plugins.genexus.server.services.GuidProp;
-import org.jenkinsci.plugins.genexus.server.services.IntProp;
-import org.jenkinsci.plugins.genexus.server.services.LongProp;
-import org.jenkinsci.plugins.genexus.server.services.ObjectFactory;
-import org.jenkinsci.plugins.genexus.server.services.StringProp;
-import org.jenkinsci.plugins.genexus.server.services.TransferProp;
-import org.jenkinsci.plugins.genexus.server.services.XmlProp;
+import org.jenkinsci.plugins.genexus.server.services.contracts.BoolProp;
+import org.jenkinsci.plugins.genexus.server.services.contracts.DateTimeProp;
+import org.jenkinsci.plugins.genexus.server.services.contracts.GuidProp;
+import org.jenkinsci.plugins.genexus.server.services.contracts.IntProp;
+import org.jenkinsci.plugins.genexus.server.services.contracts.LongProp;
+import org.jenkinsci.plugins.genexus.server.services.contracts.ObjectFactory;
+import org.jenkinsci.plugins.genexus.server.services.contracts.StringProp;
+import org.jenkinsci.plugins.genexus.server.services.contracts.TransferProp;
+import org.jenkinsci.plugins.genexus.server.services.contracts.XmlProp;
 
 /**
  *
  * @author jlr
  */
 public class TransferPropHelper {
+
     public static StringProp CreateStringProp(String propName, String propValue) {
         ObjectFactory of = new ObjectFactory();
         StringProp sp = of.createStringProp();
-        sp.setName(of.createTransferPropName(propName));
-        sp.setValue(of.createStringPropValue(propValue));
+        sp.setName(propName);
+        sp.setValue(propValue);
         return sp;
     }
-    
+
+    public static GuidProp CreateGuidProp(String propName, String propValue) {
+        ObjectFactory of = new ObjectFactory();
+        GuidProp sp = of.createGuidProp();
+        sp.setName(propName);
+        sp.setValue(propValue);
+        return sp;
+    }
+
+    public static IntProp CreateIntProp(String propName, int propValue) {
+        ObjectFactory of = new ObjectFactory();
+        IntProp sp = of.createIntProp();
+        sp.setName(propName);
+        sp.setValue(propValue);
+        return sp;
+    }
+
     public static Boolean getBooleanValue(TransferProp prop) {
         return ((BoolProp) prop).isValue();
     }
@@ -68,10 +85,10 @@ public class TransferPropHelper {
     }
 
     public static String getStringValue(TransferProp prop) {
-        return ((StringProp) prop).getValue().getValue();
+        return ((StringProp) prop).getValue();
     }
 
     public static String getXmlValue(TransferProp prop) {
-        return ((XmlProp) prop).getValue().getValue();
+        return ((XmlProp) prop).getValue();
     }
 }

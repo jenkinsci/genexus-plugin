@@ -25,23 +25,22 @@ package org.jenkinsci.plugins.genexus.server.services.clients;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
-import org.jenkinsci.plugins.genexus.server.services.common.NaiveSSLHelper;
+import org.jenkinsci.plugins.genexus.server.info.ServerInfo;
 import org.jenkinsci.plugins.genexus.server.services.common.ServiceData;
 import org.jenkinsci.plugins.genexus.server.services.common.ServiceInfo;
 import org.jenkinsci.plugins.genexus.server.services.common.TransferPropConstants;
 import org.jenkinsci.plugins.genexus.server.services.common.TransferPropHelper;
-import org.jenkinsci.plugins.genexus.server.services.ArrayOfServerMessage;
-import org.jenkinsci.plugins.genexus.server.services.ArrayOfTransferProp;
-import org.jenkinsci.plugins.genexus.server.services.IServerHelper;
-import org.jenkinsci.plugins.genexus.server.services.IServerHelperIsServerAliveGXServerExceptionFaultFaultMessage;
-import org.jenkinsci.plugins.genexus.server.services.IServerHelperServerInfoGXServerExceptionFaultFaultMessage;
-import org.jenkinsci.plugins.genexus.server.services.ServerHelper;
-import org.jenkinsci.plugins.genexus.server.services.SimpleTransfer;
+import org.jenkinsci.plugins.genexus.server.services.contracts.ArrayOfServerMessage;
+import org.jenkinsci.plugins.genexus.server.services.contracts.ArrayOfTransferProp;
+import org.jenkinsci.plugins.genexus.server.services.helper.IServerHelper;
+import org.jenkinsci.plugins.genexus.server.services.helper.IServerHelperIsServerAliveGXServerExceptionFaultFaultMessage;
+import org.jenkinsci.plugins.genexus.server.services.helper.IServerHelperServerInfoGXServerExceptionFaultFaultMessage;
+import org.jenkinsci.plugins.genexus.server.services.helper.ServerHelper;
+import org.jenkinsci.plugins.genexus.server.services.helper.SimpleTransfer;
 
 /**
  *
@@ -69,23 +68,14 @@ public class ServerHelperClient extends BaseClient {
 
     private IServerHelper getServerHelper() throws IOException {
         if (serverHelper == null) {
-            BindingData bindingData = getBindingData(serviceData);
+            BindingData binding = getBindingData();
             ServerHelper service = new ServerHelper();
 
-            IServerHelper port = bindingData.isSecure
+            IServerHelper port = binding.isSecure
                     ? service.getCustomBindingIServerHelper()
                     : service.getBasicHttpBindingIServerHelper();
 
-            BindingProvider bindingProvider = (BindingProvider) port;
-            Map requestContext = bindingProvider.getRequestContext();
-
-            requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, bindingData.url.toString());
-            if (bindingData.isSecure) {
-                requestContext.put(BindingProvider.USERNAME_PROPERTY, serviceData.getUserName());
-                requestContext.put(BindingProvider.PASSWORD_PROPERTY, serviceData.getUserPassword());
-            }
-
-            NaiveSSLHelper.makeWebServiceClientTrustEveryone(port);
+            PrepareClient((BindingProvider) port);
 
             serverHelper = port;
         }
@@ -112,7 +102,7 @@ public class ServerHelperClient extends BaseClient {
             properties.value.getTransferProp().add(
                     TransferPropHelper.CreateStringProp(TransferPropConstants.CLIENT_GXVERSION, getClientVersion())
             );
-            
+
             properties.value.getTransferProp().add(
                     TransferPropHelper.CreateStringProp(TransferPropConstants.SERVER_OPERATION, "")
             );
@@ -120,26 +110,30 @@ public class ServerHelperClient extends BaseClient {
             getServerHelper().serverInfo(parameters, messages, properties);
 
             ServerInfo serverInfo = new ServerInfo();
-            
+
             properties.value.getTransferProp().forEach((prop) -> {
-                switch (prop.getName().getValue()) {
+                switch (prop.getName()) {
                     case TransferPropConstants.SERVER_GXVERSION:
                         serverInfo.serverVersion = TransferPropHelper.getStringValue(prop);
                         break;
-                        
+
                     case TransferPropConstants.SERVER_AVAILABLE:
                         serverInfo.isAvailable = TransferPropHelper.getBooleanValue(prop);
                         break;
-                        
+
                     case TransferPropConstants.SERVER_SECURE:
                         serverInfo.isSecure = TransferPropHelper.getBooleanValue(prop);
                         break;
                     case TransferPropConstants.SUPPORTS_TOKEN_AUTHENTICATION:
                         serverInfo.supportsTokenAuthentication = TransferPropHelper.getBooleanValue(prop);
                         break;
-                        
+
                     case TransferPropConstants.ALLOWS_GXTEST:
                         serverInfo.allowsGXtest = TransferPropHelper.getBooleanValue(prop);
+                        break;
+
+                    case TransferPropConstants.SERVER_CUSTOM_BINDING:
+                        serverInfo.allowsCustomBinding = TransferPropHelper.getBooleanValue(prop);
                         break;
                 }
             });

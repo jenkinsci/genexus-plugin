@@ -107,8 +107,9 @@ public class TeamDevArgumentListBuilder extends ArgumentListBuilder {
     }
 
     private Date actualFromTimestamp(Date fromTimestamp, boolean fromExcluding) {
-        if (!fromExcluding)
+        if (!fromExcluding) {
             return fromTimestamp;
+        }
 
         // returns a datetime 1 second later, so that the initial fromTimestamp is excluded
         return new Date(fromTimestamp.getTime() + 1 * 1000);

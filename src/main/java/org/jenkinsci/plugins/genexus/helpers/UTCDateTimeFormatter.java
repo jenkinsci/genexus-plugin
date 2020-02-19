@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2018 GeneXus S.A..
+ * Copyright 2020 GeneXus S.A..
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,51 +21,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.jenkinsci.plugins.genexus.server;
+package org.jenkinsci.plugins.genexus.helpers;
 
 import java.text.DateFormat;
-import java.text.ParseException;
-import java.util.Date;
+import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.TimeZone;
-import org.jenkinsci.plugins.genexus.helpers.UTCDateTimeFormatter;
 
 /**
  *
  * @author jlr
  */
-class DateUtils {
-    public static Date cloneIfNotNull(Date date) {
-        return date == null? null : new Date(date.getTime());
-    }
-    
-    static Date fromUTCstring(String utcDate) {
-        DateFormat df = UTCDateTimeFormatter.getXmlResultFormat();
+public class UTCDateTimeFormatter {
+
+    public static DateFormat getXmlResultFormat() {
+        DateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss", Locale.ROOT);
         df.setTimeZone(TimeZone.getTimeZone("GMT"));
-
-        Date parsedDate;
-        try {
-            parsedDate = df.parse(utcDate);
-        }
-        catch (ParseException ex) {
-            parsedDate = new Date(0);
-        }
-        
-        return parsedDate;
-    }
-    
-    static String toUTCstring(Date date) {
-        DateFormat df = UTCDateTimeFormatter.getXmlResultFormat();
-        return df.format(date);
-    }
-    
-    static String toDisplayDate(Date date) {
-        if (date == null) {
-            return "[no date]";
-        }
-        
-        DateFormat formatter = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.DEFAULT, Locale.ROOT);
-        return formatter.format(date);
+        return df;
     }
 
+    public static DateFormat getQueryFormat() {
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.ROOT);
+        df.setTimeZone(TimeZone.getTimeZone("GMT"));
+        return df;
+    }
 }
