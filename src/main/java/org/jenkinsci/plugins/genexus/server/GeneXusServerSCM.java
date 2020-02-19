@@ -85,6 +85,7 @@ import org.kohsuke.stapler.interceptor.RequirePOST;
 /**
  *
  * @author jlr
+ * collaborator mmarsicano
  */
 public class GeneXusServerSCM extends SCM implements Serializable {
 
@@ -506,6 +507,13 @@ public class GeneXusServerSCM extends SCM implements Serializable {
 
         if (StringUtils.isNotBlank(getLocalKbVersion())) {
             msbArgs.addProperty("WorkingVersion", getLocalKbVersion());
+        }
+
+        StandardUsernamePasswordCredentials upCredentials = getKbDbCredentials();
+        if (upCredentials != null) {
+            msbArgs.addProperty("DbaseUseIntegratedSecurity", false);
+            msbArgs.addProperty("DbaseServerUsername", upCredentials.getUsername());
+            msbArgs.addProperty("DbaseServerPassword", upCredentials.getPassword().getPlainText());
         }
 
         return createMsBuildAction(msbArgs);
