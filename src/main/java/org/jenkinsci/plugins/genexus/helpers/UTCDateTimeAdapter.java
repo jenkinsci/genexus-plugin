@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2018 GeneXus S.A..
+ * Copyright 2020 GeneXus S.A..
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,51 +21,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.jenkinsci.plugins.genexus.server;
+package org.jenkinsci.plugins.genexus.helpers;
 
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
-import org.jenkinsci.plugins.genexus.helpers.UTCDateTimeFormatter;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 /**
  *
  * @author jlr
  */
-class DateUtils {
-    public static Date cloneIfNotNull(Date date) {
-        return date == null? null : new Date(date.getTime());
-    }
-    
-    static Date fromUTCstring(String utcDate) {
-        DateFormat df = UTCDateTimeFormatter.getXmlResultFormat();
-        df.setTimeZone(TimeZone.getTimeZone("GMT"));
+public class UTCDateTimeAdapter extends XmlAdapter<String, Date> {
 
-        Date parsedDate;
-        try {
-            parsedDate = df.parse(utcDate);
+    private final DateFormat dateFormat = UTCDateTimeFormatter.getXmlResultFormat();
+
+    @Override
+    public String marshal(Date v) throws Exception {
+        synchronized (dateFormat) {
+            if (v == null) {
+                return null;
+            }
+
+            return dateFormat.format(v);
         }
-        catch (ParseException ex) {
-            parsedDate = new Date(0);
-        }
-        
-        return parsedDate;
     }
-    
-    static String toUTCstring(Date date) {
-        DateFormat df = UTCDateTimeFormatter.getXmlResultFormat();
-        return df.format(date);
-    }
-    
-    static String toDisplayDate(Date date) {
-        if (date == null) {
-            return "[no date]";
+
+    @Override
+    public Date unmarshal(String v) throws Exception {
+        synchronized (dateFormat) {
+            Date d = dateFormat.parse(v);
+            return d;
         }
-        
-        DateFormat formatter = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.DEFAULT, Locale.ROOT);
-        return formatter.format(date);
     }
 
 }

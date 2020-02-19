@@ -1,0 +1,562 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    This WSDL includes the following changes from the original that was taken from
+    http://open.genexusserver.com/v16/HelperService.svc?singleWsdl in order to
+    avoid errors reported by wsimport.exe (using JDK Version 1.8.0_152):
+    
+    - Reordered schema declarations so referenced schemas are before their
+      referrers.
+          
+    - Added <xs:import> on for referenced schemas
+    
+    - Removed 'namespace=""' atributes from <soap:fault> and <soap12:fault> nodes
+-->
+<wsdl:definitions name="ServerHelper" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:tns="http://tempuri.org/" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <wsp:Policy wsu:Id="BasicHttpBinding_IServerHelper_policy">
+        <wsp:ExactlyOne>
+            <wsp:All>
+                <wsoma:OptimizedMimeSerialization xmlns:wsoma="http://schemas.xmlsoap.org/ws/2004/09/policy/optimizedmimeserialization"/>
+            </wsp:All>
+        </wsp:ExactlyOne>
+    </wsp:Policy>
+    <wsp:Policy wsu:Id="CustomBinding_IServerHelper_policy">
+        <wsp:ExactlyOne>
+            <wsp:All>
+                <wsoma:OptimizedMimeSerialization xmlns:wsoma="http://schemas.xmlsoap.org/ws/2004/09/policy/optimizedmimeserialization"/>
+                <sp:TransportBinding xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+                    <wsp:Policy>
+                        <sp:TransportToken>
+                            <wsp:Policy>
+                                <sp:HttpsToken RequireClientCertificate="false"/>
+                            </wsp:Policy>
+                        </sp:TransportToken>
+                        <sp:AlgorithmSuite>
+                            <wsp:Policy>
+                                <sp:Basic256/>
+                            </wsp:Policy>
+                        </sp:AlgorithmSuite>
+                        <sp:Layout>
+                            <wsp:Policy>
+                                <sp:Strict/>
+                            </wsp:Policy>
+                        </sp:Layout>
+                        <sp:IncludeTimestamp/>
+                    </wsp:Policy>
+                </sp:TransportBinding>
+                <sp:SignedSupportingTokens xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+                    <wsp:Policy>
+                        <sp:UsernameToken sp:IncludeToken="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy/IncludeToken/AlwaysToRecipient">
+                            <wsp:Policy>
+                                <sp:WssUsernameToken10/>
+                            </wsp:Policy>
+                        </sp:UsernameToken>
+                    </wsp:Policy>
+                </sp:SignedSupportingTokens>
+                <sp:Wss11 xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+                    <wsp:Policy/>
+                </sp:Wss11>
+                <sp:Trust10 xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+                    <wsp:Policy>
+                        <sp:MustSupportIssuedTokens/>
+                        <sp:RequireClientEntropy/>
+                        <sp:RequireServerEntropy/>
+                    </wsp:Policy>
+                </sp:Trust10>
+            </wsp:All>
+        </wsp:ExactlyOne>
+    </wsp:Policy>
+    <wsdl:types>
+        <xs:schema elementFormDefault="qualified" targetNamespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://schemas.microsoft.com/2003/10/Serialization/Arrays">
+            <xs:complexType name="ArrayOfstring">
+                <xs:sequence>
+                    <xs:element minOccurs="0" maxOccurs="unbounded" name="string" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="ArrayOfstring" nillable="true" type="tns:ArrayOfstring"/>
+        </xs:schema>
+        <xs:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:sa="http://schemas.microsoft.com/2003/10/Serialization/Arrays">
+            <xs:import namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays"/>
+            <xs:element name="IsServerAlive">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="IsServerAliveResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="IsServerAliveResult" type="xs:boolean"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="IsKBHosted">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="kbName" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="IsKBHostedResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="IsKBHostedResult" type="xs:boolean"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="IsServerSecure">
+                <xs:complexType>
+                    <xs:sequence/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="IsServerSecureResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="IsServerSecureResult" type="xs:boolean"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="AuthenticationTypes">
+                <xs:complexType>
+                    <xs:sequence/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="AuthenticationTypesResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="AuthenticationTypesResult" nillable="true" type="sa:ArrayOfstring"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="SimpleTransfer">
+                <xs:complexType>
+                    <xs:sequence/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="ServerUTCTime">
+                <xs:complexType>
+                    <xs:sequence/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="ServerUTCTimeResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="ServerUTCTimeResult" type="xs:dateTime"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:schema>
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://schemas.microsoft.com/2003/10/Serialization/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://schemas.microsoft.com/2003/10/Serialization/">
+            <xs:element name="anyType" nillable="true" type="xs:anyType"/>
+            <xs:element name="anyURI" nillable="true" type="xs:anyURI"/>
+            <xs:element name="base64Binary" nillable="true" type="xs:base64Binary"/>
+            <xs:element name="boolean" nillable="true" type="xs:boolean"/>
+            <xs:element name="byte" nillable="true" type="xs:byte"/>
+            <xs:element name="dateTime" nillable="true" type="xs:dateTime"/>
+            <xs:element name="decimal" nillable="true" type="xs:decimal"/>
+            <xs:element name="double" nillable="true" type="xs:double"/>
+            <xs:element name="float" nillable="true" type="xs:float"/>
+            <xs:element name="int" nillable="true" type="xs:int"/>
+            <xs:element name="long" nillable="true" type="xs:long"/>
+            <xs:element name="QName" nillable="true" type="xs:QName"/>
+            <xs:element name="short" nillable="true" type="xs:short"/>
+            <xs:element name="string" nillable="true" type="xs:string"/>
+            <xs:element name="unsignedByte" nillable="true" type="xs:unsignedByte"/>
+            <xs:element name="unsignedInt" nillable="true" type="xs:unsignedInt"/>
+            <xs:element name="unsignedLong" nillable="true" type="xs:unsignedLong"/>
+            <xs:element name="unsignedShort" nillable="true" type="xs:unsignedShort"/>
+            <xs:element name="char" nillable="true" type="tns:char"/>
+            <xs:simpleType name="char">
+                <xs:restriction base="xs:int"/>
+            </xs:simpleType>
+            <xs:element name="duration" nillable="true" type="tns:duration"/>
+            <xs:simpleType name="duration">
+                <xs:restriction base="xs:duration">
+                    <xs:pattern value="\-?P(\d*D)?(T(\d*H)?(\d*M)?(\d*(\.\d*)?S)?)?"/>
+                    <xs:minInclusive value="-P10675199DT2H48M5.4775808S"/>
+                    <xs:maxInclusive value="P10675199DT2H48M5.4775807S"/>
+                </xs:restriction>
+            </xs:simpleType>
+            <xs:element name="guid" nillable="true" type="tns:guid"/>
+            <xs:simpleType name="guid">
+                <xs:restriction base="xs:string">
+                    <xs:pattern value="[\da-fA-F]{8}-[\da-fA-F]{4}-[\da-fA-F]{4}-[\da-fA-F]{4}-[\da-fA-F]{12}"/>
+                </xs:restriction>
+            </xs:simpleType>
+            <xs:attribute name="FactoryType" type="xs:QName"/>
+            <xs:attribute name="Id" type="xs:ID"/>
+            <xs:attribute name="Ref" type="xs:IDREF"/>
+        </xs:schema>
+        <xs:schema elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ser="http://schemas.microsoft.com/2003/10/Serialization/" xmlns:tns="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts">
+            <xs:import namespace="http://schemas.microsoft.com/2003/10/Serialization/"/>
+            <xs:complexType name="GXServerException">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="Message" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="ServerMessages" nillable="true" type="tns:ArrayOfServerMessage"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="GXServerException" nillable="true" type="tns:GXServerException"/>
+            <xs:complexType name="ArrayOfServerMessage">
+                <xs:sequence>
+                    <xs:element minOccurs="0" maxOccurs="unbounded" name="ServerMessage" nillable="true" type="tns:ServerMessage"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="ArrayOfServerMessage" nillable="true" type="tns:ArrayOfServerMessage"/>
+            <xs:complexType name="ServerMessage">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="Text" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="Type" type="tns:MessageType"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="ServerMessage" nillable="true" type="tns:ServerMessage"/>
+            <xs:simpleType name="MessageType">
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="Text"/>
+                    <xs:enumeration value="Warning"/>
+                    <xs:enumeration value="Error"/>
+                </xs:restriction>
+            </xs:simpleType>
+            <xs:element name="MessageType" nillable="true" type="tns:MessageType"/>
+            <xs:element name="Messages" nillable="true" type="tns:ArrayOfServerMessage"/>
+            <xs:complexType name="ArrayOfTransferProp">
+                <xs:sequence>
+                    <xs:element minOccurs="0" maxOccurs="unbounded" name="TransferProp" nillable="true" type="tns:TransferProp"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="ArrayOfTransferProp" nillable="true" type="tns:ArrayOfTransferProp"/>
+            <xs:complexType name="TransferProp">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="Name" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="XmlProperties" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="TransferProp" nillable="true" type="tns:TransferProp"/>
+            <xs:complexType name="DateTimeProp">
+                <xs:complexContent mixed="false">
+                    <xs:extension base="tns:TransferProp">
+                        <xs:sequence>
+                            <xs:element minOccurs="0" name="Value" type="xs:dateTime"/>
+                        </xs:sequence>
+                    </xs:extension>
+                </xs:complexContent>
+            </xs:complexType>
+            <xs:element name="DateTimeProp" nillable="true" type="tns:DateTimeProp"/>
+            <xs:complexType name="GuidProp">
+                <xs:complexContent mixed="false">
+                    <xs:extension base="tns:TransferProp">
+                        <xs:sequence>
+                            <xs:element minOccurs="0" name="Value" type="ser:guid"/>
+                        </xs:sequence>
+                    </xs:extension>
+                </xs:complexContent>
+            </xs:complexType>
+            <xs:element name="GuidProp" nillable="true" type="tns:GuidProp"/>
+            <xs:complexType name="IntProp">
+                <xs:complexContent mixed="false">
+                    <xs:extension base="tns:TransferProp">
+                        <xs:sequence>
+                            <xs:element minOccurs="0" name="Value" type="xs:int"/>
+                        </xs:sequence>
+                    </xs:extension>
+                </xs:complexContent>
+            </xs:complexType>
+            <xs:element name="IntProp" nillable="true" type="tns:IntProp"/>
+            <xs:complexType name="StringProp">
+                <xs:complexContent mixed="false">
+                    <xs:extension base="tns:TransferProp">
+                        <xs:sequence>
+                            <xs:element minOccurs="0" name="Value" nillable="true" type="xs:string"/>
+                        </xs:sequence>
+                    </xs:extension>
+                </xs:complexContent>
+            </xs:complexType>
+            <xs:element name="StringProp" nillable="true" type="tns:StringProp"/>
+            <xs:complexType name="BoolProp">
+                <xs:complexContent mixed="false">
+                    <xs:extension base="tns:TransferProp">
+                        <xs:sequence>
+                            <xs:element minOccurs="0" name="Value" type="xs:boolean"/>
+                        </xs:sequence>
+                    </xs:extension>
+                </xs:complexContent>
+            </xs:complexType>
+            <xs:element name="BoolProp" nillable="true" type="tns:BoolProp"/>
+            <xs:complexType name="XmlProp">
+                <xs:complexContent mixed="false">
+                    <xs:extension base="tns:TransferProp">
+                        <xs:sequence>
+                            <xs:element minOccurs="0" name="Value" nillable="true" type="xs:string"/>
+                        </xs:sequence>
+                    </xs:extension>
+                </xs:complexContent>
+            </xs:complexType>
+            <xs:element name="XmlProp" nillable="true" type="tns:XmlProp"/>
+            <xs:complexType name="LongProp">
+                <xs:complexContent mixed="false">
+                    <xs:extension base="tns:TransferProp">
+                        <xs:sequence>
+                            <xs:element minOccurs="0" name="Value" type="xs:long"/>
+                        </xs:sequence>
+                    </xs:extension>
+                </xs:complexContent>
+            </xs:complexType>
+            <xs:element name="LongProp" nillable="true" type="tns:LongProp"/>
+            <xs:element name="Properties" nillable="true" type="tns:ArrayOfTransferProp"/>
+        </xs:schema>
+    </wsdl:types>
+    <wsdl:message name="IServerHelper_IsServerAlive_InputMessage">
+        <wsdl:part name="parameters" element="tns:IsServerAlive"/>
+    </wsdl:message>
+    <wsdl:message name="IServerHelper_IsServerAlive_OutputMessage">
+        <wsdl:part name="parameters" element="tns:IsServerAliveResponse"/>
+    </wsdl:message>
+    <wsdl:message name="IServerHelper_IsServerAlive_GXServerExceptionFault_FaultMessage">
+        <wsdl:part name="detail" element="q1:GXServerException" xmlns:q1="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts"/>
+    </wsdl:message>
+    <wsdl:message name="IServerHelper_IsKBHosted_InputMessage">
+        <wsdl:part name="parameters" element="tns:IsKBHosted"/>
+    </wsdl:message>
+    <wsdl:message name="IServerHelper_IsKBHosted_OutputMessage">
+        <wsdl:part name="parameters" element="tns:IsKBHostedResponse"/>
+    </wsdl:message>
+    <wsdl:message name="IServerHelper_IsKBHosted_GXServerExceptionFault_FaultMessage">
+        <wsdl:part name="detail" element="q2:GXServerException" xmlns:q2="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts"/>
+    </wsdl:message>
+    <wsdl:message name="IServerHelper_IsServerSecure_InputMessage">
+        <wsdl:part name="parameters" element="tns:IsServerSecure"/>
+    </wsdl:message>
+    <wsdl:message name="IServerHelper_IsServerSecure_OutputMessage">
+        <wsdl:part name="parameters" element="tns:IsServerSecureResponse"/>
+    </wsdl:message>
+    <wsdl:message name="IServerHelper_IsServerSecure_GXServerExceptionFault_FaultMessage">
+        <wsdl:part name="detail" element="q3:GXServerException" xmlns:q3="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts"/>
+    </wsdl:message>
+    <wsdl:message name="IServerHelper_AuthenticationTypes_InputMessage">
+        <wsdl:part name="parameters" element="tns:AuthenticationTypes"/>
+    </wsdl:message>
+    <wsdl:message name="IServerHelper_AuthenticationTypes_OutputMessage">
+        <wsdl:part name="parameters" element="tns:AuthenticationTypesResponse"/>
+    </wsdl:message>
+    <wsdl:message name="IServerHelper_AuthenticationTypes_GXServerExceptionFault_FaultMessage">
+        <wsdl:part name="detail" element="q4:GXServerException" xmlns:q4="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts"/>
+    </wsdl:message>
+    <wsdl:message name="SimpleTransfer">
+        <wsdl:part name="parameters" element="tns:SimpleTransfer"/>
+    </wsdl:message>
+    <wsdl:message name="SimpleTransfer_Headers">
+        <wsdl:part name="Messages" element="q5:Messages" xmlns:q5="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts"/>
+        <wsdl:part name="Properties" element="q6:Properties" xmlns:q6="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts"/>
+    </wsdl:message>
+    <wsdl:message name="IServerHelper_ServerInfo_GXServerExceptionFault_FaultMessage">
+        <wsdl:part name="detail" element="q7:GXServerException" xmlns:q7="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts"/>
+    </wsdl:message>
+    <wsdl:message name="IServerHelper_ServerUTCTime_InputMessage">
+        <wsdl:part name="parameters" element="tns:ServerUTCTime"/>
+    </wsdl:message>
+    <wsdl:message name="IServerHelper_ServerUTCTime_OutputMessage">
+        <wsdl:part name="parameters" element="tns:ServerUTCTimeResponse"/>
+    </wsdl:message>
+    <wsdl:message name="IServerHelper_ServerUTCTime_GXServerExceptionFault_FaultMessage">
+        <wsdl:part name="detail" element="q8:GXServerException" xmlns:q8="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts"/>
+    </wsdl:message>
+    <wsdl:portType name="IServerHelper">
+        <wsdl:operation name="IsServerAlive">
+            <wsdl:input wsaw:Action="http://tempuri.org/IServerHelper/IsServerAlive" message="tns:IServerHelper_IsServerAlive_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/IServerHelper/IsServerAliveResponse" message="tns:IServerHelper_IsServerAlive_OutputMessage"/>
+            <wsdl:fault wsaw:Action="http://tempuri.org/IServerHelper/IsServerAliveGXServerExceptionFault" name="GXServerExceptionFault" message="tns:IServerHelper_IsServerAlive_GXServerExceptionFault_FaultMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="IsKBHosted">
+            <wsdl:input wsaw:Action="http://tempuri.org/IServerHelper/IsKBHosted" message="tns:IServerHelper_IsKBHosted_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/IServerHelper/IsKBHostedResponse" message="tns:IServerHelper_IsKBHosted_OutputMessage"/>
+            <wsdl:fault wsaw:Action="http://tempuri.org/IServerHelper/IsKBHostedGXServerExceptionFault" name="GXServerExceptionFault" message="tns:IServerHelper_IsKBHosted_GXServerExceptionFault_FaultMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="IsServerSecure">
+            <wsdl:input wsaw:Action="http://tempuri.org/IServerHelper/IsServerSecure" message="tns:IServerHelper_IsServerSecure_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/IServerHelper/IsServerSecureResponse" message="tns:IServerHelper_IsServerSecure_OutputMessage"/>
+            <wsdl:fault wsaw:Action="http://tempuri.org/IServerHelper/IsServerSecureGXServerExceptionFault" name="GXServerExceptionFault" message="tns:IServerHelper_IsServerSecure_GXServerExceptionFault_FaultMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="AuthenticationTypes">
+            <wsdl:input wsaw:Action="http://tempuri.org/IServerHelper/AuthenticationTypes" message="tns:IServerHelper_AuthenticationTypes_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/IServerHelper/AuthenticationTypesResponse" message="tns:IServerHelper_AuthenticationTypes_OutputMessage"/>
+            <wsdl:fault wsaw:Action="http://tempuri.org/IServerHelper/AuthenticationTypesGXServerExceptionFault" name="GXServerExceptionFault" message="tns:IServerHelper_AuthenticationTypes_GXServerExceptionFault_FaultMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="ServerInfo">
+            <wsdl:input wsaw:Action="http://tempuri.org/IServerHelper/ServerInfo" name="SimpleTransfer" message="tns:SimpleTransfer"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/IServerHelper/ServerInfoResponse" name="SimpleTransfer" message="tns:SimpleTransfer"/>
+            <wsdl:fault wsaw:Action="http://tempuri.org/IServerHelper/ServerInfoGXServerExceptionFault" name="GXServerExceptionFault" message="tns:IServerHelper_ServerInfo_GXServerExceptionFault_FaultMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="ServerUTCTime">
+            <wsdl:input wsaw:Action="http://tempuri.org/IServerHelper/ServerUTCTime" message="tns:IServerHelper_ServerUTCTime_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/IServerHelper/ServerUTCTimeResponse" message="tns:IServerHelper_ServerUTCTime_OutputMessage"/>
+            <wsdl:fault wsaw:Action="http://tempuri.org/IServerHelper/ServerUTCTimeGXServerExceptionFault" name="GXServerExceptionFault" message="tns:IServerHelper_ServerUTCTime_GXServerExceptionFault_FaultMessage"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="BasicHttpBinding_IServerHelper" type="tns:IServerHelper">
+        <wsp:PolicyReference URI="#BasicHttpBinding_IServerHelper_policy"/>
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="IsServerAlive">
+            <soap:operation soapAction="http://tempuri.org/IServerHelper/IsServerAlive" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="GXServerExceptionFault">
+                <soap:fault use="literal" name="GXServerExceptionFault"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="IsKBHosted">
+            <soap:operation soapAction="http://tempuri.org/IServerHelper/IsKBHosted" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="GXServerExceptionFault">
+                <soap:fault use="literal" name="GXServerExceptionFault"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="IsServerSecure">
+            <soap:operation soapAction="http://tempuri.org/IServerHelper/IsServerSecure" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="GXServerExceptionFault">
+                <soap:fault use="literal" name="GXServerExceptionFault"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="AuthenticationTypes">
+            <soap:operation soapAction="http://tempuri.org/IServerHelper/AuthenticationTypes" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="GXServerExceptionFault">
+                <soap:fault use="literal" name="GXServerExceptionFault"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="ServerInfo">
+            <soap:operation soapAction="http://tempuri.org/IServerHelper/ServerInfo" style="document"/>
+            <wsdl:input name="SimpleTransfer">
+                <soap:header message="tns:SimpleTransfer_Headers" part="Messages" use="literal"/>
+                <soap:header message="tns:SimpleTransfer_Headers" part="Properties" use="literal"/>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="SimpleTransfer">
+                <soap:header message="tns:SimpleTransfer_Headers" part="Messages" use="literal"/>
+                <soap:header message="tns:SimpleTransfer_Headers" part="Properties" use="literal"/>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="GXServerExceptionFault">
+                <soap:fault use="literal" name="GXServerExceptionFault"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="ServerUTCTime">
+            <soap:operation soapAction="http://tempuri.org/IServerHelper/ServerUTCTime" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="GXServerExceptionFault">
+                <soap:fault use="literal" name="GXServerExceptionFault"/>
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="CustomBinding_IServerHelper" type="tns:IServerHelper">
+        <wsp:PolicyReference URI="#CustomBinding_IServerHelper_policy"/>
+        <soap12:binding transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="IsServerAlive">
+            <soap12:operation soapAction="http://tempuri.org/IServerHelper/IsServerAlive" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="GXServerExceptionFault">
+                <soap12:fault use="literal" name="GXServerExceptionFault"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="IsKBHosted">
+            <soap12:operation soapAction="http://tempuri.org/IServerHelper/IsKBHosted" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="GXServerExceptionFault">
+                <soap12:fault use="literal" name="GXServerExceptionFault"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="IsServerSecure">
+            <soap12:operation soapAction="http://tempuri.org/IServerHelper/IsServerSecure" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="GXServerExceptionFault">
+                <soap12:fault use="literal" name="GXServerExceptionFault"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="AuthenticationTypes">
+            <soap12:operation soapAction="http://tempuri.org/IServerHelper/AuthenticationTypes" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="GXServerExceptionFault">
+                <soap12:fault use="literal" name="GXServerExceptionFault"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="ServerInfo">
+            <soap12:operation soapAction="http://tempuri.org/IServerHelper/ServerInfo" style="document"/>
+            <wsdl:input name="SimpleTransfer">
+                <soap12:header message="tns:SimpleTransfer_Headers" part="Messages" use="literal"/>
+                <soap12:header message="tns:SimpleTransfer_Headers" part="Properties" use="literal"/>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="SimpleTransfer">
+                <soap12:header message="tns:SimpleTransfer_Headers" part="Messages" use="literal"/>
+                <soap12:header message="tns:SimpleTransfer_Headers" part="Properties" use="literal"/>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="GXServerExceptionFault">
+                <soap12:fault use="literal" name="GXServerExceptionFault"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="ServerUTCTime">
+            <soap12:operation soapAction="http://tempuri.org/IServerHelper/ServerUTCTime" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="GXServerExceptionFault">
+                <soap12:fault use="literal" name="GXServerExceptionFault"/>
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="ServerHelper">
+        <wsdl:port name="BasicHttpBinding_IServerHelper" binding="tns:BasicHttpBinding_IServerHelper">
+            <soap:address location="http://open.genexusserver.com/v16/HelperService.svc"/>
+        </wsdl:port>
+        <wsdl:port name="CustomBinding_IServerHelper" binding="tns:CustomBinding_IServerHelper">
+            <soap12:address location="https://open.genexusserver.com/v16/HelperService.svc/secure"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

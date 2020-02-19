@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="system">
+    <system systemId="file:/${project.basedir}/src/wsdl/HelperService.svc.singlewsdl.wsdl" uri="wsdl/HelperService.svc.singlewsdl.wsdl"/>
+    <system systemId="file:/${project.basedir}/src/wsdl/TeamWorkService2.svc.singlewsdl.wsdl" uri="wsdl/TeamWorkService2.svc.singlewsdl.wsdl"/>
+</catalog>

@@ -1,0 +1,891 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    This WSDL includes the following changes from the original that was taken from
+    http://open.genexusserver.com/v16/TeamWorkService2.svc?singleWsdl in order to
+    avoid errors reported by wsimport.exe (using JDK Version 1.8.0_152):
+    
+    - Reordered schema declarations so referenced schemas are before their
+      referrers.
+          
+    - Added <xs:import> on for referenced schemas
+    
+    - Removed 'namespace=""' atributes from <soap:fault> and <soap12:fault> nodes
+-->
+<wsdl:definitions name="TeamWorkService2" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:tns="http://tempuri.org/" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <wsp:Policy wsu:Id="CustomBinding_ITeamWorkService2_policy">
+    <wsp:ExactlyOne>
+      <wsp:All>
+        <wsoma:OptimizedMimeSerialization xmlns:wsoma="http://schemas.xmlsoap.org/ws/2004/09/policy/optimizedmimeserialization"/>
+        <sp:TransportBinding xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <wsp:Policy>
+            <sp:TransportToken>
+              <wsp:Policy>
+                <sp:HttpsToken RequireClientCertificate="false"/>
+              </wsp:Policy>
+            </sp:TransportToken>
+            <sp:AlgorithmSuite>
+              <wsp:Policy>
+                <sp:Basic256/>
+              </wsp:Policy>
+            </sp:AlgorithmSuite>
+            <sp:Layout>
+              <wsp:Policy>
+                <sp:Strict/>
+              </wsp:Policy>
+            </sp:Layout>
+            <sp:IncludeTimestamp/>
+          </wsp:Policy>
+        </sp:TransportBinding>
+        <sp:SignedSupportingTokens xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <wsp:Policy>
+            <sp:UsernameToken sp:IncludeToken="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy/IncludeToken/AlwaysToRecipient">
+              <wsp:Policy>
+                <sp:WssUsernameToken10/>
+              </wsp:Policy>
+            </sp:UsernameToken>
+          </wsp:Policy>
+        </sp:SignedSupportingTokens>
+        <sp:Wss11 xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <wsp:Policy/>
+        </sp:Wss11>
+        <sp:Trust10 xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <wsp:Policy>
+            <sp:MustSupportIssuedTokens/>
+            <sp:RequireClientEntropy/>
+            <sp:RequireServerEntropy/>
+          </wsp:Policy>
+        </sp:Trust10>
+      </wsp:All>
+    </wsp:ExactlyOne>
+  </wsp:Policy>
+  <wsdl:types>
+    <xs:schema elementFormDefault="qualified" targetNamespace="http://schemas.microsoft.com/Message" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://schemas.microsoft.com/Message">
+      <xs:simpleType name="StreamBody">
+        <xs:restriction base="xs:base64Binary"/>
+      </xs:simpleType>
+    </xs:schema>
+    <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://schemas.microsoft.com/2003/10/Serialization/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://schemas.microsoft.com/2003/10/Serialization/">
+      <xs:element name="anyType" nillable="true" type="xs:anyType"/>
+      <xs:element name="anyURI" nillable="true" type="xs:anyURI"/>
+      <xs:element name="base64Binary" nillable="true" type="xs:base64Binary"/>
+      <xs:element name="boolean" nillable="true" type="xs:boolean"/>
+      <xs:element name="byte" nillable="true" type="xs:byte"/>
+      <xs:element name="dateTime" nillable="true" type="xs:dateTime"/>
+      <xs:element name="decimal" nillable="true" type="xs:decimal"/>
+      <xs:element name="double" nillable="true" type="xs:double"/>
+      <xs:element name="float" nillable="true" type="xs:float"/>
+      <xs:element name="int" nillable="true" type="xs:int"/>
+      <xs:element name="long" nillable="true" type="xs:long"/>
+      <xs:element name="QName" nillable="true" type="xs:QName"/>
+      <xs:element name="short" nillable="true" type="xs:short"/>
+      <xs:element name="string" nillable="true" type="xs:string"/>
+      <xs:element name="unsignedByte" nillable="true" type="xs:unsignedByte"/>
+      <xs:element name="unsignedInt" nillable="true" type="xs:unsignedInt"/>
+      <xs:element name="unsignedLong" nillable="true" type="xs:unsignedLong"/>
+      <xs:element name="unsignedShort" nillable="true" type="xs:unsignedShort"/>
+      <xs:element name="char" nillable="true" type="tns:char"/>
+      <xs:simpleType name="char">
+        <xs:restriction base="xs:int"/>
+      </xs:simpleType>
+      <xs:element name="duration" nillable="true" type="tns:duration"/>
+      <xs:simpleType name="duration">
+        <xs:restriction base="xs:duration">
+          <xs:pattern value="\-?P(\d*D)?(T(\d*H)?(\d*M)?(\d*(\.\d*)?S)?)?"/>
+          <xs:minInclusive value="-P10675199DT2H48M5.4775808S"/>
+          <xs:maxInclusive value="P10675199DT2H48M5.4775807S"/>
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:element name="guid" nillable="true" type="tns:guid"/>
+      <xs:simpleType name="guid">
+        <xs:restriction base="xs:string">
+          <xs:pattern value="[\da-fA-F]{8}-[\da-fA-F]{4}-[\da-fA-F]{4}-[\da-fA-F]{4}-[\da-fA-F]{12}"/>
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:attribute name="FactoryType" type="xs:QName"/>
+      <xs:attribute name="Id" type="xs:ID"/>
+      <xs:attribute name="Ref" type="xs:IDREF"/>
+    </xs:schema>
+    <xs:schema elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ser="http://schemas.microsoft.com/2003/10/Serialization/" xmlns:tns="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts">
+      <xs:import namespace="http://schemas.microsoft.com/Message"/>
+      <xs:import namespace="http://schemas.microsoft.com/2003/10/Serialization/"/>
+      <xs:complexType name="ArrayOfServerMessage">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="ServerMessage" nillable="true" type="tns:ServerMessage"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:element name="ArrayOfServerMessage" nillable="true" type="tns:ArrayOfServerMessage"/>
+      <xs:complexType name="ServerMessage">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="Text" nillable="true" type="xs:string"/>
+          <xs:element minOccurs="0" name="Type" type="tns:MessageType"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:element name="ServerMessage" nillable="true" type="tns:ServerMessage"/>
+      <xs:simpleType name="MessageType">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="Text"/>
+          <xs:enumeration value="Warning"/>
+          <xs:enumeration value="Error"/>
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:element name="MessageType" nillable="true" type="tns:MessageType"/>
+      <xs:element name="Messages" nillable="true" type="tns:ArrayOfServerMessage"/>
+      <xs:complexType name="ArrayOfTransferProp">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="TransferProp" nillable="true" type="tns:TransferProp"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:element name="ArrayOfTransferProp" nillable="true" type="tns:ArrayOfTransferProp"/>
+      <xs:complexType name="TransferProp">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="Name" nillable="true" type="xs:string"/>
+          <xs:element minOccurs="0" name="XmlProperties" nillable="true" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:element name="TransferProp" nillable="true" type="tns:TransferProp"/>
+      <xs:complexType name="DateTimeProp">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:TransferProp">
+            <xs:sequence>
+              <xs:element minOccurs="0" name="Value" type="xs:dateTime"/>
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:element name="DateTimeProp" nillable="true" type="tns:DateTimeProp"/>
+      <xs:complexType name="GuidProp">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:TransferProp">
+            <xs:sequence>
+              <xs:element minOccurs="0" name="Value" type="ser:guid"/>
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:element name="GuidProp" nillable="true" type="tns:GuidProp"/>
+      <xs:complexType name="IntProp">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:TransferProp">
+            <xs:sequence>
+              <xs:element minOccurs="0" name="Value" type="xs:int"/>
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:element name="IntProp" nillable="true" type="tns:IntProp"/>
+      <xs:complexType name="StringProp">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:TransferProp">
+            <xs:sequence>
+              <xs:element minOccurs="0" name="Value" nillable="true" type="xs:string"/>
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:element name="StringProp" nillable="true" type="tns:StringProp"/>
+      <xs:complexType name="BoolProp">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:TransferProp">
+            <xs:sequence>
+              <xs:element minOccurs="0" name="Value" type="xs:boolean"/>
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:element name="BoolProp" nillable="true" type="tns:BoolProp"/>
+      <xs:complexType name="XmlProp">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:TransferProp">
+            <xs:sequence>
+              <xs:element minOccurs="0" name="Value" nillable="true" type="xs:string"/>
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:element name="XmlProp" nillable="true" type="tns:XmlProp"/>
+      <xs:complexType name="LongProp">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:TransferProp">
+            <xs:sequence>
+              <xs:element minOccurs="0" name="Value" type="xs:long"/>
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:element name="LongProp" nillable="true" type="tns:LongProp"/>
+      <xs:element name="Properties" nillable="true" type="tns:ArrayOfTransferProp"/>
+      <xs:element name="FileByteStream" type="q1:StreamBody" xmlns:q1="http://schemas.microsoft.com/Message"/>
+      <xs:complexType name="GXServerException">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="Message" nillable="true" type="xs:string"/>
+          <xs:element minOccurs="0" name="ServerMessages" nillable="true" type="tns:ArrayOfServerMessage"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:element name="GXServerException" nillable="true" type="tns:GXServerException"/>
+    </xs:schema>
+    <xs:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <xs:import namespace="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts"/>
+      <xs:element name="SimpleTransfer">
+        <xs:complexType>
+          <xs:sequence/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="FileTransfer">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element ref="q1:FileByteStream" xmlns:q1="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:schema>
+  </wsdl:types>
+  <wsdl:message name="SimpleTransfer">
+    <wsdl:part name="parameters" element="tns:SimpleTransfer"/>
+  </wsdl:message>
+  <wsdl:message name="SimpleTransfer_Headers">
+    <wsdl:part name="Messages" element="q3:Messages" xmlns:q3="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts"/>
+    <wsdl:part name="Properties" element="q4:Properties" xmlns:q4="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts"/>
+  </wsdl:message>
+  <wsdl:message name="FileTransfer">
+    <wsdl:part name="parameters" element="tns:FileTransfer"/>
+  </wsdl:message>
+  <wsdl:message name="FileTransfer_Headers">
+    <wsdl:part name="Messages" element="q5:Messages" xmlns:q5="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts"/>
+    <wsdl:part name="Properties" element="q6:Properties" xmlns:q6="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts"/>
+  </wsdl:message>
+  <wsdl:message name="ITeamWorkService2_Update_GXServerExceptionFault_FaultMessage">
+    <wsdl:part name="detail" element="q7:GXServerException" xmlns:q7="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts"/>
+  </wsdl:message>
+  <wsdl:message name="ITeamWorkService2_Commit_GXServerExceptionFault_FaultMessage">
+    <wsdl:part name="detail" element="q8:GXServerException" xmlns:q8="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts"/>
+  </wsdl:message>
+  <wsdl:message name="ITeamWorkService2_Update2_GXServerExceptionFault_FaultMessage">
+    <wsdl:part name="detail" element="q9:GXServerException" xmlns:q9="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts"/>
+  </wsdl:message>
+  <wsdl:message name="ITeamWorkService2_Commit2_GXServerExceptionFault_FaultMessage">
+    <wsdl:part name="detail" element="q10:GXServerException" xmlns:q10="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts"/>
+  </wsdl:message>
+  <wsdl:message name="ITeamWorkService2_CheckOut_GXServerExceptionFault_FaultMessage">
+    <wsdl:part name="detail" element="q11:GXServerException" xmlns:q11="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts"/>
+  </wsdl:message>
+  <wsdl:message name="ITeamWorkService2_PublishKB_GXServerExceptionFault_FaultMessage">
+    <wsdl:part name="detail" element="q12:GXServerException" xmlns:q12="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts"/>
+  </wsdl:message>
+  <wsdl:message name="ITeamWorkService2_WhatsUp_GXServerExceptionFault_FaultMessage">
+    <wsdl:part name="detail" element="q13:GXServerException" xmlns:q13="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts"/>
+  </wsdl:message>
+  <wsdl:message name="ITeamWorkService2_GetServerVersion_GXServerExceptionFault_FaultMessage">
+    <wsdl:part name="detail" element="q14:GXServerException" xmlns:q14="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts"/>
+  </wsdl:message>
+  <wsdl:message name="ITeamWorkService2_CancelCommitOparation_GXServerExceptionFault_FaultMessage">
+    <wsdl:part name="detail" element="q15:GXServerException" xmlns:q15="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts"/>
+  </wsdl:message>
+  <wsdl:message name="ITeamWorkService2_WasCommitOk_GXServerExceptionFault_FaultMessage">
+    <wsdl:part name="detail" element="q16:GXServerException" xmlns:q16="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts"/>
+  </wsdl:message>
+  <wsdl:message name="ITeamWorkService2_GetCommitFile_GXServerExceptionFault_FaultMessage">
+    <wsdl:part name="detail" element="q17:GXServerException" xmlns:q17="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts"/>
+  </wsdl:message>
+  <wsdl:message name="ITeamWorkService2_GetCurrentVersionObject_GXServerExceptionFault_FaultMessage">
+    <wsdl:part name="detail" element="q18:GXServerException" xmlns:q18="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts"/>
+  </wsdl:message>
+  <wsdl:message name="ITeamWorkService2_PartialUpdate_GXServerExceptionFault_FaultMessage">
+    <wsdl:part name="detail" element="q19:GXServerException" xmlns:q19="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts"/>
+  </wsdl:message>
+  <wsdl:message name="ITeamWorkService2_LockObjects_GXServerExceptionFault_FaultMessage">
+    <wsdl:part name="detail" element="q20:GXServerException" xmlns:q20="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts"/>
+  </wsdl:message>
+  <wsdl:message name="ITeamWorkService2_StealObjects_GXServerExceptionFault_FaultMessage">
+    <wsdl:part name="detail" element="q21:GXServerException" xmlns:q21="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts"/>
+  </wsdl:message>
+  <wsdl:message name="ITeamWorkService2_UnlockObjects_GXServerExceptionFault_FaultMessage">
+    <wsdl:part name="detail" element="q22:GXServerException" xmlns:q22="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts"/>
+  </wsdl:message>
+  <wsdl:message name="ITeamWorkService2_Resynchronize_GXServerExceptionFault_FaultMessage">
+    <wsdl:part name="detail" element="q23:GXServerException" xmlns:q23="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts"/>
+  </wsdl:message>
+  <wsdl:message name="ITeamWorkService2_GetVersions_GXServerExceptionFault_FaultMessage">
+    <wsdl:part name="detail" element="q24:GXServerException" xmlns:q24="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts"/>
+  </wsdl:message>
+  <wsdl:message name="ITeamWorkService2_GetRevisions_GXServerExceptionFault_FaultMessage">
+    <wsdl:part name="detail" element="q25:GXServerException" xmlns:q25="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts"/>
+  </wsdl:message>
+  <wsdl:message name="ITeamWorkService2_RemoveBringChangesMark_GXServerExceptionFault_FaultMessage">
+    <wsdl:part name="detail" element="q26:GXServerException" xmlns:q26="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts"/>
+  </wsdl:message>
+  <wsdl:message name="ITeamWorkService2_GetRevisionChanges_GXServerExceptionFault_FaultMessage">
+    <wsdl:part name="detail" element="q27:GXServerException" xmlns:q27="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts"/>
+  </wsdl:message>
+  <wsdl:message name="ITeamWorkService2_GetObjectRevisions_GXServerExceptionFault_FaultMessage">
+    <wsdl:part name="detail" element="q28:GXServerException" xmlns:q28="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts"/>
+  </wsdl:message>
+  <wsdl:message name="ITeamWorkService2_CreateVersion_GXServerExceptionFault_FaultMessage">
+    <wsdl:part name="detail" element="q29:GXServerException" xmlns:q29="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts"/>
+  </wsdl:message>
+  <wsdl:message name="ITeamWorkService2_DeleteVersion_GXServerExceptionFault_FaultMessage">
+    <wsdl:part name="detail" element="q30:GXServerException" xmlns:q30="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts"/>
+  </wsdl:message>
+  <wsdl:message name="ITeamWorkService2_HostedKBs_GXServerExceptionFault_FaultMessage">
+    <wsdl:part name="detail" element="q31:GXServerException" xmlns:q31="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts"/>
+  </wsdl:message>
+  <wsdl:message name="ITeamWorkService2_GetVersionMetadata_GXServerExceptionFault_FaultMessage">
+    <wsdl:part name="detail" element="q32:GXServerException" xmlns:q32="http://schemas.datacontract.org/2004/07/GeneXus.Server.Contracts"/>
+  </wsdl:message>
+  <wsdl:portType msc:usingSession="false" name="ITeamWorkService2">
+    <wsdl:operation name="Update">
+      <wsdl:input wsaw:Action="http://tempuri.org/ITeamWorkService2/Update" name="SimpleTransfer" message="tns:SimpleTransfer"/>
+      <wsdl:output wsaw:Action="http://tempuri.org/ITeamWorkService2/UpdateResponse" name="FileTransfer" message="tns:FileTransfer"/>
+      <wsdl:fault wsaw:Action="http://tempuri.org/ITeamWorkService2/UpdateGXServerExceptionFault" name="GXServerExceptionFault" message="tns:ITeamWorkService2_Update_GXServerExceptionFault_FaultMessage"/>
+    </wsdl:operation>
+    <wsdl:operation name="Commit">
+      <wsdl:input wsaw:Action="http://tempuri.org/ITeamWorkService2/Commit" name="FileTransfer" message="tns:FileTransfer"/>
+      <wsdl:output wsaw:Action="http://tempuri.org/ITeamWorkService2/CommitResponse" name="SimpleTransfer" message="tns:SimpleTransfer"/>
+      <wsdl:fault wsaw:Action="http://tempuri.org/ITeamWorkService2/CommitGXServerExceptionFault" name="GXServerExceptionFault" message="tns:ITeamWorkService2_Commit_GXServerExceptionFault_FaultMessage"/>
+    </wsdl:operation>
+    <wsdl:operation name="Update2">
+      <wsdl:input wsaw:Action="http://tempuri.org/ITeamWorkService2/Update2" name="FileTransfer" message="tns:FileTransfer"/>
+      <wsdl:output wsaw:Action="http://tempuri.org/ITeamWorkService2/Update2Response" name="FileTransfer" message="tns:FileTransfer"/>
+      <wsdl:fault wsaw:Action="http://tempuri.org/ITeamWorkService2/Update2GXServerExceptionFault" name="GXServerExceptionFault" message="tns:ITeamWorkService2_Update2_GXServerExceptionFault_FaultMessage"/>
+    </wsdl:operation>
+    <wsdl:operation name="Commit2">
+      <wsdl:input wsaw:Action="http://tempuri.org/ITeamWorkService2/Commit2" name="FileTransfer" message="tns:FileTransfer"/>
+      <wsdl:output wsaw:Action="http://tempuri.org/ITeamWorkService2/Commit2Response" name="FileTransfer" message="tns:FileTransfer"/>
+      <wsdl:fault wsaw:Action="http://tempuri.org/ITeamWorkService2/Commit2GXServerExceptionFault" name="GXServerExceptionFault" message="tns:ITeamWorkService2_Commit2_GXServerExceptionFault_FaultMessage"/>
+    </wsdl:operation>
+    <wsdl:operation name="CheckOut">
+      <wsdl:input wsaw:Action="http://tempuri.org/ITeamWorkService2/CheckOut" name="SimpleTransfer" message="tns:SimpleTransfer"/>
+      <wsdl:output wsaw:Action="http://tempuri.org/ITeamWorkService2/CheckOutResponse" name="FileTransfer" message="tns:FileTransfer"/>
+      <wsdl:fault wsaw:Action="http://tempuri.org/ITeamWorkService2/CheckOutGXServerExceptionFault" name="GXServerExceptionFault" message="tns:ITeamWorkService2_CheckOut_GXServerExceptionFault_FaultMessage"/>
+    </wsdl:operation>
+    <wsdl:operation name="PublishKB">
+      <wsdl:input wsaw:Action="http://tempuri.org/ITeamWorkService2/PublishKB" name="FileTransfer" message="tns:FileTransfer"/>
+      <wsdl:output wsaw:Action="http://tempuri.org/ITeamWorkService2/PublishKBResponse" name="SimpleTransfer" message="tns:SimpleTransfer"/>
+      <wsdl:fault wsaw:Action="http://tempuri.org/ITeamWorkService2/PublishKBGXServerExceptionFault" name="GXServerExceptionFault" message="tns:ITeamWorkService2_PublishKB_GXServerExceptionFault_FaultMessage"/>
+    </wsdl:operation>
+    <wsdl:operation name="WhatsUp">
+      <wsdl:input wsaw:Action="http://tempuri.org/ITeamWorkService2/WhatsUp" name="SimpleTransfer" message="tns:SimpleTransfer"/>
+      <wsdl:output wsaw:Action="http://tempuri.org/ITeamWorkService2/WhatsUpResponse" name="SimpleTransfer" message="tns:SimpleTransfer"/>
+      <wsdl:fault wsaw:Action="http://tempuri.org/ITeamWorkService2/WhatsUpGXServerExceptionFault" name="GXServerExceptionFault" message="tns:ITeamWorkService2_WhatsUp_GXServerExceptionFault_FaultMessage"/>
+    </wsdl:operation>
+    <wsdl:operation name="GetServerVersion">
+      <wsdl:input wsaw:Action="http://tempuri.org/ITeamWorkService2/GetServerVersion" name="SimpleTransfer" message="tns:SimpleTransfer"/>
+      <wsdl:output wsaw:Action="http://tempuri.org/ITeamWorkService2/GetServerVersionResponse" name="FileTransfer" message="tns:FileTransfer"/>
+      <wsdl:fault wsaw:Action="http://tempuri.org/ITeamWorkService2/GetServerVersionGXServerExceptionFault" name="GXServerExceptionFault" message="tns:ITeamWorkService2_GetServerVersion_GXServerExceptionFault_FaultMessage"/>
+    </wsdl:operation>
+    <wsdl:operation name="CancelCommitOparation">
+      <wsdl:input wsaw:Action="http://tempuri.org/ITeamWorkService2/CancelCommitOparation" name="SimpleTransfer" message="tns:SimpleTransfer"/>
+      <wsdl:output wsaw:Action="http://tempuri.org/ITeamWorkService2/CancelCommitOparationResponse" name="SimpleTransfer" message="tns:SimpleTransfer"/>
+      <wsdl:fault wsaw:Action="http://tempuri.org/ITeamWorkService2/CancelCommitOparationGXServerExceptionFault" name="GXServerExceptionFault" message="tns:ITeamWorkService2_CancelCommitOparation_GXServerExceptionFault_FaultMessage"/>
+    </wsdl:operation>
+    <wsdl:operation name="WasCommitOk">
+      <wsdl:input wsaw:Action="http://tempuri.org/ITeamWorkService2/WasCommitOk" name="SimpleTransfer" message="tns:SimpleTransfer"/>
+      <wsdl:output wsaw:Action="http://tempuri.org/ITeamWorkService2/WasCommitOkResponse" name="SimpleTransfer" message="tns:SimpleTransfer"/>
+      <wsdl:fault wsaw:Action="http://tempuri.org/ITeamWorkService2/WasCommitOkGXServerExceptionFault" name="GXServerExceptionFault" message="tns:ITeamWorkService2_WasCommitOk_GXServerExceptionFault_FaultMessage"/>
+    </wsdl:operation>
+    <wsdl:operation name="GetCommitFile">
+      <wsdl:input wsaw:Action="http://tempuri.org/ITeamWorkService2/GetCommitFile" name="SimpleTransfer" message="tns:SimpleTransfer"/>
+      <wsdl:output wsaw:Action="http://tempuri.org/ITeamWorkService2/GetCommitFileResponse" name="FileTransfer" message="tns:FileTransfer"/>
+      <wsdl:fault wsaw:Action="http://tempuri.org/ITeamWorkService2/GetCommitFileGXServerExceptionFault" name="GXServerExceptionFault" message="tns:ITeamWorkService2_GetCommitFile_GXServerExceptionFault_FaultMessage"/>
+    </wsdl:operation>
+    <wsdl:operation name="GetCurrentVersionObject">
+      <wsdl:input wsaw:Action="http://tempuri.org/ITeamWorkService2/GetCurrentVersionObject" name="FileTransfer" message="tns:FileTransfer"/>
+      <wsdl:output wsaw:Action="http://tempuri.org/ITeamWorkService2/GetCurrentVersionObjectResponse" name="FileTransfer" message="tns:FileTransfer"/>
+      <wsdl:fault wsaw:Action="http://tempuri.org/ITeamWorkService2/GetCurrentVersionObjectGXServerExceptionFault" name="GXServerExceptionFault" message="tns:ITeamWorkService2_GetCurrentVersionObject_GXServerExceptionFault_FaultMessage"/>
+    </wsdl:operation>
+    <wsdl:operation name="PartialUpdate">
+      <wsdl:input wsaw:Action="http://tempuri.org/ITeamWorkService2/PartialUpdate" name="FileTransfer" message="tns:FileTransfer"/>
+      <wsdl:output wsaw:Action="http://tempuri.org/ITeamWorkService2/PartialUpdateResponse" name="FileTransfer" message="tns:FileTransfer"/>
+      <wsdl:fault wsaw:Action="http://tempuri.org/ITeamWorkService2/PartialUpdateGXServerExceptionFault" name="GXServerExceptionFault" message="tns:ITeamWorkService2_PartialUpdate_GXServerExceptionFault_FaultMessage"/>
+    </wsdl:operation>
+    <wsdl:operation name="LockObjects">
+      <wsdl:input wsaw:Action="http://tempuri.org/ITeamWorkService2/LockObjects" name="FileTransfer" message="tns:FileTransfer"/>
+      <wsdl:output wsaw:Action="http://tempuri.org/ITeamWorkService2/LockObjectsResponse" name="FileTransfer" message="tns:FileTransfer"/>
+      <wsdl:fault wsaw:Action="http://tempuri.org/ITeamWorkService2/LockObjectsGXServerExceptionFault" name="GXServerExceptionFault" message="tns:ITeamWorkService2_LockObjects_GXServerExceptionFault_FaultMessage"/>
+    </wsdl:operation>
+    <wsdl:operation name="StealObjects">
+      <wsdl:input wsaw:Action="http://tempuri.org/ITeamWorkService2/StealObjects" name="FileTransfer" message="tns:FileTransfer"/>
+      <wsdl:output wsaw:Action="http://tempuri.org/ITeamWorkService2/StealObjectsResponse" name="FileTransfer" message="tns:FileTransfer"/>
+      <wsdl:fault wsaw:Action="http://tempuri.org/ITeamWorkService2/StealObjectsGXServerExceptionFault" name="GXServerExceptionFault" message="tns:ITeamWorkService2_StealObjects_GXServerExceptionFault_FaultMessage"/>
+    </wsdl:operation>
+    <wsdl:operation name="UnlockObjects">
+      <wsdl:input wsaw:Action="http://tempuri.org/ITeamWorkService2/UnlockObjects" name="FileTransfer" message="tns:FileTransfer"/>
+      <wsdl:output wsaw:Action="http://tempuri.org/ITeamWorkService2/UnlockObjectsResponse" name="SimpleTransfer" message="tns:SimpleTransfer"/>
+      <wsdl:fault wsaw:Action="http://tempuri.org/ITeamWorkService2/UnlockObjectsGXServerExceptionFault" name="GXServerExceptionFault" message="tns:ITeamWorkService2_UnlockObjects_GXServerExceptionFault_FaultMessage"/>
+    </wsdl:operation>
+    <wsdl:operation name="Resynchronize">
+      <wsdl:input wsaw:Action="http://tempuri.org/ITeamWorkService2/Resynchronize" name="FileTransfer" message="tns:FileTransfer"/>
+      <wsdl:output wsaw:Action="http://tempuri.org/ITeamWorkService2/ResynchronizeResponse" name="FileTransfer" message="tns:FileTransfer"/>
+      <wsdl:fault wsaw:Action="http://tempuri.org/ITeamWorkService2/ResynchronizeGXServerExceptionFault" name="GXServerExceptionFault" message="tns:ITeamWorkService2_Resynchronize_GXServerExceptionFault_FaultMessage"/>
+    </wsdl:operation>
+    <wsdl:operation name="GetVersions">
+      <wsdl:input wsaw:Action="http://tempuri.org/ITeamWorkService2/GetVersions" name="SimpleTransfer" message="tns:SimpleTransfer"/>
+      <wsdl:output wsaw:Action="http://tempuri.org/ITeamWorkService2/GetVersionsResponse" name="FileTransfer" message="tns:FileTransfer"/>
+      <wsdl:fault wsaw:Action="http://tempuri.org/ITeamWorkService2/GetVersionsGXServerExceptionFault" name="GXServerExceptionFault" message="tns:ITeamWorkService2_GetVersions_GXServerExceptionFault_FaultMessage"/>
+    </wsdl:operation>
+    <wsdl:operation name="GetRevisions">
+      <wsdl:input wsaw:Action="http://tempuri.org/ITeamWorkService2/GetRevisions" name="SimpleTransfer" message="tns:SimpleTransfer"/>
+      <wsdl:output wsaw:Action="http://tempuri.org/ITeamWorkService2/GetRevisionsResponse" name="FileTransfer" message="tns:FileTransfer"/>
+      <wsdl:fault wsaw:Action="http://tempuri.org/ITeamWorkService2/GetRevisionsGXServerExceptionFault" name="GXServerExceptionFault" message="tns:ITeamWorkService2_GetRevisions_GXServerExceptionFault_FaultMessage"/>
+    </wsdl:operation>
+    <wsdl:operation name="RemoveBringChangesMark">
+      <wsdl:input wsaw:Action="http://tempuri.org/ITeamWorkService2/RemoveBringChangesMark" name="SimpleTransfer" message="tns:SimpleTransfer"/>
+      <wsdl:output wsaw:Action="http://tempuri.org/ITeamWorkService2/RemoveBringChangesMarkResponse" name="SimpleTransfer" message="tns:SimpleTransfer"/>
+      <wsdl:fault wsaw:Action="http://tempuri.org/ITeamWorkService2/RemoveBringChangesMarkGXServerExceptionFault" name="GXServerExceptionFault" message="tns:ITeamWorkService2_RemoveBringChangesMark_GXServerExceptionFault_FaultMessage"/>
+    </wsdl:operation>
+    <wsdl:operation name="GetRevisionChanges">
+      <wsdl:input wsaw:Action="http://tempuri.org/ITeamWorkService2/GetRevisionChanges" name="SimpleTransfer" message="tns:SimpleTransfer"/>
+      <wsdl:output wsaw:Action="http://tempuri.org/ITeamWorkService2/GetRevisionChangesResponse" name="FileTransfer" message="tns:FileTransfer"/>
+      <wsdl:fault wsaw:Action="http://tempuri.org/ITeamWorkService2/GetRevisionChangesGXServerExceptionFault" name="GXServerExceptionFault" message="tns:ITeamWorkService2_GetRevisionChanges_GXServerExceptionFault_FaultMessage"/>
+    </wsdl:operation>
+    <wsdl:operation name="GetObjectRevisions">
+      <wsdl:input wsaw:Action="http://tempuri.org/ITeamWorkService2/GetObjectRevisions" name="FileTransfer" message="tns:FileTransfer"/>
+      <wsdl:output wsaw:Action="http://tempuri.org/ITeamWorkService2/GetObjectRevisionsResponse" name="FileTransfer" message="tns:FileTransfer"/>
+      <wsdl:fault wsaw:Action="http://tempuri.org/ITeamWorkService2/GetObjectRevisionsGXServerExceptionFault" name="GXServerExceptionFault" message="tns:ITeamWorkService2_GetObjectRevisions_GXServerExceptionFault_FaultMessage"/>
+    </wsdl:operation>
+    <wsdl:operation name="CreateVersion">
+      <wsdl:input wsaw:Action="http://tempuri.org/ITeamWorkService2/CreateVersion" name="SimpleTransfer" message="tns:SimpleTransfer"/>
+      <wsdl:output wsaw:Action="http://tempuri.org/ITeamWorkService2/CreateVersionResponse" name="SimpleTransfer" message="tns:SimpleTransfer"/>
+      <wsdl:fault wsaw:Action="http://tempuri.org/ITeamWorkService2/CreateVersionGXServerExceptionFault" name="GXServerExceptionFault" message="tns:ITeamWorkService2_CreateVersion_GXServerExceptionFault_FaultMessage"/>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteVersion">
+      <wsdl:input wsaw:Action="http://tempuri.org/ITeamWorkService2/DeleteVersion" name="SimpleTransfer" message="tns:SimpleTransfer"/>
+      <wsdl:output wsaw:Action="http://tempuri.org/ITeamWorkService2/DeleteVersionResponse" name="SimpleTransfer" message="tns:SimpleTransfer"/>
+      <wsdl:fault wsaw:Action="http://tempuri.org/ITeamWorkService2/DeleteVersionGXServerExceptionFault" name="GXServerExceptionFault" message="tns:ITeamWorkService2_DeleteVersion_GXServerExceptionFault_FaultMessage"/>
+    </wsdl:operation>
+    <wsdl:operation name="HostedKBs">
+      <wsdl:input wsaw:Action="http://tempuri.org/ITeamWorkService2/HostedKBs" name="SimpleTransfer" message="tns:SimpleTransfer"/>
+      <wsdl:output wsaw:Action="http://tempuri.org/ITeamWorkService2/HostedKBsResponse" name="FileTransfer" message="tns:FileTransfer"/>
+      <wsdl:fault wsaw:Action="http://tempuri.org/ITeamWorkService2/HostedKBsGXServerExceptionFault" name="GXServerExceptionFault" message="tns:ITeamWorkService2_HostedKBs_GXServerExceptionFault_FaultMessage"/>
+    </wsdl:operation>
+    <wsdl:operation name="GetVersionMetadata">
+      <wsdl:input wsaw:Action="http://tempuri.org/ITeamWorkService2/GetVersionMetadata" name="SimpleTransfer" message="tns:SimpleTransfer"/>
+      <wsdl:output wsaw:Action="http://tempuri.org/ITeamWorkService2/GetVersionMetadataResponse" name="SimpleTransfer" message="tns:SimpleTransfer"/>
+      <wsdl:fault wsaw:Action="http://tempuri.org/ITeamWorkService2/GetVersionMetadataGXServerExceptionFault" name="GXServerExceptionFault" message="tns:ITeamWorkService2_GetVersionMetadata_GXServerExceptionFault_FaultMessage"/>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="CustomBinding_ITeamWorkService2" type="tns:ITeamWorkService2">
+    <wsp:PolicyReference URI="#CustomBinding_ITeamWorkService2_policy"/>
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="Update">
+      <soap12:operation soapAction="http://tempuri.org/ITeamWorkService2/Update" style="document"/>
+      <wsdl:input name="SimpleTransfer">
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="FileTransfer">
+        <soap12:header message="tns:FileTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:FileTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="GXServerExceptionFault">
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="Commit">
+      <soap12:operation soapAction="http://tempuri.org/ITeamWorkService2/Commit" style="document"/>
+      <wsdl:input name="FileTransfer">
+        <soap12:header message="tns:FileTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:FileTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="SimpleTransfer">
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="GXServerExceptionFault">
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="Update2">
+      <soap12:operation soapAction="http://tempuri.org/ITeamWorkService2/Update2" style="document"/>
+      <wsdl:input name="FileTransfer">
+        <soap12:header message="tns:FileTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:FileTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="FileTransfer">
+        <soap12:header message="tns:FileTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:FileTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="GXServerExceptionFault">
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="Commit2">
+      <soap12:operation soapAction="http://tempuri.org/ITeamWorkService2/Commit2" style="document"/>
+      <wsdl:input name="FileTransfer">
+        <soap12:header message="tns:FileTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:FileTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="FileTransfer">
+        <soap12:header message="tns:FileTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:FileTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="GXServerExceptionFault">
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="CheckOut">
+      <soap12:operation soapAction="http://tempuri.org/ITeamWorkService2/CheckOut" style="document"/>
+      <wsdl:input name="SimpleTransfer">
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="FileTransfer">
+        <soap12:header message="tns:FileTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:FileTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="GXServerExceptionFault">
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="PublishKB">
+      <soap12:operation soapAction="http://tempuri.org/ITeamWorkService2/PublishKB" style="document"/>
+      <wsdl:input name="FileTransfer">
+        <soap12:header message="tns:FileTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:FileTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="SimpleTransfer">
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="GXServerExceptionFault">
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="WhatsUp">
+      <soap12:operation soapAction="http://tempuri.org/ITeamWorkService2/WhatsUp" style="document"/>
+      <wsdl:input name="SimpleTransfer">
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="SimpleTransfer">
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="GXServerExceptionFault">
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="GetServerVersion">
+      <soap12:operation soapAction="http://tempuri.org/ITeamWorkService2/GetServerVersion" style="document"/>
+      <wsdl:input name="SimpleTransfer">
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="FileTransfer">
+        <soap12:header message="tns:FileTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:FileTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="GXServerExceptionFault">
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="CancelCommitOparation">
+      <soap12:operation soapAction="http://tempuri.org/ITeamWorkService2/CancelCommitOparation" style="document"/>
+      <wsdl:input name="SimpleTransfer">
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="SimpleTransfer">
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="GXServerExceptionFault">
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="WasCommitOk">
+      <soap12:operation soapAction="http://tempuri.org/ITeamWorkService2/WasCommitOk" style="document"/>
+      <wsdl:input name="SimpleTransfer">
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="SimpleTransfer">
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="GXServerExceptionFault">
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="GetCommitFile">
+      <soap12:operation soapAction="http://tempuri.org/ITeamWorkService2/GetCommitFile" style="document"/>
+      <wsdl:input name="SimpleTransfer">
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="FileTransfer">
+        <soap12:header message="tns:FileTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:FileTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="GXServerExceptionFault">
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="GetCurrentVersionObject">
+      <soap12:operation soapAction="http://tempuri.org/ITeamWorkService2/GetCurrentVersionObject" style="document"/>
+      <wsdl:input name="FileTransfer">
+        <soap12:header message="tns:FileTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:FileTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="FileTransfer">
+        <soap12:header message="tns:FileTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:FileTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="GXServerExceptionFault">
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="PartialUpdate">
+      <soap12:operation soapAction="http://tempuri.org/ITeamWorkService2/PartialUpdate" style="document"/>
+      <wsdl:input name="FileTransfer">
+        <soap12:header message="tns:FileTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:FileTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="FileTransfer">
+        <soap12:header message="tns:FileTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:FileTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="GXServerExceptionFault">
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="LockObjects">
+      <soap12:operation soapAction="http://tempuri.org/ITeamWorkService2/LockObjects" style="document"/>
+      <wsdl:input name="FileTransfer">
+        <soap12:header message="tns:FileTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:FileTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="FileTransfer">
+        <soap12:header message="tns:FileTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:FileTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="GXServerExceptionFault">
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="StealObjects">
+      <soap12:operation soapAction="http://tempuri.org/ITeamWorkService2/StealObjects" style="document"/>
+      <wsdl:input name="FileTransfer">
+        <soap12:header message="tns:FileTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:FileTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="FileTransfer">
+        <soap12:header message="tns:FileTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:FileTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="GXServerExceptionFault">
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="UnlockObjects">
+      <soap12:operation soapAction="http://tempuri.org/ITeamWorkService2/UnlockObjects" style="document"/>
+      <wsdl:input name="FileTransfer">
+        <soap12:header message="tns:FileTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:FileTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="SimpleTransfer">
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="GXServerExceptionFault">
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="Resynchronize">
+      <soap12:operation soapAction="http://tempuri.org/ITeamWorkService2/Resynchronize" style="document"/>
+      <wsdl:input name="FileTransfer">
+        <soap12:header message="tns:FileTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:FileTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="FileTransfer">
+        <soap12:header message="tns:FileTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:FileTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="GXServerExceptionFault">
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="GetVersions">
+      <soap12:operation soapAction="http://tempuri.org/ITeamWorkService2/GetVersions" style="document"/>
+      <wsdl:input name="SimpleTransfer">
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="FileTransfer">
+        <soap12:header message="tns:FileTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:FileTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="GXServerExceptionFault">
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="GetRevisions">
+      <soap12:operation soapAction="http://tempuri.org/ITeamWorkService2/GetRevisions" style="document"/>
+      <wsdl:input name="SimpleTransfer">
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="FileTransfer">
+        <soap12:header message="tns:FileTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:FileTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="GXServerExceptionFault">
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="RemoveBringChangesMark">
+      <soap12:operation soapAction="http://tempuri.org/ITeamWorkService2/RemoveBringChangesMark" style="document"/>
+      <wsdl:input name="SimpleTransfer">
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="SimpleTransfer">
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="GXServerExceptionFault">
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="GetRevisionChanges">
+      <soap12:operation soapAction="http://tempuri.org/ITeamWorkService2/GetRevisionChanges" style="document"/>
+      <wsdl:input name="SimpleTransfer">
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="FileTransfer">
+        <soap12:header message="tns:FileTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:FileTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="GXServerExceptionFault">
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="GetObjectRevisions">
+      <soap12:operation soapAction="http://tempuri.org/ITeamWorkService2/GetObjectRevisions" style="document"/>
+      <wsdl:input name="FileTransfer">
+        <soap12:header message="tns:FileTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:FileTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="FileTransfer">
+        <soap12:header message="tns:FileTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:FileTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="GXServerExceptionFault">
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="CreateVersion">
+      <soap12:operation soapAction="http://tempuri.org/ITeamWorkService2/CreateVersion" style="document"/>
+      <wsdl:input name="SimpleTransfer">
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="SimpleTransfer">
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="GXServerExceptionFault">
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteVersion">
+      <soap12:operation soapAction="http://tempuri.org/ITeamWorkService2/DeleteVersion" style="document"/>
+      <wsdl:input name="SimpleTransfer">
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="SimpleTransfer">
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="GXServerExceptionFault">
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="HostedKBs">
+      <soap12:operation soapAction="http://tempuri.org/ITeamWorkService2/HostedKBs" style="document"/>
+      <wsdl:input name="SimpleTransfer">
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="FileTransfer">
+        <soap12:header message="tns:FileTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:FileTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="GXServerExceptionFault">
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="GetVersionMetadata">
+      <soap12:operation soapAction="http://tempuri.org/ITeamWorkService2/GetVersionMetadata" style="document"/>
+      <wsdl:input name="SimpleTransfer">
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="SimpleTransfer">
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Messages" use="literal"/>
+        <soap12:header message="tns:SimpleTransfer_Headers" part="Properties" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="GXServerExceptionFault">
+        <soap12:fault use="literal" name="GXServerExceptionFault" />
+      </wsdl:fault>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="TeamWorkService2">
+    <wsdl:port name="CustomBinding_ITeamWorkService2" binding="tns:CustomBinding_ITeamWorkService2">
+      <soap12:address location="https://open.genexusserver.com/v16/TeamWorkService2.svc/secure"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

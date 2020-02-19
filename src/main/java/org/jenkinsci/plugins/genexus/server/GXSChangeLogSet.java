@@ -222,6 +222,11 @@ public final class GXSChangeLogSet extends ChangeLogSet {
             return msg;
         }
 
+        @Exported
+        public String getComment() {
+            return getMsg();
+        }
+        
         public void setMsg(String msg) {
             this.msg = msg;
         }

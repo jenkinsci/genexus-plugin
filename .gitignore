@@ -2,3 +2,4 @@ target/
 work/
 nbactions.xml
 .idea
+/nbproject/
