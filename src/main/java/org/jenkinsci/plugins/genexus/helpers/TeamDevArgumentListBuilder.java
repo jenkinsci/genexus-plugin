@@ -71,8 +71,8 @@ public class TeamDevArgumentListBuilder extends ArgumentListBuilder {
         add("/s:" + serverURL);
 
         if (!userName.isEmpty()) {
-            add("/u:" + userName);
-            add("/p:" + userPassword);
+            addMasked("/u:" + userName);
+            addMasked("/p:" + userPassword);
         }
 
         add("/kb:" + kbName);
