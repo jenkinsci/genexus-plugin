@@ -43,10 +43,6 @@ THE SOFTWARE.
     </f:entry>
 
     <f:advanced align="left" style="text-decoration:bold" title="Advanced Options">
-         <f:entry field="kbDbServerInstance" title="${%SQL Server Name}">
-            <f:textbox />
-        </f:entry>
-
         <f:entry field="kbDbCredentialsId" title="${%SQL Server Credentials}">
             <c:select checkMethod="post"/>
         </f:entry>

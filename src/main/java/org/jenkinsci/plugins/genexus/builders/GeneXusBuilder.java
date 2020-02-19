@@ -23,33 +23,25 @@
  */
 package org.jenkinsci.plugins.genexus.builders;
 
-import com.cloudbees.plugins.credentials.CredentialsMatcher;
-import com.cloudbees.plugins.credentials.CredentialsMatchers;
 import com.cloudbees.plugins.credentials.CredentialsProvider;
-import com.cloudbees.plugins.credentials.common.StandardCredentials;
 import com.cloudbees.plugins.credentials.common.StandardListBoxModel;
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
-import com.cloudbees.plugins.credentials.domains.DomainRequirement;
-import com.cloudbees.plugins.credentials.domains.URIRequirementBuilder;
 import hudson.Extension;
 import hudson.Launcher;
-import hudson.Util;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.BuildListener;
 import hudson.model.Item;
 import hudson.plugins.msbuild.MsBuildBuilder;
-import hudson.security.ACL;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import hudson.util.ListBoxModel;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
 
 import jenkins.model.Jenkins;
 import org.jenkinsci.Symbol;
 import org.jenkinsci.plugins.genexus.GeneXusInstallation;
+import org.jenkinsci.plugins.genexus.helpers.CredentialsHelper;
 import org.jenkinsci.plugins.genexus.helpers.MsBuildArgsHelper;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -60,11 +52,10 @@ import org.kohsuke.stapler.export.Exported;
 // - convertir esta clase en abstracta y sacarle el perform
 // - hacer una derivada que efectivamente ejecute gx
 // - hacer otra que ejecute el build
-
 /**
  *
  * @author jlr
- * collaborator mmarsicano
+ * @author mmarsicano
  */
 public class GeneXusBuilder extends Builder {
 
@@ -75,19 +66,16 @@ public class GeneXusBuilder extends Builder {
     private final String kbPath;
     private final String kbVersion;
     private final String kbEnvironment;
-    private final String kbDbServerInstance;
     private final String kbDbCredentialsId;
     private final boolean forceRebuild;
 
-
     @DataBoundConstructor
     public GeneXusBuilder(String gxInstallationId, String kbPath, String kbVersion, String kbEnvironment,
-                          String kbDbServerInstance, String kbDbCredentialsId, boolean forceRebuild) {
+            String kbDbCredentialsId, boolean forceRebuild) {
         this.gxInstallationId = gxInstallationId;
         this.kbPath = kbPath;
         this.kbVersion = kbVersion;
         this.kbEnvironment = kbEnvironment;
-        this.kbDbServerInstance = kbDbServerInstance;
         this.kbDbCredentialsId = kbDbCredentialsId;
         this.forceRebuild = forceRebuild;
     }
@@ -96,25 +84,20 @@ public class GeneXusBuilder extends Builder {
     public String getGxInstallationId() {
         return gxInstallationId;
     }
-    
+
     @Exported
     public String getKbPath() {
         return kbPath;
     }
-    
+
     @Exported
     public String getKbVersion() {
         return kbVersion;
     }
-    
+
     @Exported
     public String getKbEnvironment() {
         return kbEnvironment;
-    }
-
-    @Exported
-    public String getKbDbServerInstance() {
-        return kbDbServerInstance;
     }
 
     @Exported
@@ -126,37 +109,19 @@ public class GeneXusBuilder extends Builder {
     public boolean getForceRebuild() {
         return forceRebuild;
     }
-    
+
     private GeneXusInstallation getGeneXusInstallation() {
         return GeneXusInstallation.getInstallation(gxInstallationId);
     }
 
-    private StandardCredentials lookupCredentials(String credentialsId, String serverURL) {
-        return credentialsId == null ? null
-                : CredentialsMatchers.firstOrNull(
-                CredentialsProvider.lookupCredentials(
-                        StandardCredentials.class,
-                        Jenkins.getInstance(),
-                        ACL.SYSTEM,
-                        URIRequirementBuilder.fromUri(serverURL).build()
-                ),
-                CredentialsMatchers.withId(credentialsId)
-        );
+    private StandardUsernamePasswordCredentials getKbDbCredentials(Item context) {
+        return CredentialsHelper.getUsernameCredentials(context, getKbDbCredentialsId(), null);
     }
 
-    private StandardUsernamePasswordCredentials getUserNameCredentials(String credentialsId, String url) {
-        StandardCredentials credentials = lookupCredentials(credentialsId, url);
-        return (credentials instanceof StandardUsernamePasswordCredentials) ? (StandardUsernamePasswordCredentials) credentials : null;
-    }
-
-    private StandardUsernamePasswordCredentials getKbDbCredentials() {
-        return getUserNameCredentials(getKbDbCredentialsId(), getKbDbServerInstance());
-    }
-    
     @Override
-    public boolean perform(AbstractBuild<?,?> build, Launcher launcher, BuildListener listener) throws IOException, InterruptedException {
+    public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws IOException, InterruptedException {
         GeneXusInstallation installation = getGeneXusInstallation();
-        if(installation==null) {
+        if (installation == null) {
             listener.fatalError("Could not find GeneXus Installation: " + gxInstallationId);
             return false;
         }
@@ -166,24 +131,25 @@ public class GeneXusBuilder extends Builder {
             listener.fatalError("Could not find TeamDev.msbuild from GeneXus Installation " + installation.getName());
             return false;
         }
-        
+
         MsBuildArgsHelper argsHelper = new MsBuildArgsHelper("Build");
         argsHelper.addNoLogo();
-        
+
         String gxHome = installation.getHome();
-        if (gxHome != null)
+        if (gxHome != null) {
             argsHelper.addProperty("GX_PROGRAM_DIR", gxHome);
-        
+        }
+
         argsHelper.addProperty("WorkingDirectory", kbPath);
         argsHelper.addProperty("WorkingVersion", kbVersion);
         argsHelper.addProperty("WorkingEnvironment", kbEnvironment);
         argsHelper.addProperty("ForceRebuild", forceRebuild);
 
-        StandardUsernamePasswordCredentials upCredentials = getKbDbCredentials();
-        if (upCredentials != null) {
+        StandardUsernamePasswordCredentials kbDbCredentials = getKbDbCredentials(build.getParent());
+        if (kbDbCredentials != null) {
             argsHelper.addProperty("DbaseUseIntegratedSecurity", false);
-            argsHelper.addProperty("DbaseServerUsername", upCredentials.getUsername());
-            argsHelper.addProperty("DbaseServerPassword", upCredentials.getPassword().getPlainText());
+            argsHelper.addProperty("DbaseServerUsername", kbDbCredentials.getUsername());
+            argsHelper.addProperty("DbaseServerPassword", kbDbCredentials.getPassword().getPlainText());
         }
 
         MsBuildBuilder builder = new MsBuildBuilder(
@@ -201,12 +167,13 @@ public class GeneXusBuilder extends Builder {
 
     @Override
     public DescriptorImpl getDescriptor() {
-        return (DescriptorImpl)super.getDescriptor();
+        return (DescriptorImpl) super.getDescriptor();
     }
 
-    @Extension @Symbol("genexusb")
+    @Extension
+    @Symbol("genexusb")
     public static final class DescriptorImpl extends BuildStepDescriptor<Builder> {
-        
+
         @Override
         public boolean isApplicable(Class<? extends AbstractProject> jobType) {
             return true;
@@ -223,7 +190,7 @@ public class GeneXusBuilder extends Builder {
 
         private Boolean userCanSelect(Item item) {
             if (item == null) {
-                return Jenkins.getInstance().hasPermission(Jenkins.ADMINISTER);
+                return Jenkins.get().hasPermission(Jenkins.ADMINISTER);
             }
 
             return (item.hasPermission(Item.EXTENDED_READ)
@@ -236,20 +203,9 @@ public class GeneXusBuilder extends Builder {
                 return result;
             }
 
-            String url = Util.fixEmptyAndTrim(kbDbServerInstance);
-
-            List<DomainRequirement> reqs = (url == null)
-                    ? Collections.<DomainRequirement>emptyList()
-                    : URIRequirementBuilder.fromUri(url).build();
-
-            CredentialsMatcher matcher = CredentialsMatchers.anyOf(CredentialsMatchers.instanceOf(StandardUsernamePasswordCredentials.class));
-
-            return result
-                    .includeEmptyValue()
-                    .includeMatchingAs(ACL.SYSTEM, item, StandardUsernamePasswordCredentials.class, reqs, matcher)
-                    .includeCurrentValue(kbDbCredentialsId);
+            return CredentialsHelper.getCredentialsList(item, kbDbCredentialsId, null);
         }
-        
+
         @Override
         public String getDisplayName() {
             return "Build GeneXus KB";

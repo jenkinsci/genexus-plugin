@@ -23,14 +23,9 @@
  */
 package org.jenkinsci.plugins.genexus.server;
 
-import com.cloudbees.plugins.credentials.CredentialsMatcher;
-import com.cloudbees.plugins.credentials.CredentialsMatchers;
 import com.cloudbees.plugins.credentials.CredentialsProvider;
-import com.cloudbees.plugins.credentials.common.StandardCredentials;
 import com.cloudbees.plugins.credentials.common.StandardListBoxModel;
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
-import com.cloudbees.plugins.credentials.domains.DomainRequirement;
-import com.cloudbees.plugins.credentials.domains.URIRequirementBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hudson.Extension;
 import hudson.FilePath;
@@ -49,7 +44,6 @@ import hudson.scm.PollingResult.Change;
 import hudson.scm.SCM;
 import hudson.scm.SCMDescriptor;
 import hudson.scm.SCMRevisionState;
-import hudson.security.ACL;
 import hudson.tasks.Builder;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
@@ -60,9 +54,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -74,6 +66,7 @@ import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.genexus.GeneXusInstallation;
+import org.jenkinsci.plugins.genexus.helpers.CredentialsHelper;
 import org.jenkinsci.plugins.genexus.helpers.MsBuildArgsHelper;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -85,7 +78,8 @@ import org.kohsuke.stapler.interceptor.RequirePOST;
 /**
  *
  * @author jlr
- * collaborator mmarsicano
+ * @author mmarsicano
+ * @author Acaceres1996
  */
 public class GeneXusServerSCM extends SCM implements Serializable {
 
@@ -368,29 +362,11 @@ public class GeneXusServerSCM extends SCM implements Serializable {
     }
 
     private StandardUsernamePasswordCredentials getServerCredentials(Item context) {
-        return getUserNameCredentials(context, getCredentialsId(), getServerURL());
+        return CredentialsHelper.getUsernameCredentials(context, getCredentialsId(), getServerURL());
     }
 
     private StandardUsernamePasswordCredentials getKbDbCredentials(Item context) {
-        return getUserNameCredentials(context, getKbDbCredentialsId(), getKbDbServerInstance());
-    }
-
-    private StandardUsernamePasswordCredentials getUserNameCredentials(Item context, String credentialsId, String url) {
-        StandardCredentials credentials = lookupCredentials(context, credentialsId, url);
-        return (credentials instanceof StandardUsernamePasswordCredentials) ? (StandardUsernamePasswordCredentials) credentials : null;
-    }
-
-    private StandardCredentials lookupCredentials(Item context, String credentialsId, String serverURL) {
-        return credentialsId == null ? null
-                : CredentialsMatchers.firstOrNull(
-                        CredentialsProvider.lookupCredentials(
-                                StandardCredentials.class,
-                                context,
-                                ACL.SYSTEM,
-                                URIRequirementBuilder.fromUri(serverURL).build()
-                        ),
-                        CredentialsMatchers.withId(credentialsId)
-                );
+        return CredentialsHelper.getUsernameCredentials(context, getKbDbCredentialsId(), null);
     }
 
     private GXSInfo calcCurrentInfo(FilePath workspace, TaskListener listener, GXSConnection gxs, SCMRevisionState baseline, Date updateTimestamp) throws IOException, InterruptedException {
@@ -487,10 +463,10 @@ public class GeneXusServerSCM extends SCM implements Serializable {
 
         msbArgs.addProperty("GX_PROGRAM_DIR", getGxPath());
 
-        StandardUsernamePasswordCredentials upCredentials = getServerCredentials(context);
-        if (upCredentials != null) {
-            msbArgs.addProperty("ServerUsername", upCredentials.getUsername());
-            msbArgs.addProperty("ServerPassword", upCredentials.getPassword().getPlainText());
+        StandardUsernamePasswordCredentials serverCredentials = getServerCredentials(context);
+        if (serverCredentials != null) {
+            msbArgs.addProperty("ServerUsername", serverCredentials.getUsername());
+            msbArgs.addProperty("ServerPassword", serverCredentials.getPassword().getPlainText());
         }
 
         if (StringUtils.isNotBlank(getKbVersion())) {
@@ -498,6 +474,13 @@ public class GeneXusServerSCM extends SCM implements Serializable {
         }
 
         msbArgs.addProperty("WorkingDirectory", getWorkingDirectory(workspace));
+
+        StandardUsernamePasswordCredentials kbDbCredentials = getKbDbCredentials(context);
+        if (kbDbCredentials != null) {
+            msbArgs.addProperty("DbaseUseIntegratedSecurity", false);
+            msbArgs.addProperty("DbaseServerUsername", kbDbCredentials.getUsername());
+            msbArgs.addProperty("DbaseServerPassword", kbDbCredentials.getPassword().getPlainText());
+        }
 
         return msbArgs;
     }
@@ -507,13 +490,6 @@ public class GeneXusServerSCM extends SCM implements Serializable {
 
         if (StringUtils.isNotBlank(getLocalKbVersion())) {
             msbArgs.addProperty("WorkingVersion", getLocalKbVersion());
-        }
-
-        StandardUsernamePasswordCredentials upCredentials = getKbDbCredentials(context);
-        if (upCredentials != null) {
-            msbArgs.addProperty("DbaseUseIntegratedSecurity", false);
-            msbArgs.addProperty("DbaseServerUsername", upCredentials.getUsername());
-            msbArgs.addProperty("DbaseServerPassword", upCredentials.getPassword().getPlainText());
         }
 
         return createMsBuildAction(msbArgs);
@@ -530,13 +506,6 @@ public class GeneXusServerSCM extends SCM implements Serializable {
 
         if (StringUtils.isNotBlank(getKbDbServerInstance())) {
             msbArgs.addProperty("DbaseServerInstance", getKbDbServerInstance());
-        }
-
-        StandardUsernamePasswordCredentials upCredentials = getKbDbCredentials(context);
-        if (upCredentials != null) {
-            msbArgs.addProperty("DbaseUseIntegratedSecurity", false);
-            msbArgs.addProperty("DbaseServerUsername", upCredentials.getUsername());
-            msbArgs.addProperty("DbaseServerPassword", upCredentials.getPassword().getPlainText());
         }
 
         msbArgs.addProperty("DbaseName", getSafeKbDbName(getKbName(), getKbDbName()));
@@ -657,18 +626,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
                 return result;
             }
 
-            String url = Util.fixEmptyAndTrim(serverURL);
-
-            List<DomainRequirement> reqs = (url == null)
-                    ? Collections.<DomainRequirement>emptyList()
-                    : URIRequirementBuilder.fromUri(url).build();
-
-            CredentialsMatcher matcher = CredentialsMatchers.anyOf(CredentialsMatchers.instanceOf(StandardUsernamePasswordCredentials.class));
-
-            return result
-                    .includeEmptyValue()
-                    .includeMatchingAs(ACL.SYSTEM, item, StandardUsernamePasswordCredentials.class, reqs, matcher)
-                    .includeCurrentValue(credentialsId);
+            return CredentialsHelper.getCredentialsList(item, credentialsId, serverURL);
         }
 
         public ListBoxModel doFillKbDbCredentialsIdItems(@AncestorInPath Item item, @QueryParameter String kbDbCredentialsId, @QueryParameter String kbDbServerInstance) {
@@ -677,23 +635,12 @@ public class GeneXusServerSCM extends SCM implements Serializable {
                 return result;
             }
 
-            String url = Util.fixEmptyAndTrim(kbDbServerInstance);
-
-            List<DomainRequirement> reqs = (url == null)
-                    ? Collections.<DomainRequirement>emptyList()
-                    : URIRequirementBuilder.fromUri(url).build();
-
-            CredentialsMatcher matcher = CredentialsMatchers.anyOf(CredentialsMatchers.instanceOf(StandardUsernamePasswordCredentials.class));
-
-            return result
-                    .includeEmptyValue()
-                    .includeMatchingAs(ACL.SYSTEM, item, StandardUsernamePasswordCredentials.class, reqs, matcher)
-                    .includeCurrentValue(kbDbCredentialsId);
+            return CredentialsHelper.getCredentialsList(item, kbDbCredentialsId, null);
         }
 
         private Boolean userCanSelect(Item item) {
             if (item == null) {
-                return Jenkins.getInstance().hasPermission(Jenkins.ADMINISTER);
+                return Jenkins.get().hasPermission(Jenkins.ADMINISTER);
             }
 
             return (item.hasPermission(Item.EXTENDED_READ)
@@ -749,7 +696,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
             }
 
             try {
-                StandardCredentials credentials = lookupCredentials(item, value, url);
+                StandardUsernamePasswordCredentials credentials = CredentialsHelper.getUsernameCredentials(item, value, url);
                 if (credentials == null) {
                     return FormValidation.error("Cannot find currently selected credentials");
                 }
@@ -760,19 +707,6 @@ public class GeneXusServerSCM extends SCM implements Serializable {
             }
 
             return FormValidation.ok();
-        }
-
-        private static StandardCredentials lookupCredentials(Item context, String credentialsId, String serverURL) {
-            return credentialsId == null ? null
-                    : CredentialsMatchers.firstOrNull(
-                            CredentialsProvider.lookupCredentials(
-                                    StandardCredentials.class,
-                                    context,
-                                    ACL.SYSTEM,
-                                    URIRequirementBuilder.fromUri(serverURL).build()
-                            ),
-                            CredentialsMatchers.withId(credentialsId)
-                    );
         }
 
         /**
@@ -803,13 +737,8 @@ public class GeneXusServerSCM extends SCM implements Serializable {
                 return FormValidation.ok(); // pre v15 GXservers may allow using no credentials
             }
 
-            String url = Util.fixEmptyAndTrim(kBDbServerInstance);
-            if (url == null) {
-                return FormValidation.ok();
-            }
-
             try {
-                StandardCredentials credentials = lookupKbDbCredentials(item, value, url);
+                StandardUsernamePasswordCredentials credentials = CredentialsHelper.getUsernameCredentials(item, value, null);
                 if (credentials == null) {
                     return FormValidation.error("Cannot find currently selected credentials");
                 }
@@ -820,19 +749,6 @@ public class GeneXusServerSCM extends SCM implements Serializable {
             }
 
             return FormValidation.ok();
-        }
-
-        private static StandardCredentials lookupKbDbCredentials(Item context, String kbDbCredentialsId, String kbDbServerInstance) {
-            return kbDbCredentialsId == null ? null
-                    : CredentialsMatchers.firstOrNull(
-                            CredentialsProvider.lookupCredentials(
-                                    StandardCredentials.class,
-                                    context,
-                                    ACL.SYSTEM,
-                                    URIRequirementBuilder.fromUri(kbDbServerInstance).build()
-                            ),
-                            CredentialsMatchers.withId(kbDbCredentialsId)
-                    );
         }
     }
 }
