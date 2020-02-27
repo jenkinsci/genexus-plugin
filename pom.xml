@@ -150,7 +150,7 @@ THE SOFTWARE.
                             <vmArgs>
                                 <vmArg>-Djavax.xml.accessExternalSchema=all</vmArg>
                             </vmArgs>
-                            <wsdlLocation>file:/${project.basedir}/src/wsdl/HelperService.svc.singlewsdl.wsdl</wsdlLocation>
+                            <wsdlLocation>/wsdl/HelperService.svc.singlewsdl.wsdl</wsdlLocation>
                             <staleFile>${project.build.directory}/jaxws/stale/HelperService.svc.singlewsdl.stale</staleFile>
                             <bindingDirectory>${basedir}/src/jaxws-bindings</bindingDirectory>
                             <bindingFiles>
@@ -172,7 +172,7 @@ THE SOFTWARE.
                             <vmArgs>
                                 <vmArg>-Djavax.xml.accessExternalSchema=all</vmArg>
                             </vmArgs>
-                            <wsdlLocation>file:/${project.basedir}/src/wsdl/TeamWorkService2.svc.singlewsdl.wsdl</wsdlLocation>
+                            <wsdlLocation>/wsdl/TeamWorkService2.svc.singlewsdl.wsdl</wsdlLocation>
                             <staleFile>${project.build.directory}/jaxws/stale/TeamWorkService2.svc.singlewsdl.stale</staleFile>
                             <bindingDirectory>${basedir}/src/jaxws-bindings</bindingDirectory>
                             <bindingFiles>
