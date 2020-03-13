@@ -70,7 +70,6 @@ import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.genexus.GeneXusInstallation;
 import org.jenkinsci.plugins.genexus.helpers.CredentialsHelper;
 import org.jenkinsci.plugins.genexus.helpers.MsBuildArgsHelper;
-import org.jenkinsci.plugins.genexus.helpers.GxMsBuildHelper;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
@@ -314,11 +313,16 @@ public class GeneXusServerSCM extends SCM implements Serializable {
     @Override
     public void checkout(Run<?, ?> build, Launcher launcher, FilePath workspace, TaskListener listener,
             File changelogFile, SCMRevisionState baseline) throws IOException, InterruptedException {
-        listener.getLogger().println("Checking out (or updating) " + getKbName() + " from " + getServerURL() + " with "
-                + getCredentialsId());
+
+        // Ensures workspace is created
+        workspace.mkdirs();
+
+        listener.getLogger().println("Checking out (or updating) " + getKbName() + " from " + getServerURL());
         Date updateTimestamp = new Date();
         listener.getLogger().println("Using the following timestamp for revisions:" + updateTimestamp.toString());
+
         Builder builder = createCheckoutOrUpdateAction(workspace, build.getParent());
+
         if (build instanceof AbstractBuild && listener instanceof BuildListener) {
 
             // TODO: Add support for parameterized builds
@@ -340,7 +344,13 @@ public class GeneXusServerSCM extends SCM implements Serializable {
             }
         } else {
             try {
-                GxMsBuildHelper.doCheckoutOrUpdate(build, (MsBuildBuilder) builder, (BuildListener) listener, launcher, workspace);
+                GXSMsBuildExeArgs msBuildExeArgs = new GXSMsBuildExeArgs(getGxPath(),
+                        getServerCredentials(build.getParent()), getKbVersion(), getKbDbCredentials(build.getParent()),
+                        getServerURL(), getKbName(), getKbDbServerInstance(),
+                        getSafeKbDbName(getKbName(), getKbDbName()), isKbDbInSameFolder());
+                GXSMsBuildExe msBuildRunner = new GXSMsBuildExe(build, launcher, workspace, listener, build.getParent(),
+                        getWorkingDirectory(workspace), (MsBuildBuilder) builder, msBuildExeArgs);
+                msBuildRunner.launch();
             } catch (Exception e) {
                 listener.error(e.getMessage());
                 listener.error("Checkout (or update) from GeneXus Server failed");
@@ -356,7 +366,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
             calcChangeLog(build, workspace, changelogFile, baseline, listener, gxs, currentInfo);
         }
     }
-        
+
     private GXSConnection getGXSConnection(Item context) {
         String userName = "";
         String userPassword = "";
