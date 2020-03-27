@@ -62,7 +62,7 @@ public class GXSMsBuildExe {
     private final TaskListener listener;
     private final MsBuildBuilder builder;
     private final FilePath workingDirectory;
-    private final String execName = "msbuild.exe";
+    private static final String execName = "msbuild.exe";
     private final GXSMsBuildExeArgs buildargs;
 
     // msbuild arguments
