@@ -97,7 +97,7 @@ public class GXSMsBuildExe {
             args.addMasked("/p:ServerPassword=\"" + buildargs.getServerCredentials().getPassword().getPlainText() + "\"");
         }
         if (StringUtils.isNotBlank(buildargs.getKbVersion())) {
-            args.add("/p:ServerKbVersion:\"" + buildargs.getKbVersion() + "\"");
+            args.add("/p:ServerKbVersion=\"" + buildargs.getKbVersion() + "\"");
         }
         if (buildargs.getKbDbCredentials() != null) {
             args.add("/p:DbaseUseIntegratedSecurity=false");
@@ -106,10 +106,10 @@ public class GXSMsBuildExe {
         }
         if (kbAlreadyExists()) {
             listener.getLogger().println("Knowledge base was found. Running update.");
-            if (StringUtils.isNotBlank(buildargs.getKbVersion())) {
-                args.add("/p:WorkingVersion=\"" + buildargs.getKbVersion() + "\"");
-                args.add("/t:Update");
+            if (StringUtils.isNotBlank(buildargs.getLocalKbVersion())) {
+                args.add("/p:WorkingVersion=\"" + buildargs.getLocalKbVersion() + "\"");
             }
+            args.add("/t:Update");
         } else {
             listener.getLogger().println("Knowledge base was not found. Running checkout.");
             args.add("/p:ServerUrl=\"" + buildargs.getServerUrl() + "\"");

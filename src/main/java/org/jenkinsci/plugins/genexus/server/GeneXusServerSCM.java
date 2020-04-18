@@ -347,7 +347,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
                 GXSMsBuildExeArgs msBuildExeArgs = new GXSMsBuildExeArgs(getGxPath(),
                         getServerCredentials(build.getParent()), getKbVersion(), getKbDbCredentials(build.getParent()),
                         getServerURL(), getKbName(), getKbDbServerInstance(),
-                        getSafeKbDbName(getKbName(), getKbDbName()), isKbDbInSameFolder());
+                        getSafeKbDbName(getKbName(), getKbDbName()), isKbDbInSameFolder(), getLocalKbVersion());
                 GXSMsBuildExe msBuildRunner = new GXSMsBuildExe(build, launcher, workspace, listener, build.getParent(),
                         getWorkingDirectory(workspace), (MsBuildBuilder) builder, msBuildExeArgs);
                 msBuildRunner.launch();

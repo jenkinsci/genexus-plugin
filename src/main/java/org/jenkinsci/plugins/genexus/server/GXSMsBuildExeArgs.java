@@ -35,10 +35,11 @@ public class GXSMsBuildExeArgs {
     private final String KbDbServerInstance;
     private final String KbDbName;
     private final boolean KbDbInSameFolder;
+    private final String localKbVersion;
 
     public GXSMsBuildExeArgs(String gxpath, StandardUsernamePasswordCredentials serverCredentials, String kbVersion,
             StandardUsernamePasswordCredentials kbDbCredentials, String serverUrl, String KbName,
-            String KbDbServerInstance, String KbDbName, boolean KbDbInSameFolder) {
+            String KbDbServerInstance, String KbDbName, boolean KbDbInSameFolder, String localKbVersion) {
         this.gxpath = gxpath;
         this.serverCredentials = serverCredentials;
         this.kbVersion = kbVersion;
@@ -48,6 +49,7 @@ public class GXSMsBuildExeArgs {
         this.KbDbServerInstance = KbDbServerInstance;
         this.KbDbName = KbDbName;
         this.KbDbInSameFolder = KbDbInSameFolder;
+        this.localKbVersion = localKbVersion;
     }
 
     public boolean getKbDbInSameFolder() {
@@ -84,6 +86,10 @@ public class GXSMsBuildExeArgs {
 
     public String getGxpath() {
         return gxpath;
+    }
+    
+    public String getLocalKbVersion() {
+        return localKbVersion;
     }
 
 }
