@@ -20,7 +20,7 @@
 * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
-*/
+ */
 package org.jenkinsci.plugins.genexus.server;
 
 import com.cloudbees.plugins.credentials.CredentialsProvider;
@@ -32,20 +32,17 @@ import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.Util;
-import hudson.model.AbstractBuild;
-import hudson.model.BuildListener;
 import hudson.model.Item;
 import hudson.model.Job;
 import hudson.model.Run;
 import hudson.model.TaskListener;
-import hudson.plugins.msbuild.MsBuildBuilder;
+import hudson.plugins.msbuild.MsBuildInstallation;
 import hudson.scm.ChangeLogParser;
 import hudson.scm.PollingResult;
 import hudson.scm.PollingResult.Change;
 import hudson.scm.SCM;
 import hudson.scm.SCMDescriptor;
 import hudson.scm.SCMRevisionState;
-import hudson.tasks.Builder;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import java.io.File;
@@ -68,8 +65,11 @@ import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.genexus.GeneXusInstallation;
+import org.jenkinsci.plugins.genexus.builders.CommandBuilder;
 import org.jenkinsci.plugins.genexus.helpers.CredentialsHelper;
-import org.jenkinsci.plugins.genexus.helpers.MsBuildArgsHelper;
+import org.jenkinsci.plugins.genexus.helpers.MsBuildArgumentListBuilder;
+import org.jenkinsci.plugins.genexus.helpers.MsBuildInstallationHelper;
+import org.jenkinsci.plugins.genexus.helpers.ToolHelper;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
@@ -151,6 +151,15 @@ public class GeneXusServerSCM extends SCM implements Serializable {
         GeneXusInstallation installation = getGeneXusInstallation();
         if (installation != null) {
             return installation.getMsBuildInstallationId();
+        }
+
+        return "";
+    }
+
+    private String getMsBuildPath() {
+        MsBuildInstallation msbuildTool = MsBuildInstallationHelper.getInstallation(getMSBuildInstallationId());
+        if (msbuildTool != null) {
+            return msbuildTool.getHome();
         }
 
         return "";
@@ -270,13 +279,12 @@ public class GeneXusServerSCM extends SCM implements Serializable {
     }
 
     /**
-     * Reads the revision file of the specified build (or the closest, if the flag
-     * is so specified.)
+     * Reads the revision file of the specified build (or the closest, if the
+     * flag is so specified.)
      *
-     * @param findClosest If true, this method will go back the build history until
-     *                    it finds a revision file. A build may not have a revision
-     *                    file for any number of reasons (such as failure,
-     *                    interruption, etc.)
+     * @param findClosest If true, this method will go back the build history
+     * until it finds a revision file. A build may not have a revision file for
+     * any number of reasons (such as failure, interruption, etc.)
      * @return a GXSRevisionState which includes a revision number and date
      */
     @Nonnull
@@ -321,42 +329,25 @@ public class GeneXusServerSCM extends SCM implements Serializable {
         Date updateTimestamp = new Date();
         listener.getLogger().println("Using the following timestamp for revisions:" + updateTimestamp.toString());
 
-        Builder builder = createCheckoutOrUpdateAction(workspace, build.getParent());
+        CommandBuilder builder = createCheckoutOrUpdateAction(workspace, build.getParent());
 
-        if (build instanceof AbstractBuild && listener instanceof BuildListener) {
-
-            // TODO: Add support for parameterized builds
-            // hint: see how SubversionSCM.java uses EnvVarsUtils to override env variables
-            // with values from build.getBuildVariables() and then passes the
-            // overritten values to nested taks
-            /*
-             * EnvVars env = build.getEnvironment(listener); if (build instanceof
-             * AbstractBuild) { EnvVarsUtils.overrideAll(env, ((AbstractBuild)
-             * build).getBuildVariables()); }
-             */
-            // TODO: we should get the actual revision as an output from the checkout or
-            // update
-            // Meanwhile we resort to get the latest revision up to the current time
-
-            if (!builder.perform((AbstractBuild) build, launcher, (BuildListener) listener)) {
-                listener.error("Checkout (or update) from GeneXus Server failed");
-                throw new IOException("error executing checkout/update from GeneXus Server");
-            }
-        } else {
-            try {
-                GXSMsBuildExeArgs msBuildExeArgs = new GXSMsBuildExeArgs(getGxPath(),
-                        getServerCredentials(build.getParent()), getKbVersion(), getKbDbCredentials(build.getParent()),
-                        getServerURL(), getKbName(), getKbDbServerInstance(),
-                        getSafeKbDbName(getKbName(), getKbDbName()), isKbDbInSameFolder(), getLocalKbVersion());
-                GXSMsBuildExe msBuildRunner = new GXSMsBuildExe(build, launcher, workspace, listener, build.getParent(),
-                        getWorkingDirectory(workspace), (MsBuildBuilder) builder, msBuildExeArgs);
-                msBuildRunner.launch();
-            } catch (Exception e) {
-                listener.error(e.getMessage());
-                listener.error("Checkout (or update) from GeneXus Server failed");
-                throw new IOException("error executing checkout/update from GeneXus Server");
-            }
+        // TODO: Add support for parameterized builds
+        // hint: see how SubversionSCM.java uses EnvVarsUtils to override env variables
+        // with values from build.getBuildVariables() and then passes the
+        // overritten values to nested taks
+        /*
+         * EnvVars env = build.getEnvironment(listener); if (build instanceof
+         * AbstractBuild) { EnvVarsUtils.overrideAll(env, ((AbstractBuild)
+         * build).getBuildVariables()); }
+         */
+        // TODO: we should get the actual revision as an output from the checkout or
+        // update
+        // Meanwhile we resort to get the latest revision up to the current time
+        if (!builder.perform(build, workspace, launcher, listener)) {
+            listener.error("Checkout (or update) from GeneXus Server failed");
+            throw new IOException("error executing checkout/update from GeneXus Server");
         }
+
         // Create new revision
         GXSConnection gxs = getGXSConnection(build.getParent());
         GXSInfo currentInfo = calcCurrentInfo(workspace, listener, gxs, baseline, updateTimestamp);
@@ -474,7 +465,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
         return mapper.readValue(file, GXSInfo.class);
     }
 
-    private Builder createCheckoutOrUpdateAction(FilePath workspace, Item context) {
+    private CommandBuilder createCheckoutOrUpdateAction(FilePath workspace, Item context) throws IOException, InterruptedException {
         if (!kbAlreadyExists(getWorkingDirectory(workspace))) {
             return createCheckoutAction(workspace, context);
         }
@@ -482,15 +473,16 @@ public class GeneXusServerSCM extends SCM implements Serializable {
         return createUpdateAction(workspace, context);
     }
 
-    private MsBuildArgsHelper createBaseMsBuildArgs(FilePath workspace, Item context, String... targetNames) {
-        MsBuildArgsHelper msbArgs = new MsBuildArgsHelper(targetNames);
+    private MsBuildArgumentListBuilder createBaseMsBuildArgs(FilePath workspace, Item context, String... targetNames) {
+        MsBuildArgumentListBuilder msbArgs = new MsBuildArgumentListBuilder(getMsBuildFile());
+        msbArgs.addTargets(targetNames);
 
         msbArgs.addProperty("GX_PROGRAM_DIR", getGxPath());
 
         StandardUsernamePasswordCredentials serverCredentials = getServerCredentials(context);
         if (serverCredentials != null) {
-            msbArgs.addProperty("ServerUsername", serverCredentials.getUsername());
-            msbArgs.addProperty("ServerPassword", serverCredentials.getPassword().getPlainText());
+            msbArgs.addProperty("ServerUsername", serverCredentials.getUsername(), true);
+            msbArgs.addProperty("ServerPassword", serverCredentials.getPassword().getPlainText(), true);
         }
 
         if (StringUtils.isNotBlank(getKbVersion())) {
@@ -502,25 +494,25 @@ public class GeneXusServerSCM extends SCM implements Serializable {
         StandardUsernamePasswordCredentials kbDbCredentials = getKbDbCredentials(context);
         if (kbDbCredentials != null) {
             msbArgs.addProperty("DbaseUseIntegratedSecurity", false);
-            msbArgs.addProperty("DbaseServerUsername", kbDbCredentials.getUsername());
-            msbArgs.addProperty("DbaseServerPassword", kbDbCredentials.getPassword().getPlainText());
+            msbArgs.addProperty("DbaseServerUsername", kbDbCredentials.getUsername(), true);
+            msbArgs.addProperty("DbaseServerPassword", kbDbCredentials.getPassword().getPlainText(), true);
         }
 
         return msbArgs;
     }
 
-    private Builder createUpdateAction(FilePath workspace, Item context) {
-        MsBuildArgsHelper msbArgs = createBaseMsBuildArgs(workspace, context, "Update");
+    private CommandBuilder createUpdateAction(FilePath workspace, Item context) throws IOException, InterruptedException {
+        MsBuildArgumentListBuilder msbArgs = createBaseMsBuildArgs(workspace, context, "Update");
 
         if (StringUtils.isNotBlank(getLocalKbVersion())) {
             msbArgs.addProperty("WorkingVersion", getLocalKbVersion());
         }
 
-        return createMsBuildAction(msbArgs);
+        return createMsBuildAction(workspace, msbArgs);
     }
 
-    private Builder createCheckoutAction(FilePath workspace, Item context) {
-        MsBuildArgsHelper msbArgs = createBaseMsBuildArgs(workspace, context, "Checkout");
+    private CommandBuilder createCheckoutAction(FilePath workspace, Item context) throws IOException, InterruptedException {
+        MsBuildArgumentListBuilder msbArgs = createBaseMsBuildArgs(workspace, context, "Checkout");
 
         msbArgs.addProperty("ServerUrl", getServerURL());
         msbArgs.addProperty("ServerKbAlias", getKbName());
@@ -535,7 +527,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
         msbArgs.addProperty("DbaseName", getSafeKbDbName(getKbName(), getKbDbName()));
         msbArgs.addProperty("CreateDbInKbFolder", isKbDbInSameFolder());
 
-        return createMsBuildAction(msbArgs);
+        return createMsBuildAction(workspace, msbArgs);
     }
 
     private FilePath getWorkingDirectory(FilePath workspace) {
@@ -552,10 +544,10 @@ public class GeneXusServerSCM extends SCM implements Serializable {
         return teamDevPath.toString();
     }
 
-    private Builder createMsBuildAction(MsBuildArgsHelper msbArgs) {
-        MsBuildBuilder builder = new MsBuildBuilder(getMSBuildInstallationId(), getMsBuildFile(), msbArgs.toString(),
-                true, false, false, false);
-        return builder;
+    private CommandBuilder createMsBuildAction(FilePath workspace, MsBuildArgumentListBuilder msbArgs) throws IOException, InterruptedException {
+        String msbuildExePath = ToolHelper.getToolFullPath(workspace, getMsBuildPath(), "msbuild.exe");
+        msbArgs.prepend(msbuildExePath);
+        return new CommandBuilder(msbArgs);
     }
 
     private static String getSafeKbDbName(String kbName, String kbDbName) {
@@ -692,8 +684,8 @@ public class GeneXusServerSCM extends SCM implements Serializable {
         /**
          * Validate the value for GeneXus Server credentials.
          *
-         * @param item      Item to which the credentials apply
-         * @param value     id of credentials to validate
+         * @param item Item to which the credentials apply
+         * @param value id of credentials to validate
          * @param serverURL URL of a GeneXus Server installation
          * @return a FormValidation of a specific kind (OK, ERROR, WARNING)
          */
@@ -741,8 +733,8 @@ public class GeneXusServerSCM extends SCM implements Serializable {
         /**
          * Validate the value for the SQL Server credentials.
          *
-         * @param item               Item to which the credentials apply
-         * @param value              id of credentials to validate
+         * @param item Item to which the credentials apply
+         * @param value id of credentials to validate
          * @param kBDbServerInstance SQL Server instance used for the KB
          * @return a FormValidation of a specific kind (OK, ERROR, WARNING)
          */

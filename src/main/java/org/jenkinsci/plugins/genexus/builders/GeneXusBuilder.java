@@ -132,7 +132,8 @@ public class GeneXusBuilder extends Builder {
             return false;
         }
 
-        MsBuildArgsHelper argsHelper = new MsBuildArgsHelper("Build");
+        MsBuildArgsHelper argsHelper = new MsBuildArgsHelper();
+        argsHelper.addTarget("Build");
         argsHelper.addNoLogo();
 
         String gxHome = installation.getHome();
