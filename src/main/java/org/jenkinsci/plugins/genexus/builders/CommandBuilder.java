@@ -71,13 +71,6 @@ public class CommandBuilder {
      *
      * Reports the exit code from the process.
      *
-     * This allows subtypes to treat the exit code differently (for example by
-     * treating non-zero exit code as if it's zero, or to set the status to
-     * {@link Result#UNSTABLE}). Any non-zero exit code will cause the build
-     * step to fail. Use {@link #isErrorlevelForUnstableBuild(int exitCode)} to
-     * redefine the default behaviour.
-     *
-     *
      */
     protected int join(Proc p) throws IOException, InterruptedException {
         return p.join();
