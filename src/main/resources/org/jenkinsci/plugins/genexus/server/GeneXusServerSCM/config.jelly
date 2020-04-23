@@ -25,8 +25,8 @@ THE SOFTWARE.
 
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:f="/lib/form" xmlns:c="/lib/credentials">
-    
-    <f:entry title="${%GeneXus Installation}" field="gxInstallationId">
+
+    <f:entry field="gxInstallationId" title="${%GeneXus Installation}">
         <f:select />
     </f:entry>
     
@@ -68,8 +68,8 @@ THE SOFTWARE.
             <f:textbox />
         </f:entry>
 
-        <f:entry field="kbDbInSameFolder" title="${%Create DB files in KB folder}">
-            <f:checkbox default="true" />
+        <f:entry field="kbDbInSameFolder">
+            <f:checkbox title="${%Create DB files in KB folder}" default="true" />
         </f:entry>
     </f:advanced>
 
