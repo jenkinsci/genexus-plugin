@@ -98,11 +98,13 @@ public class GeneXusServerSCM extends SCM implements Serializable {
     private final String kbName;
     private final String kbVersion;
 
-    // Local KB DB info
+    // Local KB info
     // TODO: get localKbVersion to update by looking in the working copy
     // which one is conected to the 'kbVersion' in the server
     private final String localKbPath;
     private final String localKbVersion;
+    
+    // Local KB DB info    
     private final String kbDbServerInstance;
     private final String kbDbCredentialsId;
     private final String kbDbName;

@@ -1,3 +1,26 @@
+/*
+* The MIT License
+*
+* Copyright 2018 GeneXus S.A..
+*
+* Permission is hereby granted, free of charge, to any person obtaining a copy
+* of this software and associated documentation files (the "Software"), to deal
+* in the Software without restriction, including without limitation the rights
+* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the Software is
+* furnished to do so, subject to the following conditions:
+*
+* The above copyright notice and this permission notice shall be included in
+* all copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+* THE SOFTWARE.
+ */
 package org.jenkinsci.plugins.genexus.server;
 
 import java.net.MalformedURLException;
@@ -10,6 +33,7 @@ import javax.annotation.Nullable;
 
 import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.StandardListBoxModel;
+import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
 
 import org.jenkinsci.plugins.genexus.GeneXusInstallation;
 import org.jenkinsci.plugins.genexus.helpers.CredentialsHelper;
@@ -29,62 +53,109 @@ import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
+import org.kohsuke.stapler.export.Exported;
+import org.kohsuke.stapler.interceptor.RequirePOST;
 
+/**
+ *
+ * @author jlr
+ * @author Acaceres1996
+ */
 public final class GeneXusServerStep extends SCMStep {
 
-    private final String gxInstallationId;
-    private final String url;
-    private final String gxCredentialsId;
-    private final String repository;
-    private final String kbVersion;
-    private final String dbmsInstance;
-    private final String kbDbName;
-    private final boolean kbDbInSameFolder;
+    private static final long serialVersionUID = 1L;
+
+    // GX installation
+    private String gxInstallationId;
+
+    // GXserver connection data
+    private final String serverURL;
+    private final String credentialsId;
+
+    // Server KB info
+    private final String kbName;
+    private String kbVersion;
+
+    // Local KB info
     private String localKbPath;
     private String localKbVersion;
-    private String dbmsCredentialsId;
+
+    // Local KB DB info
+    private String kbDbServerInstance;
+    private String kbDbCredentialsId;
+    private String kbDbName = "";
+    private boolean kbDbInSameFolder = true;
 
     @DataBoundConstructor
-    public GeneXusServerStep(String gxInstallationId, String url, String gxCredentialsId, String repository,
-            String kbVersion, String localKbVersion, String dbmsInstance, String kbDbName,
-            boolean kbDbInSameFolder) {
+    public GeneXusServerStep(String serverURL, String credentialsId, String kbName) {
+        this(
+                serverURL, credentialsId, kbName, /*gxInstallationId*/ "", /*kbVersion*/ "",
+                /*localKbPath*/ "", /*localKbVersion*/ "", /*kbDbServerInstance*/ "",
+                /*kbDbCredentialsId*/ "", /*kbDbName*/ "", /*kbDbInSameFolder*/ true
+        );
+    }
+
+    public GeneXusServerStep(String serverURL, String credentialsId, String kbName, String gxInstallationId,
+            String kbVersion, String localKbPath, String localKbVersion, String kbDbServerInstance,
+            String kbDbCredentialsId, String kbDbName, boolean kbDbInSameFolder) {
         this.gxInstallationId = gxInstallationId;
-        this.url = url;
-        this.gxCredentialsId = gxCredentialsId;
-        this.repository = repository;
+        this.serverURL = serverURL;
+        this.credentialsId = credentialsId;
+
+        this.kbName = kbName;
         this.kbVersion = kbVersion;
+
+        this.localKbPath = localKbPath;
         this.localKbVersion = localKbVersion;
-        this.dbmsInstance = dbmsInstance;
-        this.kbDbName = kbDbName;
-        this.kbDbInSameFolder = kbDbInSameFolder;
+
+        this.kbDbServerInstance = kbDbServerInstance;
+        this.kbDbCredentialsId = kbDbCredentialsId;
+        setKbDbName(kbDbName);
+        setKbDbInSameFolder(kbDbInSameFolder);
     }
 
     @Override
     protected SCM createSCM() {
-        return new GeneXusServerSCM(gxInstallationId, url, gxCredentialsId, repository, kbVersion, localKbPath,
-                localKbVersion, dbmsInstance, dbmsCredentialsId, kbDbName, kbDbInSameFolder);
+        return new GeneXusServerSCM(gxInstallationId, serverURL, credentialsId, kbName, kbVersion, localKbPath,
+                localKbVersion, kbDbServerInstance, kbDbCredentialsId, kbDbName, kbDbInSameFolder);
     }
 
+    @Exported
     public String getGxInstallationId() {
         return gxInstallationId;
     }
 
-    public String getUrl() {
-        return url;
+    @DataBoundSetter
+    public void setGxInstallationId(String gxInstallationId) {
+        this.gxInstallationId = gxInstallationId;
     }
 
-    public String getGxCredentialsId() {
-        return gxCredentialsId;
+    @Exported
+    public String getServerURL() {
+        return serverURL;
     }
 
-    public String getRepository() {
-        return repository;
+    @Exported
+    public String getCredentialsId() {
+        return credentialsId;
     }
 
+    @Exported
+    public String getKbName() {
+        return kbName;
+    }
+
+    @Exported
     public String getKbVersion() {
         return kbVersion;
     }
 
+    @DataBoundSetter
+    public void setKbVersion(String kbVersion) {
+        this.kbVersion = kbVersion;
+    }
+
+    @Exported
     public String getLocalKbPath() {
         return localKbPath;
     }
@@ -94,29 +165,54 @@ public final class GeneXusServerStep extends SCMStep {
         this.localKbPath = localKbPath;
     }
 
+    @Exported
     public String getLocalKbVersion() {
         return localKbVersion;
     }
 
-    public String getDbmsInstance() {
-        return dbmsInstance;
+    @DataBoundSetter
+    public void setLocalKbVersion(String localKbVersion) {
+        this.localKbVersion = localKbVersion;
     }
 
-    public String getDbmsCredentialsId() {
-        return dbmsCredentialsId;
+    @Exported
+    public String getKbDbServerInstance() {
+        return kbDbServerInstance;
     }
 
     @DataBoundSetter
-    public void setDbmsCredentialsId(String dbmsCredentialsId) {
-        this.dbmsCredentialsId = dbmsCredentialsId;
+    public void setKbDbServerInstance(String kbDbServerInstance) {
+        this.kbDbServerInstance = kbDbServerInstance;
     }
 
+    @Exported
+    public String getKbDbCredentialsId() {
+        return kbDbCredentialsId;
+    }
+
+    @DataBoundSetter
+    public void setKbDbCredentialsId(String kbDbCredentialsId) {
+        this.kbDbCredentialsId = kbDbCredentialsId;
+    }
+
+    @Exported
     public String getKbDbName() {
         return kbDbName;
     }
 
+    @DataBoundSetter
+    public void setKbDbName(String kbDbName) {
+        this.kbDbName = kbDbName;
+    }
+
+    @Exported
     public boolean isKbDbInSameFolder() {
         return kbDbInSameFolder;
+    }
+
+    @DataBoundSetter
+    public void setKbDbInSameFolder(boolean kbDbInSameFolder) {
+        this.kbDbInSameFolder = kbDbInSameFolder;
     }
 
     @Extension
@@ -129,7 +225,7 @@ public final class GeneXusServerStep extends SCMStep {
 
         @Override
         public String getDisplayName() {
-            return "GeneXus Server";
+            return "Checks out (or updates) a GeneXus Knowledge Base from a GeneXus Server";
         }
 
         private static final Logger LOGGER = Logger.getLogger(GeneXusServerStep.class.getName());
@@ -143,24 +239,24 @@ public final class GeneXusServerStep extends SCMStep {
             return items;
         }
 
-        public ListBoxModel doFillGxCredentialsIdItems(@AncestorInPath Item item, @QueryParameter String credentialsId,
-                @QueryParameter String url) {
+        public ListBoxModel doFillCredentialsIdItems(@AncestorInPath Item item, @QueryParameter String credentialsId,
+                @QueryParameter String serverURL) {
             StandardListBoxModel result = new StandardListBoxModel();
             if (!userCanSelect(item)) {
                 return result;
             }
 
-            return CredentialsHelper.getCredentialsList(item, credentialsId, url);
+            return CredentialsHelper.getCredentialsList(item, credentialsId, serverURL);
         }
 
-        public ListBoxModel doFillDbmsCredentialsIdItems(@AncestorInPath Item item,
-                @QueryParameter String dbmsCredentialsId, @QueryParameter String dbmsInstance) {
+        public ListBoxModel doFillKbDbCredentialsIdItems(@AncestorInPath Item item,
+                @QueryParameter String kbDbCredentialsId, @QueryParameter String kbDbServerInstance) {
             StandardListBoxModel result = new StandardListBoxModel();
             if (!userCanSelect(item)) {
                 return result;
             }
 
-            return CredentialsHelper.getCredentialsList(item, dbmsCredentialsId, null);
+            return CredentialsHelper.getCredentialsList(item, kbDbCredentialsId, null);
         }
 
         private Boolean userCanSelect(Item item) {
@@ -171,17 +267,111 @@ public final class GeneXusServerStep extends SCMStep {
             return (item.hasPermission(Item.EXTENDED_READ) || item.hasPermission(CredentialsProvider.USE_ITEM));
         }
 
-        public FormValidation doCheckUrl(@QueryParameter String value) {
+        /**
+         * Validate the value for a GeneXus Server connection.
+         *
+         * @param value URL of a GeneXus Server installation
+         * @return a FormValidation of a specific kind (OK, ERROR, WARNING)
+         */
+        public FormValidation doCheckServerURL(@QueryParameter String value) {
+
+            // repository URL is required
             String url = Util.fixEmptyAndTrim(value);
             if (url == null) {
                 return FormValidation.error("Server URL is required");
             }
+
+            // repository URL syntax
             try {
                 new URL(url);
             } catch (MalformedURLException ex) {
                 LOGGER.log(Level.SEVERE, ex.getMessage());
                 return FormValidation.error("Invalid Server URL. " + ex.getMessage());
             }
+
+            return FormValidation.ok();
+        }
+
+        /**
+         * Validate the value for GeneXus Server credentials.
+         *
+         * @param item Item to which the credentials apply
+         * @param value id of credentials to validate
+         * @param serverURL URL of a GeneXus Server installation
+         * @return a FormValidation of a specific kind (OK, ERROR, WARNING)
+         */
+        @RequirePOST
+        public FormValidation doCheckCredentialsId(@AncestorInPath Item item, @QueryParameter String value,
+                @QueryParameter String serverURL) {
+            if (!userCanSelect(item)) {
+                return FormValidation.ok();
+            }
+
+            if (value == null || value.isEmpty()) {
+                return FormValidation.ok(); // pre v15 GXservers may allow using no credentials
+            }
+
+            String url = Util.fixEmptyAndTrim(serverURL);
+            if (url == null) {
+                return FormValidation.ok();
+            }
+
+            try {
+                StandardUsernamePasswordCredentials credentials = CredentialsHelper.getUsernameCredentials(item, value,
+                        url);
+                if (credentials == null) {
+                    return FormValidation.error("Cannot find currently selected credentials");
+                }
+                // TODO: additional checks
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, e.getMessage());
+                return FormValidation.error("Unable to access the repository");
+            }
+
+            return FormValidation.ok();
+        }
+
+        /**
+         * Validate the value for a SQL Server Instance.
+         *
+         * @param value SQL Server instance
+         * @return a FormValidation of a specific kind (OK, ERROR, WARNING)
+         */
+        public FormValidation doCheckKbDbServerInstance(@QueryParameter String value) {
+            return FormValidation.ok();
+        }
+
+        /**
+         * Validate the value for the SQL Server credentials.
+         *
+         * @param item Item to which the credentials apply
+         * @param value id of credentials to validate
+         * @param kBDbServerInstance SQL Server instance used for the KB
+         * @return a FormValidation of a specific kind (OK, ERROR, WARNING)
+         */
+        @RequirePOST
+        public FormValidation doCheckKbDbCredentialsId(@AncestorInPath Item item, @QueryParameter String value,
+                @QueryParameter String kBDbServerInstance) {
+            if (!userCanSelect(item)) {
+                return FormValidation.ok();
+            }
+
+            if (value == null || value.isEmpty()) {
+                return FormValidation.ok(); // pre v15 GXservers may allow using no credentials
+            }
+
+            try {
+                StandardUsernamePasswordCredentials credentials = CredentialsHelper.getUsernameCredentials(item, value,
+                        null);
+                if (credentials == null) {
+                    return FormValidation.error("Cannot find currently selected credentials");
+                }
+                // TODO: additional checks
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, e.getMessage());
+                return FormValidation.error("Unable to access the server");
+            }
+
             return FormValidation.ok();
         }
 
@@ -195,6 +385,5 @@ public final class GeneXusServerStep extends SCMStep {
         public Step newInstance(@Nullable StaplerRequest req, @Nonnull JSONObject formData) throws FormException {
             return super.newInstance(req, formData);
         }
-
     }
 }
