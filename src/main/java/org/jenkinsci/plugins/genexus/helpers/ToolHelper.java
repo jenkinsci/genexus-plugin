@@ -25,6 +25,7 @@ package org.jenkinsci.plugins.genexus.helpers;
 
 import hudson.FilePath;
 import java.io.IOException;
+import org.apache.commons.lang.StringUtils;
 
 /**
  *
@@ -33,6 +34,9 @@ import java.io.IOException;
 public class ToolHelper {
 
     public static String getToolFullPath(FilePath workspace, String pathToTool, String execName) throws IOException, InterruptedException {
+        if (StringUtils.isBlank(pathToTool))
+            return execName;
+        
         String fullPathToTool = (pathToTool != null ? pathToTool : "");
 
         FilePath exec = new FilePath(workspace, fullPathToTool);
