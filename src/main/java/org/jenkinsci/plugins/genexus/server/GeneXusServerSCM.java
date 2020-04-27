@@ -588,6 +588,16 @@ public class GeneXusServerSCM extends SCM implements Serializable {
         }
     }
 
+    @Override public String getKey() {
+        StringBuilder b = new StringBuilder("gxserver");
+        b.append(' ').append(serverURL);
+        b.append(',').append(kbName);
+        if (!StringUtils.isBlank(kbVersion)) {
+            b.append(',').append(kbVersion);
+        }
+        return b.toString();
+    }
+
     @Extension
     public static class DescriptorImpl extends SCMDescriptor<GeneXusServerSCM> {
 
