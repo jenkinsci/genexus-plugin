@@ -129,6 +129,7 @@ THE SOFTWARE.
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
                     <compilerArgument />
+                    <showDeprecation>true</showDeprecation>
                 </configuration>
             </plugin>
             <plugin>

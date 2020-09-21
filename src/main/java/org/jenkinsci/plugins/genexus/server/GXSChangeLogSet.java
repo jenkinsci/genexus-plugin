@@ -191,7 +191,7 @@ public final class GXSChangeLogSet extends ChangeLogSet {
         }
         
         public void setUser(String author) {
-            this.author = User.get(author);
+            this.author = User.getById(author, true);
         }
 
         @Exported
