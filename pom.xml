@@ -108,6 +108,11 @@ THE SOFTWARE.
             <version>3.0</version>
             <type>jar</type>
         </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-digester3</artifactId>
+            <version>3.2</version>
+        </dependency>
     </dependencies>
     <build>
         <resources>
