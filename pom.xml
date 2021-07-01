@@ -46,7 +46,6 @@ THE SOFTWARE.
         <name>GeneXus S.A.</name>
         <url>https://genexus.com</url>
     </organization>
-    <!-- The default licence for Jenkins OSS Plugins is MIT. Substitute for the applicable one if needed. -->
     <licenses>
         <license>
             <name>MIT License</name>
