@@ -29,7 +29,6 @@ import hudson.Functions;
 import hudson.Launcher;
 import hudson.Proc;
 import hudson.Util;
-import hudson.model.Result;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.tasks.Messages;
