@@ -32,7 +32,7 @@ THE SOFTWARE.
         <relativePath />
     </parent>
     <artifactId>genexus</artifactId>
-    <version>1.12-SNAPSHOT</version>
+    <version>1.12-beta-1-SNAPSHOT</version>
     <packaging>hpi</packaging>
     <properties>
         <jenkins.version>2.222.4</jenkins.version>
