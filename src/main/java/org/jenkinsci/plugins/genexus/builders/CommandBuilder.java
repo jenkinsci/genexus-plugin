@@ -32,7 +32,6 @@ import hudson.Util;
 
 import hudson.model.Run;
 import hudson.model.TaskListener;
-import hudson.tasks.Messages;
 
 import hudson.util.ArgumentListBuilder;
 
@@ -69,7 +68,7 @@ public class CommandBuilder {
             Util.displayIOException(e, listener);
 
             /* Error text originally taken from Messages.CommandInterpreter_CommandFailed() */
-            Functions.printStackTrace(e, listener.fatalError(Messages.CommandInterpreter_CommandFailed()));
+            Functions.printStackTrace(e, listener.fatalError("command execution failed."));
         }
 
         return r == 0;
