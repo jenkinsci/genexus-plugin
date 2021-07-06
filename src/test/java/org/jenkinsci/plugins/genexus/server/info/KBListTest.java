@@ -23,15 +23,11 @@
  */
 package org.jenkinsci.plugins.genexus.server.info;
 
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
-import org.jenkinsci.plugins.genexus.helpers.XmlHelper;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *
