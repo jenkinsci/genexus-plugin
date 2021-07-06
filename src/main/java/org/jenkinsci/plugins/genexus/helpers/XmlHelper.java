@@ -135,6 +135,7 @@ public class XmlHelper {
 
         Document doc = db.parse(new ByteArrayInputStream(inputString.getBytes(StandardCharsets.UTF_8)));
         trimWhitespace(doc.getDocumentElement());
+        doc.setXmlStandalone(true);
         doc.normalizeDocument();
 
         StringWriter sw = new StringWriter();

@@ -23,16 +23,29 @@
  */
 package org.jenkinsci.plugins.genexus.server.info;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  *
  * @author jlr
  */
 public class ServerInfo {
 
+    @SuppressFBWarnings( "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD" )
     public String serverVersion = "";
+
+    @SuppressFBWarnings( "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD" )
     public Boolean isAvailable = false;
+
+    @SuppressFBWarnings( "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD" )
     public Boolean isSecure = false;
+
+    @SuppressFBWarnings( "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD" )
     public Boolean supportsTokenAuthentication = false;
+
+    @SuppressFBWarnings( "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD" )
     public Boolean allowsGXtest = false;
+
+    @SuppressFBWarnings( "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD" )
     public Boolean allowsCustomBinding = false;
 }

@@ -29,11 +29,11 @@ import java.util.List;
 import org.jenkinsci.plugins.genexus.GeneXusInstallation;
 import org.junit.After;
 import org.junit.AfterClass;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
 import org.junit.Rule;
+import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 
 /**
@@ -42,42 +42,42 @@ import org.jvnet.hudson.test.JenkinsRule;
  * @author mmarsicano
  */
 public class GeneXusBuilderTest {
-    
+
     @Rule
     public JenkinsRule jenkins = new JenkinsRule();
 
     @BeforeClass
     public static void setUpClass() {
     }
-    
+
     @Before
     public void setUp() {
         System.out.println("GeneXusBuilderTest: @Before method");
-        
-        GeneXusInstallation[] gxInstallations = new GeneXusInstallation[] {
+
+        GeneXusInstallation[] gxInstallations = new GeneXusInstallation[]{
             new GeneXusInstallation("Evo3", "C:\\gx\\evo3", null),
             new GeneXusInstallation("v15", "C:\\gx\\v15", null)
         };
-        
+
         GeneXusInstallation.DescriptorImpl descriptor = jenkins.getInstance().getDescriptorByType(GeneXusInstallation.DescriptorImpl.class);
         descriptor.setInstallations(gxInstallations);
     }
-    
+
     @Test
     public void testConfigRoundtrip() throws Exception {
-      
+
         FreeStyleProject project = jenkins.createFreeStyleProject();
-        
+
         TestCases testCases = CreateConfigRoundtripTestCases();
-        
+
         for (GeneXusBuilder builder : testCases.inputs) {
             project.getBuildersList().add(builder);
         }
-        
+
         project = jenkins.configRoundtrip(project);
         jenkins.assertEqualDataBoundBeans(testCases.expectedOutputs, project.getBuildersList());
     }
-    
+
     @After
     public void tearDown() {
     }
@@ -85,10 +85,10 @@ public class GeneXusBuilderTest {
     @AfterClass
     public static void tearDownClass() {
     }
-    
+
     private TestCases CreateConfigRoundtripTestCases() {
         TestCases testCases = new TestCases();
-        
+
         // existing id
         testCases.addCase(new GeneXusBuilder("Evo3", "kbpath", "kbversion", "kbenvironment", "kbDbCredentialsId", true));
 
@@ -98,18 +98,18 @@ public class GeneXusBuilderTest {
                 new GeneXusBuilder(""       , "kbpath", "kbversion", "kbenvironment", "kbDbCredentialsId",true)
         );
 
-        // false is also preserved 
+        // false is also preserved
         testCases.addCase(new GeneXusBuilder("Evo3", "kbpath", "kbversion", "kbenvironment", "kbDbCredentialsId", false));
-        
+
         // null values are converted to default values
         testCases.addCase(
                 new GeneXusBuilder(null, null    , null, null, "kbDbCredentialsId", true),
                 new GeneXusBuilder(""  , "KBpath", ""  , ""  , "kbDbCredentialsId", true)
         );
-        
+
         return testCases;
     }
-    
+
     /**
      * Test of getGxInstallationId method, of class GeneXusBuilder.
      */
@@ -121,15 +121,16 @@ public class GeneXusBuilderTest {
         String result = instance.getGxInstallationId();
         assertEquals(expResult, result);
     }
-    
+
     private class TestCases {
+
         public final List<GeneXusBuilder> inputs = new ArrayList<>();
         public final List<GeneXusBuilder> expectedOutputs = new ArrayList<>();
-        
+
         public void addCase(GeneXusBuilder input) {
             addCase(input, input);
         }
-        
+
         public void addCase(GeneXusBuilder input, GeneXusBuilder output) {
             inputs.add(input);
             expectedOutputs.add(output);

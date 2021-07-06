@@ -29,11 +29,14 @@ import hudson.Functions;
 import hudson.Launcher;
 import hudson.Proc;
 import hudson.Util;
+
 import hudson.model.Run;
 import hudson.model.TaskListener;
-import hudson.tasks.Messages;
+
 import hudson.util.ArgumentListBuilder;
+
 import java.io.IOException;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -45,23 +48,29 @@ import java.util.logging.Logger;
  */
 public class CommandBuilder {
 
+    private static final Logger LOGGER = Logger.getLogger(CommandBuilder.class.getName());
     private final ArgumentListBuilder args;
 
     public CommandBuilder(ArgumentListBuilder args) {
         this.args = args;
     }
 
-    public boolean perform(Run<?, ?> build, FilePath workspace, Launcher launcher, TaskListener listener) throws InterruptedException {
+    public boolean perform(Run<?, ?> build, FilePath workspace,
+            Launcher launcher, TaskListener listener) throws InterruptedException {
         int r = -1;
 
         try {
             EnvVars envVars = build.getEnvironment(listener);
             LOGGER.log(Level.FINE, "Executing command {0}", args.toString());
-            r = join(launcher.launch().cmds(args).envs(envVars).stdout(listener).pwd(workspace).start());
+            r = join(launcher.launch().cmds(args).envs(envVars).stdout(listener)
+                    .pwd(workspace).start());
         } catch (IOException e) {
             Util.displayIOException(e, listener);
-            Functions.printStackTrace(e, listener.fatalError(Messages.CommandInterpreter_CommandFailed()));
+
+            /* Error text originally taken from Messages.CommandInterpreter_CommandFailed() */
+            Functions.printStackTrace(e, listener.fatalError("command execution failed."));
         }
+
         return r == 0;
     }
 
@@ -74,6 +83,4 @@ public class CommandBuilder {
     protected int join(Proc p) throws IOException, InterruptedException {
         return p.join();
     }
-
-    private static final Logger LOGGER = Logger.getLogger(CommandBuilder.class.getName());
 }

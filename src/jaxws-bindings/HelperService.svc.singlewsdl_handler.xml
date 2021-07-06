@@ -1,16 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE jaxb:bindings [
-<!ENTITY commonHandler SYSTEM "commonHandler.xml">
-]>
 <bindings
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
     xmlns:jaxws="http://java.sun.com/xml/ns/jaxws"
     xmlns="http://java.sun.com/xml/ns/jaxws" wsdlLocation="../wsdl/HelperService.svc.singlewsdl.wsdl">
-
-    <!-- Include common binding info -->
-    &commonHandler;
 
     <jaxb:bindings node="wsdl:definitions" xmlns:jws="http://java.sun.com/xml/ns/javaee">
         <!-- Classes specific to this service (HelperService) use this package name -->

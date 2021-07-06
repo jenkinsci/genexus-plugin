@@ -58,7 +58,6 @@ public abstract class BaseClient {
 
         public boolean isSecure;
         public URL url;
-        public String bindingName;
     }
 
     private BindingData bindingData;
@@ -71,14 +70,11 @@ public abstract class BaseClient {
     }
 
     private BindingData getBindingData(ServiceData serviceData) throws MalformedURLException {
-        ServiceInfo serviceInfo = getServiceInfo();
-
         BindingData binding = new BindingData();
 
         URL secureURL = getSecureServiceURL(serviceData.getServerURL());
         binding.url = secureURL;
         binding.isSecure = true;
-        binding.bindingName = serviceInfo.secureBindingName;
 
         if (checkForNotFound(secureURL)) {
             // If the "secure" URL is not found (404) it might be an old gxserver
@@ -89,19 +85,18 @@ public abstract class BaseClient {
             if (!checkForNotFound(nonSecureURL)) {
                 binding.url = nonSecureURL;
                 binding.isSecure = false;
-                binding.bindingName = serviceInfo.nonSecureBindingName;
             }
         }
 
         return binding;
     }
 
-    protected void PrepareClient(BindingProvider bindingProvider) throws MalformedURLException {
-        AddMessageContextProperties(bindingProvider);
+    protected void prepareClient(BindingProvider bindingProvider) throws MalformedURLException {
+        addMessageContextProperties(bindingProvider);
         NaiveSSLHelper.makeWebServiceClientTrustEveryone(bindingProvider);
     }
 
-    protected void AddMessageContextProperties(BindingProvider bindingProvider) throws MalformedURLException {
+    protected void addMessageContextProperties(BindingProvider bindingProvider) throws MalformedURLException {
         BindingData binding = getBindingData();
         Map requestContext = bindingProvider.getRequestContext();
 

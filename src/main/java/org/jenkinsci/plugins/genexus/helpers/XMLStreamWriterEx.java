@@ -24,6 +24,7 @@
 package org.jenkinsci.plugins.genexus.helpers;
 
 import com.sun.xml.txw2.output.IndentingXMLStreamWriter;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -36,7 +37,8 @@ import javax.xml.stream.XMLStreamWriter;
  * @author jlr
  */
 public class XMLStreamWriterEx extends IndentingXMLStreamWriter {
-    
+
+    @SuppressFBWarnings("OBL_UNSATISFIED_OBLIGATION")
     public static XMLStreamWriterEx newInstance(File file) throws XMLStreamException, FileNotFoundException {
         return new XMLStreamWriterEx(XMLOutputFactory.newInstance().createXMLStreamWriter(new FileOutputStream(file)));
     }

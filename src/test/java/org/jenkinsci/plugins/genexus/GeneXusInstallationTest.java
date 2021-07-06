@@ -39,22 +39,22 @@ import org.jvnet.hudson.test.JenkinsRule;
  * @author jlr
  */
 public class GeneXusInstallationTest {
-    
+
     @Rule
     public JenkinsRule jenkins = new JenkinsRule();
-    
+
     @BeforeClass
     public static void setUpClass() {
     }
-    
+
     @AfterClass
     public static void tearDownClass() {
     }
-    
+
     @Before
     public void setUp() {
     }
-    
+
     @After
     public void tearDown() {
     }
@@ -62,35 +62,34 @@ public class GeneXusInstallationTest {
     @Test
     public void testConfigRoundtrip() throws Exception {
         GeneXusInstallation.DescriptorImpl descriptor = jenkins.getInstance().getDescriptorByType(GeneXusInstallation.DescriptorImpl.class);
-        
+
         TestCases testCases = CreateConfigRoundtripTestCases();
         descriptor.setInstallations(testCases.inputs.toArray(new GeneXusInstallation[testCases.inputs.size()]));
-        
+
         List<GeneXusInstallation> results = Arrays.asList(descriptor.getInstallations());
         jenkins.assertEqualDataBoundBeans(testCases.expectedOutputs, results);
     }
-    
+
     private TestCases CreateConfigRoundtripTestCases() {
         TestCases testCases = new TestCases();
-        
+
         testCases.addCase(new GeneXusInstallation("Evo3", "C:\\gx\\evo3", "msb12xxx"));
         testCases.addCase(new GeneXusInstallation("v15" , "C:\\gx\\v15 ", ""        ));
         testCases.addCase(new GeneXusInstallation(""    , ""            , ""        ));
         testCases.addCase(new GeneXusInstallation(null  , null          , null      ));
 
-
         return testCases;
     }
 
-    
     private class TestCases {
+
         public final List<GeneXusInstallation> inputs = new ArrayList<>();
         public final List<GeneXusInstallation> expectedOutputs = new ArrayList<>();
-        
+
         public void addCase(GeneXusInstallation input) {
             addCase(input, input);
         }
-        
+
         public void addCase(GeneXusInstallation input, GeneXusInstallation output) {
             inputs.add(input);
             expectedOutputs.add(output);

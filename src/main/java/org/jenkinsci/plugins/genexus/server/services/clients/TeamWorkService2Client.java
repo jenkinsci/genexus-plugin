@@ -29,9 +29,9 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.UUID;
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.ws.BindingProvider;
@@ -48,11 +48,11 @@ import org.jenkinsci.plugins.genexus.server.services.common.TransferPropHelper;
 import org.jenkinsci.plugins.genexus.server.services.contracts.ArrayOfServerMessage;
 import org.jenkinsci.plugins.genexus.server.services.contracts.ArrayOfTransferProp;
 import org.jenkinsci.plugins.genexus.server.services.teamwork.FileTransfer;
-import org.jenkinsci.plugins.genexus.server.services.teamwork.SimpleTransfer;
 import org.jenkinsci.plugins.genexus.server.services.teamwork.ITeamWorkService2;
 import org.jenkinsci.plugins.genexus.server.services.teamwork.ITeamWorkService2GetRevisionsGXServerExceptionFaultFaultMessage;
 import org.jenkinsci.plugins.genexus.server.services.teamwork.ITeamWorkService2GetVersionsGXServerExceptionFaultFaultMessage;
 import org.jenkinsci.plugins.genexus.server.services.teamwork.ITeamWorkService2HostedKBsGXServerExceptionFaultFaultMessage;
+import org.jenkinsci.plugins.genexus.server.services.teamwork.SimpleTransfer;
 import org.jenkinsci.plugins.genexus.server.services.teamwork.TeamWorkService2;
 import org.xml.sax.SAXException;
 
@@ -85,7 +85,7 @@ public class TeamWorkService2Client extends BaseClient {
             TeamWorkService2 service = new TeamWorkService2();
             ITeamWorkService2 port = service.getCustomBindingITeamWorkService2(new MTOMFeature(true));
 
-            PrepareClient((BindingProvider) port);
+            prepareClient((BindingProvider) port);
 
             teamWorkService2 = port;
         }
@@ -165,9 +165,9 @@ public class TeamWorkService2Client extends BaseClient {
         ArrayOfTransferProp properties = new ArrayOfTransferProp();
 
         properties.getTransferProp().addAll(Arrays.asList(
-                TransferPropHelper.CreateStringProp(TransferPropConstants.CLIENT_GXVERSION, getClientVersion()),
-                TransferPropHelper.CreateStringProp(TransferPropConstants.CLIENT_USER, "Anonymous"),
-                TransferPropHelper.CreateGuidProp(TransferPropConstants.CLIENT_INSTANCE, UUID.randomUUID().toString())
+                TransferPropHelper.createStringProp(TransferPropConstants.CLIENT_GXVERSION, getClientVersion()),
+                TransferPropHelper.createStringProp(TransferPropConstants.CLIENT_USER, "Anonymous"),
+                TransferPropHelper.createGuidProp(TransferPropConstants.CLIENT_INSTANCE, UUID.randomUUID().toString())
         ));
         return properties;
     }
@@ -176,25 +176,25 @@ public class TeamWorkService2Client extends BaseClient {
         ArrayOfTransferProp properties = createBasicProperties();
 
         properties.getTransferProp().add(
-                TransferPropHelper.CreateStringProp(TransferPropConstants.SERVER_KB_NAME, kbName)
+                TransferPropHelper.createStringProp(TransferPropConstants.SERVER_KB_NAME, kbName)
         );
 
         return properties;
     }
 
-     private ArrayOfTransferProp createGetRevisionsProperties(String kbName, int versionId, String query, int page) {
+    private ArrayOfTransferProp createGetRevisionsProperties(String kbName, int versionId, String query, int page) {
         ArrayOfTransferProp properties = createBasicProperties();
 
         properties.getTransferProp().addAll(Arrays.asList(
-                TransferPropHelper.CreateStringProp(TransferPropConstants.SERVER_KB_NAME, kbName),
-                TransferPropHelper.CreateIntProp(TransferPropConstants.SERVER_VERSION_ID, versionId),
-                TransferPropHelper.CreateStringProp(TransferPropConstants.SERVER_REVISIONS_QUERY, query),
-                TransferPropHelper.CreateIntProp(TransferPropConstants.SERVER_REVISIONS_PAGE, page)
+                TransferPropHelper.createStringProp(TransferPropConstants.SERVER_KB_NAME, kbName),
+                TransferPropHelper.createIntProp(TransferPropConstants.SERVER_VERSION_ID, versionId),
+                TransferPropHelper.createStringProp(TransferPropConstants.SERVER_REVISIONS_QUERY, query),
+                TransferPropHelper.createIntProp(TransferPropConstants.SERVER_REVISIONS_PAGE, page)
         ));
 
         return properties;
     }
-   
+
     private String getString(byte[] bytes) throws IOException {
         String s = new String(bytes, StandardCharsets.UTF_8);
         return s;

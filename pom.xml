@@ -28,17 +28,22 @@ THE SOFTWARE.
     <parent>
         <groupId>org.jenkins-ci.plugins</groupId>
         <artifactId>plugin</artifactId>
-        <version>3.0</version>
+        <version>4.4</version>
         <relativePath />
     </parent>
+    
+    <!--groupId>io.jenkins.plugins</groupId-->
     <artifactId>genexus</artifactId>
-    <version>1.12-beta-1-SNAPSHOT</version>
-    <packaging>hpi</packaging>
+    <version>${revision}${changelist}</version>
+    <packaging>hpi</packaging>    
+    
     <properties>
-        <jenkins.version>2.222.4</jenkins.version>
+        <revision>1.12</revision>
+        <changelist>-beta-1-SNAPSHOT</changelist>
+        <jenkins.version>2.235.1</jenkins.version>
         <java.level>8</java.level>
         <findbugs.failOnError>false</findbugs.failOnError>
-    </properties>
+    </properties>  
     <name>GeneXus Plugin</name>
     <description>Adds support for GeneXus Knowledge Bases (SCM, build, etc.)</description>
     <url>https://wiki.jenkins.io/display/JENKINS/GeneXus+Plugin</url>
@@ -46,12 +51,33 @@ THE SOFTWARE.
         <name>GeneXus S.A.</name>
         <url>https://genexus.com</url>
     </organization>
+    
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.jenkins.tools.bom</groupId>
+                <artifactId>bom-2.235.x</artifactId>
+                <version>11</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    
     <licenses>
         <license>
             <name>MIT License</name>
             <url>https://opensource.org/licenses/MIT</url>
         </license>
     </licenses>
+    
+     <scm>
+        <connection>scm:git:git://github.com/jenkinsci/${project.artifactId}-plugin.git</connection>
+        <developerConnection>scm:git:git@github.com:jenkinsci/${project.artifactId}-plugin.git</developerConnection>
+        <url>https://github.com/jenkinsci/genexus-plugin</url>
+        <tag>HEAD</tag>
+     </scm>
+
     <developers>
         <developer>
             <id>jlr</id>
@@ -59,13 +85,6 @@ THE SOFTWARE.
             <email>jlr@genexus.com</email>
         </developer>
     </developers>
-
-    <scm>
-        <connection>scm:git:git://github.com/jenkinsci/${project.artifactId}-plugin.git</connection>
-        <developerConnection>scm:git:git@github.com:jenkinsci/${project.artifactId}-plugin.git</developerConnection>
-        <url>https://github.com/jenkinsci/genexus-plugin</url>
-        <tag>HEAD</tag>
-    </scm>
 
     <repositories>
         <repository>
@@ -79,41 +98,27 @@ THE SOFTWARE.
             <url>https://repo.jenkins-ci.org/public/</url>
         </pluginRepository>
     </pluginRepositories>
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>io.jenkins.tools.bom</groupId>
-                <artifactId>bom-2.222.x</artifactId>
-                <version>887.vae9c8ac09ff7</version>
-                <scope>import</scope>
-                <type>pom</type>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <type>jar</type>
-            <version>1.7.26</version>
         </dependency>        
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
             <type>jar</type>
-            <version>1.7.26</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>log4j-over-slf4j</artifactId>
             <type>jar</type>
-            <version>1.7.26</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-jdk14</artifactId>
             <type>jar</type>
-            <version>1.7.26</version>
         </dependency>
 
         <dependency>
@@ -142,6 +147,10 @@ THE SOFTWARE.
             <type>jar</type>
         </dependency>
         <dependency>
+            <groupId>org.kohsuke</groupId>
+            <artifactId>access-modifier-annotation</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-digester3</artifactId>
             <version>3.2</version>
@@ -153,6 +162,7 @@ THE SOFTWARE.
             </exclusions>
         </dependency>
     </dependencies>
+    
     <build>
         <resources>
             <resource>
@@ -204,6 +214,7 @@ THE SOFTWARE.
                             <staleFile>${project.build.directory}/jaxws/stale/HelperService.svc.singlewsdl.stale</staleFile>
                             <bindingDirectory>${basedir}/src/jaxws-bindings</bindingDirectory>
                             <bindingFiles>
+                                <bindingFile>CommonHandler.xml</bindingFile>
                                 <bindingFile>HelperService.svc.singlewsdl_handler.xml</bindingFile>
                             </bindingFiles>
                         </configuration>
@@ -226,6 +237,7 @@ THE SOFTWARE.
                             <staleFile>${project.build.directory}/jaxws/stale/TeamWorkService2.svc.singlewsdl.stale</staleFile>
                             <bindingDirectory>${basedir}/src/jaxws-bindings</bindingDirectory>
                             <bindingFiles>
+                                <bindingFile>CommonHandler.xml</bindingFile>
                                 <bindingFile>TeamWorkService2.svc.singlewsdl_handler.xml</bindingFile>
                             </bindingFiles>
                         </configuration>
