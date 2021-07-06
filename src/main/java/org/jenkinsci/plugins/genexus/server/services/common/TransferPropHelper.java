@@ -23,6 +23,8 @@
  */
 package org.jenkinsci.plugins.genexus.server.services.common;
 
+import java.io.IOException;
+import java.text.MessageFormat;
 import javax.xml.datatype.XMLGregorianCalendar;
 import org.jenkinsci.plugins.genexus.server.services.contracts.BoolProp;
 import org.jenkinsci.plugins.genexus.server.services.contracts.DateTimeProp;
@@ -40,7 +42,7 @@ import org.jenkinsci.plugins.genexus.server.services.contracts.XmlProp;
  */
 public class TransferPropHelper {
 
-    public static StringProp CreateStringProp(String propName, String propValue) {
+    public static StringProp createStringProp(String propName, String propValue) {
         ObjectFactory of = new ObjectFactory();
         StringProp sp = of.createStringProp();
         sp.setName(propName);
@@ -48,7 +50,7 @@ public class TransferPropHelper {
         return sp;
     }
 
-    public static GuidProp CreateGuidProp(String propName, String propValue) {
+    public static GuidProp createGuidProp(String propName, String propValue) {
         ObjectFactory of = new ObjectFactory();
         GuidProp sp = of.createGuidProp();
         sp.setName(propName);
@@ -56,7 +58,7 @@ public class TransferPropHelper {
         return sp;
     }
 
-    public static IntProp CreateIntProp(String propName, int propValue) {
+    public static IntProp createIntProp(String propName, int propValue) {
         ObjectFactory of = new ObjectFactory();
         IntProp sp = of.createIntProp();
         sp.setName(propName);
@@ -64,31 +66,63 @@ public class TransferPropHelper {
         return sp;
     }
 
-    public static Boolean getBooleanValue(TransferProp prop) {
-        return ((BoolProp) prop).isValue();
+    private static String getMessageForWrongType(TransferProp value, String expected) {
+        return MessageFormat.format("Unexpected value type: {0. Was expecting {1}}", value.getClass().getName(), expected);
     }
 
-    public static XMLGregorianCalendar getDateTimeValue(TransferProp prop) {
-        return ((DateTimeProp) prop).getValue();
+    public static Boolean getBooleanValue(TransferProp prop) throws IOException {
+        if (prop instanceof BoolProp) {
+            return ((BoolProp) prop).isValue();
+        }
+
+        throw new IOException(getMessageForWrongType(prop, BoolProp.class.getName()));
     }
 
-    public static String getGuidValue(TransferProp prop) {
-        return ((GuidProp) prop).getValue();
+    public static XMLGregorianCalendar getDateTimeValue(TransferProp prop) throws IOException {
+        if (prop instanceof DateTimeProp) {
+            return ((DateTimeProp) prop).getValue();
+        }
+
+        throw new IOException(getMessageForWrongType(prop, DateTimeProp.class.getName()));
     }
 
-    public static int getIntValue(TransferProp prop) {
-        return ((IntProp) prop).getValue();
+    public static String getGuidValue(TransferProp prop) throws IOException {
+        if (prop instanceof GuidProp) {
+            return ((GuidProp) prop).getValue();
+        }
+
+        throw new IOException(getMessageForWrongType(prop, GuidProp.class.getName()));
     }
 
-    public static Long getLongValue(TransferProp prop) {
-        return ((LongProp) prop).getValue();
+    public static int getIntValue(TransferProp prop) throws IOException {
+        if (prop instanceof IntProp) {
+            return ((IntProp) prop).getValue();
+        }
+
+        throw new IOException(getMessageForWrongType(prop, IntProp.class.getName()));
     }
 
-    public static String getStringValue(TransferProp prop) {
-        return ((StringProp) prop).getValue();
+    public static Long getLongValue(TransferProp prop) throws IOException {
+        if (prop instanceof LongProp) {
+            return ((LongProp) prop).getValue();
+        }
+
+        throw new IOException(getMessageForWrongType(prop, LongProp.class.getName()));
     }
 
-    public static String getXmlValue(TransferProp prop) {
-        return ((XmlProp) prop).getValue();
+    public static String getStringValue(TransferProp prop) throws IOException {
+        if (prop instanceof StringProp) {
+            return ((StringProp) prop).getValue();
+        }
+
+        throw new IOException(getMessageForWrongType(prop, StringProp.class.getName()));
+    }
+
+    public static String getXmlValue(TransferProp prop) throws IOException {
+        if (prop instanceof XmlProp) {
+            return ((XmlProp) prop).getValue();
+        }
+
+        throw new IOException(getMessageForWrongType(prop, XmlProp.class.getName()));
     }
 }

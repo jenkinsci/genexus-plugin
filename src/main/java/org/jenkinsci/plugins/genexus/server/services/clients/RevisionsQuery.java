@@ -89,8 +89,8 @@ public class RevisionsQuery implements Iterable<RevisionInfo> {
         this.kbName = kbName;
         this.versionId = versionId;
         this.versionName = null;
-        this.minDate = minDate;
-        this.maxDate = maxDate;
+        this.minDate = minDate != null ? (Date) minDate.clone() : null;
+        this.maxDate = minDate != null ? (Date) maxDate.clone() : null;
         this.query = getQueryString(this.minDate, this.maxDate, query);
     }
 
@@ -143,7 +143,7 @@ public class RevisionsQuery implements Iterable<RevisionInfo> {
 
     private class RevisionsIterator implements Iterator<RevisionInfo> {
 
-        private final int REVISIONS_PAGE_SIZE = 50;
+        private static final int REVISIONS_PAGE_SIZE = 50;
 
         private int currentPageNumber;
         private RevisionList currentPageList;

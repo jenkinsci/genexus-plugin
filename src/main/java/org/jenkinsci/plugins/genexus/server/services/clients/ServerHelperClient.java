@@ -36,6 +36,7 @@ import org.jenkinsci.plugins.genexus.server.services.common.TransferPropConstant
 import org.jenkinsci.plugins.genexus.server.services.common.TransferPropHelper;
 import org.jenkinsci.plugins.genexus.server.services.contracts.ArrayOfServerMessage;
 import org.jenkinsci.plugins.genexus.server.services.contracts.ArrayOfTransferProp;
+import org.jenkinsci.plugins.genexus.server.services.contracts.TransferProp;
 import org.jenkinsci.plugins.genexus.server.services.helper.IServerHelper;
 import org.jenkinsci.plugins.genexus.server.services.helper.IServerHelperIsServerAliveGXServerExceptionFaultFaultMessage;
 import org.jenkinsci.plugins.genexus.server.services.helper.IServerHelperServerInfoGXServerExceptionFaultFaultMessage;
@@ -75,7 +76,7 @@ public class ServerHelperClient extends BaseClient {
                     ? service.getCustomBindingIServerHelper()
                     : service.getBasicHttpBindingIServerHelper();
 
-            PrepareClient((BindingProvider) port);
+            prepareClient((BindingProvider) port);
 
             serverHelper = port;
         }
@@ -100,18 +101,18 @@ public class ServerHelperClient extends BaseClient {
             Holder<ArrayOfTransferProp> properties = new Holder<>(new ArrayOfTransferProp());
 
             properties.value.getTransferProp().add(
-                    TransferPropHelper.CreateStringProp(TransferPropConstants.CLIENT_GXVERSION, getClientVersion())
+                    TransferPropHelper.createStringProp(TransferPropConstants.CLIENT_GXVERSION, getClientVersion())
             );
 
             properties.value.getTransferProp().add(
-                    TransferPropHelper.CreateStringProp(TransferPropConstants.SERVER_OPERATION, "")
+                    TransferPropHelper.createStringProp(TransferPropConstants.SERVER_OPERATION, "")
             );
 
             getServerHelper().serverInfo(parameters, messages, properties);
 
             ServerInfo serverInfo = new ServerInfo();
 
-            properties.value.getTransferProp().forEach((prop) -> {
+            for (TransferProp prop : properties.value.getTransferProp()) {
                 switch (prop.getName()) {
                     case TransferPropConstants.SERVER_GXVERSION:
                         serverInfo.serverVersion = TransferPropHelper.getStringValue(prop);
@@ -135,11 +136,14 @@ public class ServerHelperClient extends BaseClient {
                     case TransferPropConstants.SERVER_CUSTOM_BINDING:
                         serverInfo.allowsCustomBinding = TransferPropHelper.getBooleanValue(prop);
                         break;
+
+                    default:
+                        Logger.getLogger(ServerHelperClient.class.getName()).log(Level.WARNING, "Unknown server property: {0}", prop.getName());
                 }
-            });
+            }
 
             return serverInfo;
-        } catch (IServerHelperServerInfoGXServerExceptionFaultFaultMessage ex) {
+        } catch (IServerHelperServerInfoGXServerExceptionFaultFaultMessage | IOException ex) {
             Logger.getLogger(ServerHelperClient.class.getName()).log(Level.SEVERE, null, ex);
             throw new IOException("Error accessing GXserver", ex);
         }

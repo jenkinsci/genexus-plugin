@@ -32,6 +32,7 @@ import hudson.model.EnvironmentSpecific;
 import hudson.model.Node;
 import hudson.model.TaskListener;
 import hudson.plugins.msbuild.MsBuildInstallation;
+import hudson.remoting.VirtualChannel;
 import hudson.slaves.NodeSpecific;
 import hudson.tools.ToolDescriptor;
 import hudson.tools.ToolInstallation;
@@ -55,13 +56,13 @@ public final class GeneXusInstallation extends ToolInstallation
         implements NodeSpecific<GeneXusInstallation>, EnvironmentSpecific<GeneXusInstallation> {
 
     private static final long serialVersionUID = 1L;
-    
+
     private final String msBuildInstallationId;
 
     public GeneXusInstallation(String name, String home, String msBuildInstallationId) {
         this(name, home, msBuildInstallationId, Collections.<ToolProperty<?>>emptyList());
     }
-    
+
     /**
      *
      * @param msBuildInstallationId MSBuild installation to use
@@ -87,7 +88,7 @@ public final class GeneXusInstallation extends ToolInstallation
         }
         env.put("GX_PROGRAM_DIR", home);
     }
-        
+
     @Override
     public GeneXusInstallation forNode(Node node, TaskListener log) throws IOException, InterruptedException {
         return new GeneXusInstallation(getName(), translateFor(node, log), getMsBuildInstallationId());
@@ -98,38 +99,43 @@ public final class GeneXusInstallation extends ToolInstallation
         return new GeneXusInstallation(getName(), environment.expand(getHome()),getMsBuildInstallationId());
     }
 
-    public String getExecutable(final GeneXusExecutable executable, Launcher launcher) throws IOException, InterruptedException { 
+    public String getExecutable(final GeneXusExecutable executable, Launcher launcher) throws IOException, InterruptedException {
         return getFilePath(executable.getName(launcher.isUnix()), launcher);
     }
-    
-    public String getFilePath(final String fileName, Launcher launcher) throws IOException, InterruptedException { 
-        return launcher.getChannel().call(new MasterToSlaveCallable<String, IOException>() {
+
+    public String getFilePath(final String fileName, Launcher launcher) throws IOException, InterruptedException {
+        VirtualChannel channel =  launcher.getChannel();
+        if (channel == null) {
+            return null;
+        }
+
+        return channel.call(new MasterToSlaveCallable<String, IOException>() {
             private static final long serialVersionUID = 1L;
             @Override
-            public String call() throws IOException { 
+            public String call() throws IOException {
                 String gxHome = Util.replaceMacro(getHome(),EnvVars.masterEnvVars);
-                File exe = new File(gxHome, fileName); 
-                if (exe.exists()) { 
-                    return exe.getPath(); 
+                File exe = new File(gxHome, fileName);
+                if (exe.exists()) {
+                    return exe.getPath();
                 }
-                return null; 
-            } 
-        }); 
+                return null;
+            }
+        });
     }
-    
+
     public String getExecutable(Launcher launcher) throws IOException, InterruptedException {
         return getExecutable(GeneXusExecutable.GENEXUS, launcher);
-    }    
+    }
 
     public static GeneXusInstallation[] getInstallations() {
         DescriptorImpl descriptor = ToolInstallation.all().get(DescriptorImpl.class);
         if (descriptor == null) {
             return new GeneXusInstallation[] {};
         }
-        
+
         return descriptor.getInstallations();
     }
-    
+
     public static GeneXusInstallation getInstallation(String installationId) {
         if (installationId == null)
             return null;
@@ -138,14 +144,14 @@ public final class GeneXusInstallation extends ToolInstallation
             if(installationId.equals(i.getName()))
                 return i;
         }
-        
+
         return null;
     }
-    
+
     @Extension
     @Symbol("genexus")
     public static class DescriptorImpl extends ToolDescriptor<GeneXusInstallation> {
-        
+
         public DescriptorImpl() {
             super();
             load();
@@ -155,7 +161,7 @@ public final class GeneXusInstallation extends ToolInstallation
         public String getDisplayName() {
             return "GeneXus";
         }
-        
+
         @Override
         public GeneXusInstallation[] getInstallations() {
             load();
@@ -168,13 +174,13 @@ public final class GeneXusInstallation extends ToolInstallation
             save();
         }
 
-        @Override 
-        public boolean configure(StaplerRequest req, JSONObject json) throws FormException { 
-            super.configure(req, json); 
-            save(); 
-            return true; 
+        @Override
+        public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
+            super.configure(req, json);
+            save();
+            return true;
         }
-        
+
         /**
          *
          * @return MsBuildInstallation descriptor
@@ -182,11 +188,11 @@ public final class GeneXusInstallation extends ToolInstallation
         public MsBuildInstallation.DescriptorImpl getMSBuildToolDescriptor() {
             return ToolInstallation.all().get(MsBuildInstallation.DescriptorImpl.class);
         }
-        
+
         public ListBoxModel doFillMsBuildInstallationIdItems() {
             ListBoxModel items = new ListBoxModel();
             items.add("(Default)", "");
-            
+
             Descriptor msbuildDescriptor = getMSBuildToolDescriptor();
             if (msbuildDescriptor != null) {
                 for (MsBuildInstallation installation : getMSBuildToolDescriptor().getInstallations()) {
