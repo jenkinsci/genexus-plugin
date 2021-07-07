@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.jenkinsci.plugins.genexus.server.services.clients;
+package org.jenkinsci.plugins.genexus.server.clients;
 
 import java.io.File;
 import java.io.FileNotFoundException;

@@ -36,8 +36,8 @@ import jenkins.MasterToSlaveFileCallable;
 import org.jenkinsci.plugins.genexus.helpers.XMLStreamWriterEx;
 import org.jenkinsci.plugins.genexus.server.info.ActionInfo;
 import org.jenkinsci.plugins.genexus.server.info.RevisionInfo;
-import org.jenkinsci.plugins.genexus.server.services.clients.RevisionsQuery;
-import org.jenkinsci.plugins.genexus.server.services.clients.TeamWorkService2Client;
+import org.jenkinsci.plugins.genexus.server.clients.RevisionsQuery;
+import org.jenkinsci.plugins.genexus.server.clients.TeamWorkService2Client;
 
 /**
  *

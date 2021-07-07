@@ -36,8 +36,8 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import jenkins.MasterToSlaveFileCallable;
 import org.jenkinsci.plugins.genexus.server.info.RevisionInfo;
-import org.jenkinsci.plugins.genexus.server.services.clients.RevisionsQuery;
-import org.jenkinsci.plugins.genexus.server.services.clients.TeamWorkService2Client;
+import org.jenkinsci.plugins.genexus.server.clients.RevisionsQuery;
+import org.jenkinsci.plugins.genexus.server.clients.TeamWorkService2Client;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 

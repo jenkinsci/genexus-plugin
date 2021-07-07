@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.jenkinsci.plugins.genexus.server.services.clients;
+package org.jenkinsci.plugins.genexus.server.clients;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -30,10 +30,10 @@ import java.util.logging.Logger;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
 import org.jenkinsci.plugins.genexus.server.info.ServerInfo;
-import org.jenkinsci.plugins.genexus.server.services.common.ServiceData;
-import org.jenkinsci.plugins.genexus.server.services.common.ServiceInfo;
-import org.jenkinsci.plugins.genexus.server.services.common.TransferPropConstants;
-import org.jenkinsci.plugins.genexus.server.services.common.TransferPropHelper;
+import org.jenkinsci.plugins.genexus.server.clients.common.ServiceData;
+import org.jenkinsci.plugins.genexus.server.clients.common.ServiceInfo;
+import org.jenkinsci.plugins.genexus.server.clients.common.TransferPropConstants;
+import org.jenkinsci.plugins.genexus.server.clients.common.TransferPropHelper;
 import org.jenkinsci.plugins.genexus.server.services.contracts.ArrayOfServerMessage;
 import org.jenkinsci.plugins.genexus.server.services.contracts.ArrayOfTransferProp;
 import org.jenkinsci.plugins.genexus.server.services.contracts.TransferProp;

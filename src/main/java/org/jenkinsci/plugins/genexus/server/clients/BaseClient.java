@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.jenkinsci.plugins.genexus.server.services.clients;
+package org.jenkinsci.plugins.genexus.server.clients;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -30,9 +30,9 @@ import java.net.URL;
 import java.util.Map;
 import javax.net.ssl.HttpsURLConnection;
 import javax.xml.ws.BindingProvider;
-import org.jenkinsci.plugins.genexus.server.services.common.NaiveSSLHelper;
-import org.jenkinsci.plugins.genexus.server.services.common.ServiceData;
-import org.jenkinsci.plugins.genexus.server.services.common.ServiceInfo;
+import org.jenkinsci.plugins.genexus.server.clients.common.NaiveSSLHelper;
+import org.jenkinsci.plugins.genexus.server.clients.common.ServiceData;
+import org.jenkinsci.plugins.genexus.server.clients.common.ServiceInfo;
 
 /**
  *
