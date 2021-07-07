@@ -29,22 +29,19 @@ import hudson.Functions;
 import hudson.Launcher;
 import hudson.Proc;
 import hudson.Util;
-
 import hudson.model.Run;
 import hudson.model.TaskListener;
-
 import hudson.util.ArgumentListBuilder;
-
 import java.io.IOException;
-
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  *
- * @author jlr
- *
  * Code and ideas taken from hudson.tasks.CommandInterpreter
+ * 
+ * @author jlr
+ * 
  */
 public class CommandBuilder {
 
@@ -74,13 +71,13 @@ public class CommandBuilder {
         return r == 0;
     }
 
-    /**
-     * Taken from CommandInterpreter.java
-     *
-     * Reports the exit code from the process.
-     *
-     */
     protected int join(Proc p) throws IOException, InterruptedException {
+
+        /**
+         *
+         * This allows subtypes to treat the exit code differently.
+         *
+         */
         return p.join();
     }
 }
