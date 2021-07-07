@@ -160,8 +160,24 @@ THE SOFTWARE.
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+          <groupId>jakarta.xml.bind</groupId>
+          <artifactId>jakarta.xml.bind-api</artifactId>
+          <version>3.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.xml.ws</groupId>
+            <artifactId>jakarta.xml.ws-api</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+        <dependency>
+          <groupId>com.sun.xml.bind</groupId>
+          <artifactId>jaxb-impl</artifactId>
+          <version>3.0.0</version>
+          <scope>runtime</scope>
+        </dependency>
     </dependencies>
-    
+
     <build>
         <resources>
             <resource>
@@ -193,9 +209,9 @@ THE SOFTWARE.
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.jvnet.jax-ws-commons</groupId>
+                <groupId>org.codehaus.mojo</groupId>
                 <artifactId>jaxws-maven-plugin</artifactId>
-                <version>2.3</version>
+                <version>2.6</version>
                 <executions>
                     <execution>
                         <goals>
@@ -246,9 +262,9 @@ THE SOFTWARE.
                 </executions>
                 <dependencies>
                     <dependency>
-                        <groupId>javax.xml</groupId>
-                        <artifactId>webservices-api</artifactId>
-                        <version>2.0</version>
+                        <groupId>com.sun.xml.ws</groupId>
+                        <artifactId>jaxws-tools</artifactId>
+                        <version>3.0.1</version>
                     </dependency>
                 </dependencies>
                 <configuration>

@@ -23,7 +23,8 @@
  */
 package org.jenkinsci.plugins.genexus.helpers;
 
-import javax.xml.bind.annotation.adapters.XmlAdapter;
+import jakarta.xml.bind.annotation.adapters.XmlAdapter;
+
 
 /**
  *
@@ -39,7 +40,6 @@ import javax.xml.bind.annotation.adapters.XmlAdapter;
  * and back to string) returns the same result.
  */
 public class PositiveOrNothingIntegerAdapter extends XmlAdapter<String, Integer> {
-
     @Override
     public Integer unmarshal(String strValue) throws Exception {
         return Integer.parseInt(strValue);
@@ -47,6 +47,6 @@ public class PositiveOrNothingIntegerAdapter extends XmlAdapter<String, Integer>
 
     @Override
     public String marshal(Integer intValue) throws Exception {
-        return intValue > 0 ? intValue.toString() : null;
+        return (intValue > 0) ? intValue.toString() : null;
     }
 }

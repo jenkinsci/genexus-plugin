@@ -29,7 +29,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 import javax.net.ssl.HttpsURLConnection;
-import javax.xml.ws.BindingProvider;
+import jakarta.xml.ws.BindingProvider;
 import org.jenkinsci.plugins.genexus.server.clients.common.NaiveSSLHelper;
 import org.jenkinsci.plugins.genexus.server.clients.common.ServiceData;
 import org.jenkinsci.plugins.genexus.server.clients.common.ServiceInfo;
