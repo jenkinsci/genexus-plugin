@@ -32,7 +32,6 @@ THE SOFTWARE.
         <relativePath />
     </parent>
     
-    <!--groupId>io.jenkins.plugins</groupId-->
     <artifactId>genexus</artifactId>
     <version>${revision}${changelist}</version>
     <packaging>hpi</packaging>    
