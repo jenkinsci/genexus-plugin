@@ -34,7 +34,7 @@ THE SOFTWARE.
     
     <!--groupId>io.jenkins.plugins</groupId-->
     <artifactId>genexus</artifactId>
-    <version>${revision}${changelist}</version>
+    <version>1.12-beta-2-SNAPSHOT</version>
     <packaging>hpi</packaging>    
     
     <properties>
