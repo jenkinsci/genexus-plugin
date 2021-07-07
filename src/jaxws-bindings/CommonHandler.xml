@@ -10,8 +10,8 @@
         <jws:handler-chains>
             <jws:handler-chain>
                 <jws:handler>
-                    <jws:handler-name>jenkinsci.plugins.genexus.server.services.common.SOAPHeaderHandler</jws:handler-name>
-                    <jws:handler-class>org.jenkinsci.plugins.genexus.server.services.common.SOAPHeaderHandler</jws:handler-class>
+                    <jws:handler-name>jenkinsci.plugins.genexus.server.clients.common.SOAPHeaderHandler</jws:handler-name>
+                    <jws:handler-class>org.jenkinsci.plugins.genexus.server.clients.common.SOAPHeaderHandler</jws:handler-class>
                 </jws:handler>
             </jws:handler-chain>
         </jws:handler-chains>
