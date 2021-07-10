@@ -15,6 +15,6 @@ Any value defined here will override the pom.xml file value but is only applicab
 -->
         <org-netbeans-modules-maven-jaxws._5f_C_5f_HelperService_2e_svc_2e_singlewsdl>file:/${project.basedir}/src/wsdl/HelperService.svc.singlewsdl.wsdl</org-netbeans-modules-maven-jaxws._5f_C_5f_HelperService_2e_svc_2e_singlewsdl>
         <org-netbeans-modules-maven-jaxws._5f_C_5f_TeamWorkService2_2e_svc_2e_singlewsdl>file:/${project.basedir}/src/wsdl/TeamWorkService2.svc.singlewsdl.wsdl</org-netbeans-modules-maven-jaxws._5f_C_5f_TeamWorkService2_2e_svc_2e_singlewsdl>
-		
+        <netbeans.hint.license>mit</netbeans.hint.license>
     </properties>
 </project-shared-configuration>
