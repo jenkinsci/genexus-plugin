@@ -170,14 +170,6 @@ THE SOFTWARE.
             <artifactId>jakarta.xml.ws-api</artifactId>
             <version>3.0.1</version>
         </dependency>
-        <!--dependency>
-          <groupId>com.sun.xml.bind</groupId>
-          <artifactId>jaxb-impl</artifactId>
-          <version>3.0.1</version>
-          <scope>runtime</scope>
-        </dependency-->
-
-        
         <dependency>
             <groupId>com.sun.xml.ws</groupId>
             <artifactId>jaxws-rt</artifactId>
