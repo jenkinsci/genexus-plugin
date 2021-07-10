@@ -6,7 +6,7 @@
     xmlns:jaxws="https://jakarta.ee/xml/ns/jaxws"
     xmlns="https://jakarta.ee/xml/ns/jaxws" wsdlLocation="../wsdl/TeamWorkService2.svc.singlewsdl.wsdl">
 
-    <jaxb:bindings node="wsdl:definitions" xmlns:jws="https://jakarta.ee/xml/ns/javaee">
+    <jaxb:bindings node="wsdl:definitions">
         <!-- Classes specific to this service (TeamWorkService2) use this package name -->
         <jaxws:package name="org.jenkinsci.plugins.genexus.server.services.teamwork"/>
         <jaxws:enableWrapperStyle>false</jaxws:enableWrapperStyle>

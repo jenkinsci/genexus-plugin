@@ -5,7 +5,7 @@
     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
     xmlns:jaxws="https://jakarta.ee/xml/ns/jaxws"
     xmlns="https://jakarta.ee/xml/ns/jaxws" >
-    <jaxb:bindings node="wsdl:definitions" xmlns:jws="https://jakarta.ee/xml/ns/javaee">
+    <jaxb:bindings node="wsdl:definitions" xmlns:jws="https://jakarta.ee/xml/ns/jakartaee">
         <!-- Use this handler to resolve SOAPHeaders for authentication -->
         <jws:handler-chains>
             <jws:handler-chain>
