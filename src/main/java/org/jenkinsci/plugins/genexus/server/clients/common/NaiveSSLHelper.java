@@ -23,6 +23,7 @@
  */
 package org.jenkinsci.plugins.genexus.server.clients.common;
 
+import com.sun.xml.internal.ws.developer.JAXWSProperties;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
@@ -126,9 +127,9 @@ public class NaiveSSLHelper {
     }
 
     private static final String JAXWS_HOSTNAME_VERIFIER
-            = "com.sun.xml.internal.ws.transport.https.client.hostname.verifier";
-            //= JAXWSProperties.HOSTNAME_VERIFIER;
+            = "com.sun.xml.ws.transport.https.client.hostname.verifier";
+            //= com.sun.xml.ws.developer.JAXWSProperties.HOSTNAME_VERIFIER;
     private static final String JAXWS_SSL_SOCKET_FACTORY
-            = "com.sun.xml.internal.ws.transport.https.client.SSLSocketFactory";
-            //= JAXWSProperties.SSL_SOCKET_FACTORY;
+            = "com.sun.xml.ws.transport.https.client.SSLSocketFactory";
+            //= com.sun.xml.ws.developer.JAXWSProperties.SSL_SOCKET_FACTORY;
 }
