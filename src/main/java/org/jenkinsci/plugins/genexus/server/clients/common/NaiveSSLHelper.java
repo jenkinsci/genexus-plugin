@@ -23,7 +23,6 @@
  */
 package org.jenkinsci.plugins.genexus.server.clients.common;
 
-import com.sun.xml.internal.ws.developer.JAXWSProperties;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
