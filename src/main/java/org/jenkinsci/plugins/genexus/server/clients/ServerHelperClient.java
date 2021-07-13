@@ -23,17 +23,18 @@
  */
 package org.jenkinsci.plugins.genexus.server.clients;
 
+import jakarta.xml.ws.BindingProvider;
+import jakarta.xml.ws.Holder;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import jakarta.xml.ws.BindingProvider;
-import jakarta.xml.ws.Holder;
-import org.jenkinsci.plugins.genexus.server.info.ServerInfo;
 import org.jenkinsci.plugins.genexus.server.clients.common.ServiceData;
 import org.jenkinsci.plugins.genexus.server.clients.common.ServiceInfo;
 import org.jenkinsci.plugins.genexus.server.clients.common.TransferPropConstants;
 import org.jenkinsci.plugins.genexus.server.clients.common.TransferPropHelper;
+import org.jenkinsci.plugins.genexus.server.clients.common.WithLocalContextClassLoader;
+import org.jenkinsci.plugins.genexus.server.info.ServerInfo;
 import org.jenkinsci.plugins.genexus.server.services.contracts.ArrayOfServerMessage;
 import org.jenkinsci.plugins.genexus.server.services.contracts.ArrayOfTransferProp;
 import org.jenkinsci.plugins.genexus.server.services.contracts.TransferProp;
@@ -65,20 +66,22 @@ public class ServerHelperClient extends BaseClient {
         super(new ServiceData(serverURL, user, password));
     }
 
-    private IServerHelper serverHelper = null;
+    private LocalContextServiceWrapper serverHelper = null;
 
-    private IServerHelper getServerHelper() throws IOException {
+    private LocalContextServiceWrapper getServerHelper() throws IOException {
         if (serverHelper == null) {
             BindingData binding = getBindingData();
-            ServerHelper service = new ServerHelper();
 
-            IServerHelper port = binding.isSecure
-                    ? service.getCustomBindingIServerHelper()
-                    : service.getBasicHttpBindingIServerHelper();
+            IServerHelper port = WithLocalContextClassLoader.call(() -> {
+                ServerHelper service = new ServerHelper();
+                return binding.isSecure
+                        ? service.getCustomBindingIServerHelper()
+                        : service.getBasicHttpBindingIServerHelper();
+            });
 
             prepareClient((BindingProvider) port);
 
-            serverHelper = port;
+            serverHelper = new LocalContextServiceWrapper(port);
         }
         return serverHelper;
     }
@@ -146,6 +149,26 @@ public class ServerHelperClient extends BaseClient {
         } catch (IServerHelperServerInfoGXServerExceptionFaultFaultMessage | IOException ex) {
             Logger.getLogger(ServerHelperClient.class.getName()).log(Level.SEVERE, null, ex);
             throw new IOException("Error accessing GXserver", ex);
+        }
+    }
+
+    private static class LocalContextServiceWrapper {
+
+        private final IServerHelper service;
+
+        LocalContextServiceWrapper(IServerHelper service) {
+            this.service = service;
+        }
+
+        public Boolean isServerAlive(String clientVersion) throws IServerHelperIsServerAliveGXServerExceptionFaultFaultMessage {
+            return WithLocalContextClassLoader.call(() -> service.isServerAlive(clientVersion));
+        }
+
+        private void serverInfo(Holder<SimpleTransfer> parameters, Holder<ArrayOfServerMessage> messages, Holder<ArrayOfTransferProp> properties) throws IServerHelperServerInfoGXServerExceptionFaultFaultMessage {
+            WithLocalContextClassLoader.call(() -> {
+                service.serverInfo(parameters, messages, properties);
+                return 0;  // no actual value to return
+            });
         }
     }
 }
