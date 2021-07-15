@@ -122,7 +122,7 @@ public class KBInfo {
 
     public static class PublishDateAdapter extends XmlAdapter<String, LocalDate> {
 
-        private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE, dd MMMM yyyy", Locale.US);
+        private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE, dd MMMM yyyy", Locale.ROOT);
 
         @Override
         public LocalDate unmarshal(String xml) throws Exception {
