@@ -33,12 +33,11 @@ THE SOFTWARE.
     </parent>
     
     <artifactId>genexus</artifactId>
-    <version>1.12-beta-2-SNAPSHOT</version>
+    <version>${changelist}</version>
     <packaging>hpi</packaging>    
     
     <properties>
-        <revision>1.12</revision>
-        <changelist>-beta-1-SNAPSHOT</changelist>
+        <changelist>999999-beta-6-SNAPSHOT</changelist>
         <jenkins.version>2.235.1</jenkins.version>
         <java.level>8</java.level>
         <findbugs.failOnError>false</findbugs.failOnError>
@@ -74,7 +73,7 @@ THE SOFTWARE.
         <connection>scm:git:git://github.com/jenkinsci/${project.artifactId}-plugin.git</connection>
         <developerConnection>scm:git:git@github.com:jenkinsci/${project.artifactId}-plugin.git</developerConnection>
         <url>https://github.com/jenkinsci/genexus-plugin</url>
-        <tag>HEAD</tag>
+        <tag>${scmTag}</tag>
      </scm>
 
     <developers>
