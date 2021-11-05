@@ -32,7 +32,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBException;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.genexus.helpers.UTCDateTimeFormatter;
 import org.jenkinsci.plugins.genexus.helpers.XmlHelper;

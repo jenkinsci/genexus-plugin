@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2020 GeneXus S.A..
+ * Copyright 2021 GeneXus S.A..
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,25 +21,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.jenkinsci.plugins.genexus.server.info;
+package org.jenkinsci.plugins.genexus.server.clients.common;
 
-import java.util.ArrayList;
-import java.util.List;
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import org.jenkinsci.plugins.genexus.helpers.ThrowingSupplier;
 
 /**
+ * Defines a critical section during which the context class loader is set to
+ * one obtained from the current class and thus being able to find classes
+ * contained in this package or those on which it depends.
+ *
+ * This fixes class loading errors when accessing web services using JAX-WS.
+ * More info about the problem at
+ * https://www.eclipse.org/forums/index.php/t/266362/
  *
  * @author jlr
  */
-@XmlRootElement(name = "Revisions")
-@XmlAccessorType(XmlAccessType.NONE)
-public class RevisionList extends ArrayList<RevisionInfo> {
+public class WithLocalContextClassLoader {
 
-    @XmlElement(name = "Revision")
-    private List<RevisionInfo> getRevisions() {
-        return this;
+    public static <T, E extends Throwable> T call(ThrowingSupplier<T, E> s) throws E {
+        T result = null;
+
+        ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(WithLocalContextClassLoader.class.getClassLoader());
+        try {
+            result = s.get();
+        } finally {
+            Thread.currentThread().setContextClassLoader(tccl);
+        }
+
+        return result;
     }
 }

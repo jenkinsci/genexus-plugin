@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2020 GeneXus S.A..
+ * Copyright 2021 GeneXus S.A..
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,25 +21,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.jenkinsci.plugins.genexus.server.info;
-
-import java.util.ArrayList;
-import java.util.List;
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
+package org.jenkinsci.plugins.genexus.helpers;
 
 /**
  *
  * @author jlr
  */
-@XmlRootElement(name = "Revisions")
-@XmlAccessorType(XmlAccessType.NONE)
-public class RevisionList extends ArrayList<RevisionInfo> {
-
-    @XmlElement(name = "Revision")
-    private List<RevisionInfo> getRevisions() {
-        return this;
-    }
+/**
+ * Represents a function that accepts zero arguments and returns some value.
+ * Function might throw a checked exception instance.
+ *
+ * @param <T> function output type
+ * @param <E> exception type
+ * @author jlr
+ */
+@FunctionalInterface
+public interface ThrowingSupplier<T extends Object, E extends Throwable> {
+    T get() throws E;
 }

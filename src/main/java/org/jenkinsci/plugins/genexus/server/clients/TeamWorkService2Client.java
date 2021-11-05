@@ -23,6 +23,10 @@
  */
 package org.jenkinsci.plugins.genexus.server.clients;
 
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.ws.BindingProvider;
+import jakarta.xml.ws.Holder;
+import jakarta.xml.ws.soap.MTOMFeature;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,19 +36,16 @@ import java.util.Arrays;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.ws.BindingProvider;
-import javax.xml.ws.Holder;
-import javax.xml.ws.soap.MTOMFeature;
 import org.jenkinsci.plugins.genexus.helpers.XmlHelper;
-import org.jenkinsci.plugins.genexus.server.info.KBList;
-import org.jenkinsci.plugins.genexus.server.info.RevisionList;
-import org.jenkinsci.plugins.genexus.server.info.VersionList;
 import org.jenkinsci.plugins.genexus.server.clients.common.ServiceData;
 import org.jenkinsci.plugins.genexus.server.clients.common.ServiceInfo;
 import org.jenkinsci.plugins.genexus.server.clients.common.TransferPropConstants;
 import org.jenkinsci.plugins.genexus.server.clients.common.TransferPropHelper;
+import org.jenkinsci.plugins.genexus.server.clients.common.WithLocalContextClassLoader;
+import org.jenkinsci.plugins.genexus.server.info.KBList;
+import org.jenkinsci.plugins.genexus.server.info.RevisionList;
+import org.jenkinsci.plugins.genexus.server.info.VersionList;
 import org.jenkinsci.plugins.genexus.server.services.contracts.ArrayOfServerMessage;
 import org.jenkinsci.plugins.genexus.server.services.contracts.ArrayOfTransferProp;
 import org.jenkinsci.plugins.genexus.server.services.teamwork.FileTransfer;
@@ -78,16 +79,19 @@ public class TeamWorkService2Client extends BaseClient {
         super(new ServiceData(serverURL, user, password));
     }
 
-    private ITeamWorkService2 teamWorkService2 = null;
+    private LocalContextServiceWrapper teamWorkService2 = null;
 
-    private ITeamWorkService2 getTeamWorkService2() throws IOException {
+    private LocalContextServiceWrapper getTeamWorkService2() throws IOException {
         if (teamWorkService2 == null) {
-            TeamWorkService2 service = new TeamWorkService2();
-            ITeamWorkService2 port = service.getCustomBindingITeamWorkService2(new MTOMFeature(true));
+
+            ITeamWorkService2 port = WithLocalContextClassLoader.call(() -> {
+                TeamWorkService2 service = new TeamWorkService2();
+                return service.getCustomBindingITeamWorkService2(new MTOMFeature(true));
+            });
 
             prepareClient((BindingProvider) port);
 
-            teamWorkService2 = port;
+            teamWorkService2 = new LocalContextServiceWrapper(port);
         }
 
         return teamWorkService2;
@@ -101,7 +105,6 @@ public class TeamWorkService2Client extends BaseClient {
 
             FileTransfer transfer = getTeamWorkService2().hostedKBs(parameters, messages, properties);
             byte[] bytes = transfer.getFileByteStream();
-            //String xmlContent = getString(bytes);
             InputStream stream = new ByteArrayInputStream(bytes);
 
             return XmlHelper.parse(stream, KBList.class);
@@ -122,7 +125,6 @@ public class TeamWorkService2Client extends BaseClient {
 
             FileTransfer transfer = getTeamWorkService2().getVersions(parameters, messages, properties);
             byte[] bytes = transfer.getFileByteStream();
-            //String xmlContent = getString(bytes);
             InputStream stream = new ByteArrayInputStream(bytes);
 
             return XmlHelper.parse(stream, VersionList.class);
@@ -198,5 +200,26 @@ public class TeamWorkService2Client extends BaseClient {
     private String getString(byte[] bytes) throws IOException {
         String s = new String(bytes, StandardCharsets.UTF_8);
         return s;
+    }
+
+    private static class LocalContextServiceWrapper {
+
+        private final ITeamWorkService2 service;
+
+        LocalContextServiceWrapper(ITeamWorkService2 service) {
+            this.service = service;
+        }
+
+        public FileTransfer hostedKBs(SimpleTransfer parameters, Holder<ArrayOfServerMessage> messages, Holder<ArrayOfTransferProp> properties) throws ITeamWorkService2HostedKBsGXServerExceptionFaultFaultMessage {
+            return WithLocalContextClassLoader.call(() -> service.hostedKBs(parameters, messages, properties));
+        }
+
+        public FileTransfer getVersions(SimpleTransfer parameters, Holder<ArrayOfServerMessage> messages, Holder<ArrayOfTransferProp> properties) throws ITeamWorkService2GetVersionsGXServerExceptionFaultFaultMessage {
+            return WithLocalContextClassLoader.call(() -> service.getVersions(parameters, messages, properties));
+        }
+
+        public FileTransfer getRevisions(SimpleTransfer parameters, Holder<ArrayOfServerMessage> messages, Holder<ArrayOfTransferProp> properties) throws ITeamWorkService2GetRevisionsGXServerExceptionFaultFaultMessage {
+            return WithLocalContextClassLoader.call(() -> service.getRevisions(parameters, messages, properties));
+        }
     }
 }

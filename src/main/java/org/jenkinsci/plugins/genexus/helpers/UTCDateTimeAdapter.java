@@ -25,7 +25,7 @@ package org.jenkinsci.plugins.genexus.helpers;
 
 import java.text.DateFormat;
 import java.util.Date;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
+import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 
 /**
  *

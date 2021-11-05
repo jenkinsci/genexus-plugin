@@ -27,7 +27,6 @@ import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.StandardListBoxModel;
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
@@ -56,7 +55,6 @@ import java.util.Date;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import jenkins.model.Jenkins;
@@ -103,8 +101,8 @@ public class GeneXusServerSCM extends SCM implements Serializable {
     // which one is conected to the 'kbVersion' in the server
     private final String localKbPath;
     private final String localKbVersion;
-    
-    // Local KB DB info    
+
+    // Local KB DB info
     private final String kbDbServerInstance;
     private final String kbDbCredentialsId;
     private final String kbDbName;
@@ -588,7 +586,8 @@ public class GeneXusServerSCM extends SCM implements Serializable {
         }
     }
 
-    @Override public String getKey() {
+    @Override
+    public String getKey() {
         StringBuilder b = new StringBuilder("gxserver");
         b.append(' ').append(serverURL);
         b.append(',').append(kbName);

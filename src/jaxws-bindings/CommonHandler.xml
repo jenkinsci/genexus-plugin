@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bindings
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+    xmlns:jaxb="https://jakarta.ee/xml/ns/jaxb"
     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
-    xmlns:jaxws="http://java.sun.com/xml/ns/jaxws"
-    xmlns="http://java.sun.com/xml/ns/jaxws" >
-    <jaxb:bindings node="wsdl:definitions" xmlns:jws="http://java.sun.com/xml/ns/javaee">
+    xmlns:jaxws="https://jakarta.ee/xml/ns/jaxws"
+    xmlns="https://jakarta.ee/xml/ns/jaxws" >
+    <jaxb:bindings node="wsdl:definitions" xmlns:jws="https://jakarta.ee/xml/ns/jakartaee">
         <!-- Use this handler to resolve SOAPHeaders for authentication -->
         <jws:handler-chains>
             <jws:handler-chain>

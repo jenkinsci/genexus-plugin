@@ -25,10 +25,10 @@ package org.jenkinsci.plugins.genexus.server.info;
 
 import java.util.Objects;
 import java.util.UUID;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.jenkinsci.plugins.genexus.helpers.PositiveOrNothingIntegerAdapter;
 import org.jenkinsci.plugins.genexus.helpers.TrueOrNothingBooleanAdapter;
 
