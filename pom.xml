@@ -33,7 +33,7 @@ THE SOFTWARE.
     </parent>
 
     <artifactId>genexus</artifactId>
-    <version>${changelist}-beta</version>
+    <version>${changelist}</version>
     <packaging>hpi</packaging>
 
     <properties>
