@@ -38,6 +38,8 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.NONE)
 public class KBList extends ArrayList<KBInfo> {
 
+    private static final long serialVersionUID = 1L;
+
     @XmlElement(name = "KB")
     private List<KBInfo> getKBs() {
         return this;

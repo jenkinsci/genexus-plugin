@@ -32,55 +32,57 @@ import org.apache.commons.lang.StringUtils;
  */
 public class MsBuildArgumentListBuilder extends ArgumentListBuilder {
 
+    private static final long serialVersionUID = 1L;
+
     private static final String TARGET_PREFIX = "/t:";
     private static final String NO_LOGO = "/nologo";
     private static final String PROPERTY_PREFIX = "/p:";
     private static final String VALUE_SEPARATOR = ";";
-    
+
     public MsBuildArgumentListBuilder() {
     }
-    
+
     public MsBuildArgumentListBuilder(String msBuildFile) {
         setMsBuildFile(msBuildFile);
     }
-    
+
     public void addNoLogo() {
         add(NO_LOGO);
     }
-    
+
     final void setMsBuildFile(String msBuildFile) {
         add(msBuildFile);
     }
-    
+
     public void addTarget(String targetName) {
         addValuedParameter(TARGET_PREFIX, targetName);
     }
-    
+
     public void addTargets(String... targetNames) {
         String allTargets = StringUtils.join(targetNames, VALUE_SEPARATOR);
         addTarget(allTargets);
     }
-    
+
     public void addProperty(String propName, String propValue) {
         addProperty(propName, propValue, false);
     }
-    
+
     public void addProperty(String propName, String propValue, boolean masked) {
         addKeyValuePair(PROPERTY_PREFIX, propName, propValue, masked);
     }
-    
+
     public void addProperty(String propName, Object propValue) {
         addProperty(propName, propValue, false);
     }
-    
+
     public void addProperty(String propName, Object propValue, boolean masked) {
         addKeyValuePair(PROPERTY_PREFIX, propName, propValue.toString(), masked);
     }
-    
+
     public void addParameter(String parameter) {
         add(parameter);
     }
-    
+
     public void addValuedParameter(String parmPrefix, String parmValue) {
         add(parmPrefix + parmValue);
     }

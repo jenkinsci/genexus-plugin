@@ -38,6 +38,8 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.NONE)
 public class RevisionList extends ArrayList<RevisionInfo> {
 
+    private static final long serialVersionUID = 1L;
+
     @XmlElement(name = "Revision")
     private List<RevisionInfo> getRevisions() {
         return this;
