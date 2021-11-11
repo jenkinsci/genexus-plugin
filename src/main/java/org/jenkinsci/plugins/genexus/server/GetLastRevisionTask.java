@@ -98,29 +98,5 @@ public class GetLastRevisionTask extends MasterToSlaveFileCallable<GXSInfo> {
         }
     }
 
-    private GXSInfo GetLastRevisionInfo(File logFile) throws IOException {
-        // Use URI to avoid errors when the path contains accented characters
-        // (eg: Ô ç á)
-        String systemId = logFile.toURI().toString();
-        listener.getLogger().println("Trying to get last revision info from " + systemId);
-        InputSource inputSource = new InputSource(systemId);
-
-        XPath xpath = XPathFactory.newInstance().newXPath();
-        try {
-            // We are assuming revisions always come in descending order, so we
-            // just take the first revision as the most recent one.
-            Node lastEntry = (Node) xpath.evaluate("/log/logentry[1]", inputSource, XPathConstants.NODE);
-            if (lastEntry == null) {
-                return new GXSInfo(gxsConnection, 0, new Date(0));
-            }
-
-            Number nRev = (Number) xpath.evaluate("@revision", lastEntry, XPathConstants.NUMBER);
-            String utcDate = (String) xpath.evaluate("date", lastEntry, XPathConstants.STRING);
-            return new GXSInfo(gxsConnection, nRev.intValue(), DateUtils.fromUTCstring(utcDate));
-        } catch (XPathExpressionException ex) {
-            throw new IOException("Error checking for last revision", ex);
-        }
-    }
-
     private static final long serialVersionUID = 1L;
 }

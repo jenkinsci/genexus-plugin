@@ -38,6 +38,8 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.NONE)
 public class VersionList extends ArrayList<VersionInfo> {
 
+    private static final long serialVersionUID = 1L;
+
     @XmlElement(name = "Version")
     private List<VersionInfo> getVersions() {
         return this;

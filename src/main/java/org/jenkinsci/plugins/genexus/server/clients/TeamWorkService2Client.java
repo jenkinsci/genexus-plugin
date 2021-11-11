@@ -197,11 +197,6 @@ public class TeamWorkService2Client extends BaseClient {
         return properties;
     }
 
-    private String getString(byte[] bytes) throws IOException {
-        String s = new String(bytes, StandardCharsets.UTF_8);
-        return s;
-    }
-
     private static class LocalContextServiceWrapper {
 
         private final ITeamWorkService2 service;
