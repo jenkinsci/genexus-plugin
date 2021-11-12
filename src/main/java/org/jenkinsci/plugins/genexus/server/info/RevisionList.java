@@ -23,6 +23,7 @@
  */
 package org.jenkinsci.plugins.genexus.server.info;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.List;
 import jakarta.xml.bind.annotation.XmlAccessType;
@@ -40,6 +41,7 @@ public class RevisionList extends ArrayList<RevisionInfo> {
 
     private static final long serialVersionUID = 1L;
 
+    @SuppressFBWarnings("UPM_UNCALLED_PRIVATE_METHOD")
     @XmlElement(name = "Revision")
     private List<RevisionInfo> getRevisions() {
         return this;
