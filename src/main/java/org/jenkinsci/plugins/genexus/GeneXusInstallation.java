@@ -96,7 +96,7 @@ public final class GeneXusInstallation extends ToolInstallation
 
     @Override
     public GeneXusInstallation forEnvironment(EnvVars environment) {
-        return new GeneXusInstallation(getName(), environment.expand(getHome()),getMsBuildInstallationId());
+        return new GeneXusInstallation(getName(), environment.expand(getHome()), getMsBuildInstallationId());
     }
 
     public String getExecutable(final GeneXusExecutable executable, Launcher launcher) throws IOException, InterruptedException {
@@ -104,23 +104,13 @@ public final class GeneXusInstallation extends ToolInstallation
     }
 
     public String getFilePath(final String fileName, Launcher launcher) throws IOException, InterruptedException {
-        VirtualChannel channel =  launcher.getChannel();
+        VirtualChannel channel = launcher.getChannel();
         if (channel == null) {
             return null;
         }
 
-        return channel.call(new MasterToSlaveCallable<String, IOException>() {
-            private static final long serialVersionUID = 1L;
-            @Override
-            public String call() throws IOException {
-                String gxHome = Util.replaceMacro(getHome(),EnvVars.masterEnvVars);
-                File exe = new File(gxHome, fileName);
-                if (exe.exists()) {
-                    return exe.getPath();
-                }
-                return null;
-            }
-        });
+        String gxHome = Util.replaceMacro(getHome(), EnvVars.masterEnvVars);
+        return channel.call(new FileOnNodeValidator(gxHome, fileName));
     }
 
     public String getExecutable(Launcher launcher) throws IOException, InterruptedException {
@@ -130,19 +120,21 @@ public final class GeneXusInstallation extends ToolInstallation
     public static GeneXusInstallation[] getInstallations() {
         DescriptorImpl descriptor = ToolInstallation.all().get(DescriptorImpl.class);
         if (descriptor == null) {
-            return new GeneXusInstallation[] {};
+            return new GeneXusInstallation[]{};
         }
 
         return descriptor.getInstallations();
     }
 
     public static GeneXusInstallation getInstallation(String installationId) {
-        if (installationId == null)
+        if (installationId == null) {
             return null;
+        }
 
-        for( GeneXusInstallation i : getInstallations() ) {
-            if(installationId.equals(i.getName()))
+        for (GeneXusInstallation i : getInstallations()) {
+            if (installationId.equals(i.getName())) {
                 return i;
+            }
         }
 
         return null;
@@ -201,6 +193,28 @@ public final class GeneXusInstallation extends ToolInstallation
             }
 
             return items;
+        }
+    }
+
+    private static class FileOnNodeValidator extends MasterToSlaveCallable<String, IOException> {
+
+        private static final long serialVersionUID = 1L;
+
+        private final String basePath;
+        private final String fileName;
+
+        public FileOnNodeValidator(String basePath, String fileName) {
+            this.basePath = basePath;
+            this.fileName = fileName;
+        }
+
+        @Override
+        public String call() throws IOException {
+            File exe = new File(basePath, fileName);
+            if (exe.exists()) {
+                return exe.getPath();
+            }
+            return null;
         }
     }
 }
