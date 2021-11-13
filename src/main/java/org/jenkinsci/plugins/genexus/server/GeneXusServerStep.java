@@ -230,6 +230,7 @@ public final class GeneXusServerStep extends SCMStep {
 
         private static final Logger LOGGER = Logger.getLogger(GeneXusServerStep.class.getName());
 
+        @RequirePOST
         public ListBoxModel doFillGxInstallationIdItems() {
             ListBoxModel items = new ListBoxModel();
             items.add("(Default)", "");
@@ -239,6 +240,7 @@ public final class GeneXusServerStep extends SCMStep {
             return items;
         }
 
+        @RequirePOST
         public ListBoxModel doFillCredentialsIdItems(@AncestorInPath Item item, @QueryParameter String credentialsId,
                 @QueryParameter String serverURL) {
             StandardListBoxModel result = new StandardListBoxModel();
@@ -249,6 +251,7 @@ public final class GeneXusServerStep extends SCMStep {
             return CredentialsHelper.getCredentialsList(item, credentialsId, serverURL);
         }
 
+        @RequirePOST
         public ListBoxModel doFillKbDbCredentialsIdItems(@AncestorInPath Item item,
                 @QueryParameter String kbDbCredentialsId, @QueryParameter String kbDbServerInstance) {
             StandardListBoxModel result = new StandardListBoxModel();
@@ -273,6 +276,7 @@ public final class GeneXusServerStep extends SCMStep {
          * @param value URL of a GeneXus Server installation
          * @return a FormValidation of a specific kind (OK, ERROR, WARNING)
          */
+        @RequirePOST
         public FormValidation doCheckServerURL(@QueryParameter String value) {
 
             // repository URL is required

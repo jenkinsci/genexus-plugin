@@ -47,6 +47,7 @@ import net.sf.json.JSONObject;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.interceptor.RequirePOST;
 
 /**
  *
@@ -181,6 +182,7 @@ public final class GeneXusInstallation extends ToolInstallation
             return ToolInstallation.all().get(MsBuildInstallation.DescriptorImpl.class);
         }
 
+        @RequirePOST
         public ListBoxModel doFillMsBuildInstallationIdItems() {
             ListBoxModel items = new ListBoxModel();
             items.add("(Default)", "");
