@@ -55,6 +55,7 @@ public class XMLStreamWriterEx extends IndentingXMLStreamWriter {
         return new CloseableElement(elementName);
     }
 
+    @SuppressFBWarnings({"RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE", "REC_CATCH_EXCEPTION"})
     public void writeSimpleElement(String name, String text) throws XMLStreamException {
         try (AutoCloseable element = startElement(name)) {
             writeCharacters(text);

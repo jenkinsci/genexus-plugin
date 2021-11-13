@@ -23,6 +23,8 @@
  */
 package org.jenkinsci.plugins.genexus.server.clients.common;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  *
  * @author jlr
@@ -31,9 +33,13 @@ public class ServiceInfo {
 
     public final String secureIdentifier;
     public final String nonSecureIdentifier;
+
+    @SuppressFBWarnings("URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD")
     public final String secureBindingName;
+
+    @SuppressFBWarnings("URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD")
     public final String nonSecureBindingName;
-    
+
     public ServiceInfo(String secureIdentifier, String nonSecureIdentifier, String secureBindingName, String nonSecureBindingName) {
         this.secureIdentifier = secureIdentifier;
         this.nonSecureIdentifier = nonSecureIdentifier;

@@ -23,6 +23,7 @@
  */
 package org.jenkinsci.plugins.genexus.server;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.FilePath;
 import hudson.model.TaskListener;
 import hudson.remoting.VirtualChannel;
@@ -126,6 +127,7 @@ public class CreateLogTask extends MasterToSlaveFileCallable<Boolean> {
         return new Date(fromTimestamp.getTime() + 1 * 1000);
     }
 
+    @SuppressFBWarnings("RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE")
     private boolean writeLog(File file, Iterable<RevisionInfo> revisions) throws IOException {
         try {
             XMLStreamWriterEx xmlWriter = XMLStreamWriterEx.newInstance(file);
@@ -146,6 +148,7 @@ public class CreateLogTask extends MasterToSlaveFileCallable<Boolean> {
         }
     }
 
+    @SuppressFBWarnings("RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE")
     private void writeRevision(XMLStreamWriterEx xmlWriter, RevisionInfo revision) throws Exception {
         try (AutoCloseable logEntryTag = xmlWriter.startElement("logentry")) {
             xmlWriter.writeAttribute("revision", Integer.toString(revision.id));
@@ -158,6 +161,7 @@ public class CreateLogTask extends MasterToSlaveFileCallable<Boolean> {
         }
     }
 
+    @SuppressFBWarnings("RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE")
     private void writeActions(XMLStreamWriterEx xmlWriter, RevisionInfo revision) throws Exception {
         try (AutoCloseable actions = xmlWriter.startElement("actions")) {
             for (ActionInfo action : revision.getActions()) {
