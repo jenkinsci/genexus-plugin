@@ -412,9 +412,6 @@ public final class GXSChangeLogSet extends ChangeLogSet {
         
         /**
          * Inherited from AffectedFile
-         *
-         * Since 2.TODO this no longer returns the path relative to repository root,
-         * but the path relative to the workspace root. Use getValue() instead.
          */
         public String getPath() {
                 return objectName;

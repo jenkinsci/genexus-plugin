@@ -48,10 +48,6 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.export.Exported;
 
-//TODO: 
-// - convertir esta clase en abstracta y sacarle el perform
-// - hacer una derivada que efectivamente ejecute gx
-// - hacer otra que ejecute el build
 /**
  *
  * @author jlr

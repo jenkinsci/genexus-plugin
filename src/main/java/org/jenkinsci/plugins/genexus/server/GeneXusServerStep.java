@@ -322,7 +322,6 @@ public final class GeneXusServerStep extends SCMStep {
                 if (credentials == null) {
                     return FormValidation.error("Cannot find currently selected credentials");
                 }
-                // TODO: additional checks
             } catch (Exception e) {
                 LOGGER.log(Level.SEVERE, e.getMessage());
                 return FormValidation.error("Unable to access the repository");
@@ -366,7 +365,6 @@ public final class GeneXusServerStep extends SCMStep {
                 if (credentials == null) {
                     return FormValidation.error("Cannot find currently selected credentials");
                 }
-                // TODO: additional checks
             } catch (Exception e) {
                 LOGGER.log(Level.SEVERE, e.getMessage());
                 return FormValidation.error("Unable to access the server");
