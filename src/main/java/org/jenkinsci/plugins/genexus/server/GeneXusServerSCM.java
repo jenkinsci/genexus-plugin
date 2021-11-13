@@ -630,6 +630,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
             return super.configure(req, formData);
         }
 
+        @RequirePOST
         public ListBoxModel doFillGxInstallationIdItems() {
             ListBoxModel items = new ListBoxModel();
             items.add("(Default)", "");
@@ -639,6 +640,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
             return items;
         }
 
+        @RequirePOST
         public ListBoxModel doFillCredentialsIdItems(@AncestorInPath Item item, @QueryParameter String credentialsId,
                 @QueryParameter String serverURL) {
             StandardListBoxModel result = new StandardListBoxModel();
@@ -649,6 +651,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
             return CredentialsHelper.getCredentialsList(item, credentialsId, serverURL);
         }
 
+        @RequirePOST
         public ListBoxModel doFillKbDbCredentialsIdItems(@AncestorInPath Item item,
                 @QueryParameter String kbDbCredentialsId, @QueryParameter String kbDbServerInstance) {
             StandardListBoxModel result = new StandardListBoxModel();
@@ -673,6 +676,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
          * @param value URL of a GeneXus Server installation
          * @return a FormValidation of a specific kind (OK, ERROR, WARNING)
          */
+        @RequirePOST
         public FormValidation doCheckServerURL(@QueryParameter String value) {
 
             // repository URL is required

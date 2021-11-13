@@ -47,6 +47,7 @@ import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.export.Exported;
+import org.kohsuke.stapler.interceptor.RequirePOST;
 
 /**
  *
@@ -176,6 +177,7 @@ public class GeneXusBuilder extends Builder {
             return true;
         }
 
+        @RequirePOST
         public ListBoxModel doFillGxInstallationIdItems() {
             ListBoxModel items = new ListBoxModel();
             items.add("(Default)", "");
@@ -194,6 +196,7 @@ public class GeneXusBuilder extends Builder {
                     || item.hasPermission(CredentialsProvider.USE_ITEM));
         }
 
+        @RequirePOST
         public ListBoxModel doFillKbDbCredentialsIdItems(@AncestorInPath Item item, @QueryParameter String kbDbCredentialsId, @QueryParameter String kbDbServerInstance) {
             StandardListBoxModel result = new StandardListBoxModel();
             if (!userCanSelect(item)) {

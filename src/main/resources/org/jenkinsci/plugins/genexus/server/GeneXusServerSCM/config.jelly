@@ -31,7 +31,7 @@ THE SOFTWARE.
     </f:entry>
     
     <f:entry field="serverURL" title="${%GeneXus Server URL}">
-        <f:textbox default="${descriptor.DEFAULT_SERVER_URL}"/>
+        <f:textbox default="${descriptor.DEFAULT_SERVER_URL}" checkMethod="post"/>
     </f:entry>
 
     <f:entry field="credentialsId" title="${%GeneXus Server Credentials}">
