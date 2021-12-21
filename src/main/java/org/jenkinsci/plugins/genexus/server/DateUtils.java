@@ -28,7 +28,7 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
-import org.jenkinsci.plugins.genexus.helpers.UTCDateTimeFormatter;
+import com.genexus.gxserver.client.helpers.UTCDateTimeFormatter;
 
 /**
  *

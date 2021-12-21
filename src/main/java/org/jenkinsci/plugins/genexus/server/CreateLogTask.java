@@ -35,10 +35,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import jenkins.MasterToSlaveFileCallable;
 import org.jenkinsci.plugins.genexus.helpers.XMLStreamWriterEx;
-import org.jenkinsci.plugins.genexus.server.info.ActionInfo;
-import org.jenkinsci.plugins.genexus.server.info.RevisionInfo;
-import org.jenkinsci.plugins.genexus.server.clients.RevisionsQuery;
-import org.jenkinsci.plugins.genexus.server.clients.TeamWorkService2Client;
+import com.genexus.gxserver.client.info.ActionInfo;
+import com.genexus.gxserver.client.info.RevisionInfo;
+import com.genexus.gxserver.client.clients.RevisionsQuery;
+import com.genexus.gxserver.client.clients.TeamWorkService2Client;
 
 /**
  *
