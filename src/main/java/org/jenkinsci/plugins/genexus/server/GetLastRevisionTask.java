@@ -30,16 +30,10 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 import jenkins.MasterToSlaveFileCallable;
 import com.genexus.gxserver.client.info.RevisionInfo;
 import com.genexus.gxserver.client.clients.RevisionsQuery;
 import com.genexus.gxserver.client.clients.TeamWorkService2Client;
-import org.w3c.dom.Node;
-import org.xml.sax.InputSource;
 
 /**
  *
