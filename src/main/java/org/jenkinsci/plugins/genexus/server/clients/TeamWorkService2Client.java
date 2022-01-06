@@ -31,7 +31,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.UUID;
 import java.util.logging.Level;
