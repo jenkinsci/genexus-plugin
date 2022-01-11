@@ -49,6 +49,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import org.jenkinsci.plugins.genexus.server.clients.common.WithLocalContextClassLoader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -79,7 +80,9 @@ public class XmlHelper {
     }
 
     public static <T> T parse(Document doc, Class<T> tClass) throws JAXBException {
-        JAXBContext jaxbContext = JAXBContext.newInstance(tClass);
+        JAXBContext jaxbContext = WithLocalContextClassLoader.call(() -> {
+            return JAXBContext.newInstance(tClass);
+        });
         Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
         T result = (T) jaxbUnmarshaller.unmarshal(doc);
         return result;
