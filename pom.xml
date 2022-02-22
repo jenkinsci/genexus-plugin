@@ -102,6 +102,11 @@ THE SOFTWARE.
 
     <dependencies>
         <dependency>
+            <groupId>com.genexus.gxserver</groupId>
+            <artifactId>gxserver-client</artifactId>
+            <version>1.0.1</version>
+        </dependency>
+        <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>credentials</artifactId>
             <type>jar</type>
@@ -114,17 +119,6 @@ THE SOFTWARE.
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>msbuild</artifactId>
             <version>1.29</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.9.10.8</version>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.xml.xws</groupId>
-            <artifactId>xws-security</artifactId>
-            <version>3.0</version>
-            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.kohsuke</groupId>
@@ -142,53 +136,13 @@ THE SOFTWARE.
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>jakarta.xml.bind</groupId>
-            <artifactId>jakarta.xml.bind-api</artifactId>
-            <version>3.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>jakarta.xml.ws</groupId>
-            <artifactId>jakarta.xml.ws-api</artifactId>
-            <version>3.0.1</version>
-        </dependency>
-        <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>jakarta.mail</artifactId>
             <version>2.0.1</version>
         </dependency>
-        <dependency>
-            <groupId>com.sun.xml.ws</groupId>
-            <artifactId>jaxws-rt</artifactId>
-            <version>3.0.1</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.org.apache.xml.internal</groupId>
-            <artifactId>resolver</artifactId>
-            <version>20050927</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.mail</groupId>
-            <artifactId>javax.mail-api</artifactId>
-            <version>1.6.2</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>
-        <resources>
-            <resource>
-                <targetPath>META-INF</targetPath>
-                <directory>src</directory>
-                <includes>
-                    <include>jax-ws-catalog.xml</include>
-                    <include>wsdl/**</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>src/main/resources</directory>
-            </resource>
-        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -203,72 +157,6 @@ THE SOFTWARE.
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
                     <excludePackageNames>org.jenkinsci.plugins.genexus.server.services.*</excludePackageNames>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>jaxws-maven-plugin</artifactId>
-                <version>2.6</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>wsimport</goal>
-                        </goals>
-                        <configuration>
-                            <args>-XadditionalHeaders</args>
-                            <wsdlFiles>
-                                <wsdlFile>HelperService.svc.singlewsdl.wsdl</wsdlFile>
-                            </wsdlFiles>
-                            <vmArgs>
-                                <vmArg>-Djavax.xml.accessExternalSchema=all</vmArg>
-                            </vmArgs>
-                            <wsdlLocation>/META-INF/wsdl/HelperService.svc.singlewsdl.wsdl</wsdlLocation>
-                            <staleFile>${project.build.directory}/jaxws/stale/HelperService.svc.singlewsdl.stale</staleFile>
-                            <bindingDirectory>${basedir}/src/jaxws-bindings</bindingDirectory>
-                            <bindingFiles>
-                                <bindingFile>CommonHandler.xml</bindingFile>
-                                <bindingFile>HelperService.svc.singlewsdl_handler.xml</bindingFile>
-                            </bindingFiles>
-                        </configuration>
-                        <id>wsimport-generate-HelperService.svc.singlewsdl</id>
-                        <phase>generate-sources</phase>
-                    </execution>
-                    <execution>
-                        <goals>
-                            <goal>wsimport</goal>
-                        </goals>
-                        <configuration>
-                            <args>-XadditionalHeaders</args>
-                            <wsdlFiles>
-                                <wsdlFile>TeamWorkService2.svc.singlewsdl.wsdl</wsdlFile>
-                            </wsdlFiles>
-                            <vmArgs>
-                                <vmArg>-Djavax.xml.accessExternalSchema=all</vmArg>
-                            </vmArgs>
-                            <wsdlLocation>/META-INF/wsdl/TeamWorkService2.svc.singlewsdl.wsdl</wsdlLocation>
-                            <staleFile>${project.build.directory}/jaxws/stale/TeamWorkService2.svc.singlewsdl.stale</staleFile>
-                            <bindingDirectory>${basedir}/src/jaxws-bindings</bindingDirectory>
-                            <bindingFiles>
-                                <bindingFile>CommonHandler.xml</bindingFile>
-                                <bindingFile>TeamWorkService2.svc.singlewsdl_handler.xml</bindingFile>
-                            </bindingFiles>
-                        </configuration>
-                        <id>wsimport-generate-TeamWorkService2.svc.singlewsdl</id>
-                        <phase>generate-sources</phase>
-                    </execution>
-                </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>com.sun.xml.ws</groupId>
-                        <artifactId>jaxws-tools</artifactId>
-                        <version>3.0.1</version>
-                    </dependency>
-                </dependencies>
-                <configuration>
-                    <sourceDestDir>${project.build.directory}/generated-sources/jaxws-wsimport</sourceDestDir>
-                    <xnocompile>true</xnocompile>
-                    <verbose>true</verbose>
-                    <extension>true</extension>
                 </configuration>
             </plugin>
         </plugins>
