@@ -231,12 +231,10 @@ public class GeneXusServerSCM extends SCM implements Serializable {
             throws IOException, InterruptedException {
         final GXSRevisionState baseline = getSafeBaseline(project, launcher, workspace, listener, _baseline);
 
-        FilePath workingPath = workspace != null ? workspace : new FilePath(project.getRootDir());
-
         try {
             GXSConnection gxs = getGXSConnection(project);
-            GXSInfo currentInfo = workingPath
-                    .act(new GetLastRevisionTask(listener, gxs, baseline.getRevisionDate(), new Date()));
+            GetLastRevisionTask getLastRevisionTask = new GetLastRevisionTask(listener, gxs, baseline.getRevisionDate(), new Date());
+            GXSInfo currentInfo = getLastRevisionTask.execute();
             GXSRevisionState currentState = new GXSRevisionState(currentInfo.revision, currentInfo.revisionDate);
 
             return new PollingResult(baseline, currentState,
@@ -348,7 +346,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
             throw new IOException("error executing checkout/update from GeneXus Server");
         }
 
-        // Create new revision
+        // Create new revision file
         GXSConnection gxs = getGXSConnection(build.getParent());
         GXSInfo currentInfo = calcCurrentInfo(workspace, listener, gxs, baseline, updateTimestamp);
         saveRevisionFile(build, currentInfo);
@@ -410,7 +408,8 @@ public class GeneXusServerSCM extends SCM implements Serializable {
 
     private GXSInfo calcCurrentInfo(FilePath workspace, TaskListener listener, GXSConnection gxs, Date minDate,
             Date maxDate) throws IOException, InterruptedException {
-        return workspace.act(new GetLastRevisionTask(listener, gxs, minDate, maxDate));
+        GetLastRevisionTask getLastRevisionTask = new GetLastRevisionTask(listener, gxs, minDate, maxDate);
+        return getLastRevisionTask.execute();
     }
 
     /**
@@ -420,13 +419,10 @@ public class GeneXusServerSCM extends SCM implements Serializable {
             TaskListener listener, GXSConnection gxs, GXSInfo currentInfo) throws IOException, InterruptedException {
 
         GXSRevisionState _baseline = getSafeBaseline(build, baseline);
-
-        FilePath changelogFilePath = new FilePath(changelogFile);
-
         boolean created = false;
         if (currentInfo.revisionDate.after(_baseline.getRevisionDate())) {
-            created = workspace.act(new CreateLogTask(listener, gxs, changelogFilePath, _baseline.getRevisionDate(),
-                    currentInfo.revisionDate));
+            CreateLogTask createLogTask = new CreateLogTask(listener, gxs, changelogFile, _baseline.getRevisionDate(), currentInfo.revisionDate);
+            created = createLogTask.execute();
         }
 
         if (!created) {

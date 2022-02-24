@@ -24,13 +24,10 @@
 package org.jenkinsci.plugins.genexus.server;
 
 import hudson.model.TaskListener;
-import hudson.remoting.VirtualChannel;
-import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import jenkins.MasterToSlaveFileCallable;
 import com.genexus.gxserver.client.info.RevisionInfo;
 import com.genexus.gxserver.client.clients.RevisionsQuery;
 import com.genexus.gxserver.client.clients.TeamWorkService2Client;
@@ -41,7 +38,7 @@ import com.genexus.gxserver.client.clients.TeamWorkService2Client;
  *
  * Obtains the revision number of a remote KB up to a given timestamp.
  */
-public class GetLastRevisionTask extends MasterToSlaveFileCallable<GXSInfo> {
+public class GetLastRevisionTask {
 
     private final TaskListener listener;
     private final GXSConnection gxsConnection;
@@ -63,8 +60,7 @@ public class GetLastRevisionTask extends MasterToSlaveFileCallable<GXSInfo> {
      * @return null if the parsing somehow fails. Otherwise a GXserver revision
      * info.
      */
-    @Override
-    public GXSInfo invoke(File ws, VirtualChannel channel) throws IOException, InterruptedException {
+    public GXSInfo execute() throws IOException, InterruptedException {
         return getLatestRevisionInfo();
     }
 

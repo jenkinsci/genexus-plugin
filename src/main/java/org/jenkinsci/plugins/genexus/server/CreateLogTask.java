@@ -24,16 +24,12 @@
 package org.jenkinsci.plugins.genexus.server;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import hudson.FilePath;
 import hudson.model.TaskListener;
-import hudson.remoting.VirtualChannel;
 import java.io.File;
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import jenkins.MasterToSlaveFileCallable;
 import org.jenkinsci.plugins.genexus.helpers.XMLStreamWriterEx;
 import com.genexus.gxserver.client.info.ActionInfo;
 import com.genexus.gxserver.client.info.RevisionInfo;
@@ -45,26 +41,26 @@ import com.genexus.gxserver.client.clients.TeamWorkService2Client;
  * @author jlr
  *
  */
-public class CreateLogTask extends MasterToSlaveFileCallable<Boolean> {
+public class CreateLogTask {
 
     private static final long serialVersionUID = 2L;
 
     private final TaskListener listener;
     private final GXSConnection gxsConnection;
-    private final FilePath logFile;
+    private final File logFile;
     private final Date fromTimestamp;
     private final Date toTimestamp;
     private final boolean fromExcluding;
 
-    public CreateLogTask(TaskListener listener, GXSConnection gxsConnection, FilePath logFilePath) {
+    public CreateLogTask(TaskListener listener, GXSConnection gxsConnection, File logFilePath) {
         this(listener, gxsConnection, logFilePath, null, null);
     }
 
-    public CreateLogTask(TaskListener listener, GXSConnection gxsConnection, FilePath logFilePath, Date fromTimestamp, Date toTimestamp) {
+    public CreateLogTask(TaskListener listener, GXSConnection gxsConnection, File logFilePath, Date fromTimestamp, Date toTimestamp) {
         this(listener, gxsConnection, logFilePath, fromTimestamp, toTimestamp, true);
     }
 
-    public CreateLogTask(TaskListener listener, GXSConnection gxsConnection, FilePath logFilePath, Date fromTimestamp, Date toTimestamp, boolean fromExcluding) {
+    public CreateLogTask(TaskListener listener, GXSConnection gxsConnection, File logFilePath, Date fromTimestamp, Date toTimestamp, boolean fromExcluding) {
         this.listener = listener;
         this.gxsConnection = gxsConnection;
         this.logFile = logFilePath;
@@ -77,13 +73,9 @@ public class CreateLogTask extends MasterToSlaveFileCallable<Boolean> {
      * @return true if success. The logFile may contain an actual log or the
      * error info.
      */
-    @Override
-    public Boolean invoke(File ws, VirtualChannel channel) throws IOException, InterruptedException {
+    public Boolean execute() throws IOException, InterruptedException {
         listener.getLogger().println("Checking GeneXus Server history");
 
-        File localFile = logFile.isRemote()
-                ? new File(ws, "tempLog.xml")
-                : new File(logFile.getRemote());
 
         boolean success;
         try {
@@ -94,30 +86,15 @@ public class CreateLogTask extends MasterToSlaveFileCallable<Boolean> {
             );
 
             RevisionsQuery query = new RevisionsQuery(twClient, gxsConnection.getKbName(), gxsConnection.getKbVersion(), actualFromTimestamp(), toTimestamp);
-            success = writeLog(localFile, query);
+            success = writeLog(logFile, query);
         } catch (RuntimeException e) {
             listener.getLogger().println("Error checking history: " + e.getMessage());
             success = false;
         }
 
-        if (success && logFile.isRemote()) {
-            try {
-                logFile.copyFrom(new FilePath(localFile));
-            } catch (IOException | InterruptedException e) {
-                listener.getLogger().println(
-                        MessageFormat.format("Error copying local logFile ({0}) to master node ({1}): {3}",
-                                localFile.toPath(),
-                                logFile.getRemote(),
-                                e.getMessage()
-                        )
-                );
-                success = false;
-            }
-        }
-
-        return success;
+        return success;        
     }
-
+    
     private Date actualFromTimestamp() {
         if (!fromExcluding) {
             return fromTimestamp;
