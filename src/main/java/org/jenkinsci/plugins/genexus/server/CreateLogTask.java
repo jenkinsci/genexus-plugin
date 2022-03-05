@@ -23,18 +23,20 @@
  */
 package org.jenkinsci.plugins.genexus.server;
 
+import com.genexus.gxserver.client.clients.RevisionsQuery;
+import com.genexus.gxserver.client.clients.TeamWorkService2Client;
+import com.genexus.gxserver.client.info.ActionInfo;
+import com.genexus.gxserver.client.info.RevisionInfo;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.model.TaskListener;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jenkinsci.plugins.genexus.helpers.XMLStreamWriterEx;
-import com.genexus.gxserver.client.info.ActionInfo;
-import com.genexus.gxserver.client.info.RevisionInfo;
-import com.genexus.gxserver.client.clients.RevisionsQuery;
-import com.genexus.gxserver.client.clients.TeamWorkService2Client;
 
 /**
  *
@@ -44,6 +46,7 @@ import com.genexus.gxserver.client.clients.TeamWorkService2Client;
 public class CreateLogTask {
 
     private static final long serialVersionUID = 2L;
+    private static final Logger LOGGER = Logger.getLogger(CreateLogTask.class.getName());
 
     private final TaskListener listener;
     private final GXSConnection gxsConnection;
@@ -72,10 +75,11 @@ public class CreateLogTask {
     /**
      * @return true if success. The logFile may contain an actual log or the
      * error info.
+     * @throws java.io.IOException in case of error while writing the log file
+     * @throws java.lang.InterruptedException usually caused by the user aborting the build
      */
     public Boolean execute() throws IOException, InterruptedException {
         listener.getLogger().println("Checking GeneXus Server history");
-
 
         boolean success;
         try {
@@ -92,9 +96,9 @@ public class CreateLogTask {
             success = false;
         }
 
-        return success;        
+        return success;
     }
-    
+
     private Date actualFromTimestamp() {
         if (!fromExcluding) {
             return fromTimestamp;
@@ -104,10 +108,14 @@ public class CreateLogTask {
         return new Date(fromTimestamp.getTime() + 1 * 1000);
     }
 
-    @SuppressFBWarnings("RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE")
+    @SuppressFBWarnings(
+            value = {"RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE", "REC_CATCH_EXCEPTION"},
+            justification = "False positives for try-with-resources"
+    )
     private boolean writeLog(File file, Iterable<RevisionInfo> revisions) throws IOException {
-        try {
-            XMLStreamWriterEx xmlWriter = XMLStreamWriterEx.newInstance(file);
+        try (
+                OutputStream stream = new FileOutputStream(file);
+                XMLStreamWriterEx xmlWriter = XMLStreamWriterEx.newInstance(stream)) {
 
             try (AutoCloseable docTag = xmlWriter.startDocument()) {
                 try (AutoCloseable logTag = xmlWriter.startElement("log")) {
@@ -117,15 +125,17 @@ public class CreateLogTask {
                 }
             }
 
-            xmlWriter.close();
             return true;
         } catch (Exception ex) {
-            Logger.getLogger(CreateLogTask.class.getName()).log(Level.SEVERE, null, ex);
-            throw new IOException("Error saving log file", ex);
+            LOGGER.log(Level.SEVERE, "Error saving change log file", ex);
+            throw new IOException("Error saving change log file", ex);
         }
     }
 
-    @SuppressFBWarnings("RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE")
+    @SuppressFBWarnings(
+            value = {"RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"},
+            justification = "False positives for try-with-resources"
+    )
     private void writeRevision(XMLStreamWriterEx xmlWriter, RevisionInfo revision) throws Exception {
         try (AutoCloseable logEntryTag = xmlWriter.startElement("logentry")) {
             xmlWriter.writeAttribute("revision", Integer.toString(revision.id));
@@ -138,7 +148,10 @@ public class CreateLogTask {
         }
     }
 
-    @SuppressFBWarnings("RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE")
+    @SuppressFBWarnings(
+            value = {"RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"},
+            justification = "False positives for try-with-resources"
+    )
     private void writeActions(XMLStreamWriterEx xmlWriter, RevisionInfo revision) throws Exception {
         try (AutoCloseable actions = xmlWriter.startElement("actions")) {
             for (ActionInfo action : revision.getActions()) {

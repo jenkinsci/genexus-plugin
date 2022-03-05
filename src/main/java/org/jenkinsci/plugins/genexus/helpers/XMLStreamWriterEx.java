@@ -25,9 +25,7 @@ package org.jenkinsci.plugins.genexus.helpers;
 
 import com.sun.xml.txw2.output.IndentingXMLStreamWriter;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.OutputStream;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -36,11 +34,10 @@ import javax.xml.stream.XMLStreamWriter;
  *
  * @author jlr
  */
-public class XMLStreamWriterEx extends IndentingXMLStreamWriter {
+public class XMLStreamWriterEx extends IndentingXMLStreamWriter implements AutoCloseable {
 
-    @SuppressFBWarnings("OBL_UNSATISFIED_OBLIGATION")
-    public static XMLStreamWriterEx newInstance(File file) throws XMLStreamException, FileNotFoundException {
-        return new XMLStreamWriterEx(XMLOutputFactory.newInstance().createXMLStreamWriter(new FileOutputStream(file)));
+    public static XMLStreamWriterEx newInstance(OutputStream stream) throws XMLStreamException {
+        return new XMLStreamWriterEx(XMLOutputFactory.newInstance().createXMLStreamWriter(stream));
     }
 
     public XMLStreamWriterEx(XMLStreamWriter actualWriter) {
@@ -55,12 +52,15 @@ public class XMLStreamWriterEx extends IndentingXMLStreamWriter {
         return new CloseableElement(elementName);
     }
 
-    @SuppressFBWarnings({"RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE", "REC_CATCH_EXCEPTION"})
+    @SuppressFBWarnings(
+            value = {"RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE", "REC_CATCH_EXCEPTION"},
+            justification = "False positives for try-with-resources"
+    )
     public void writeSimpleElement(String name, String text) throws XMLStreamException {
         try (AutoCloseable element = startElement(name)) {
             writeCharacters(text);
         } catch (Exception ex) {
-            throw new XMLStreamException("error closing element", ex);
+            throw new XMLStreamException("Error while writing XML element", ex);
         }
     }
 
@@ -71,7 +71,7 @@ public class XMLStreamWriterEx extends IndentingXMLStreamWriter {
         }
 
         @Override
-        public void close() throws Exception {
+        public void close() throws XMLStreamException {
             writeEndElement();
         }
     }
@@ -83,7 +83,7 @@ public class XMLStreamWriterEx extends IndentingXMLStreamWriter {
         }
 
         @Override
-        public void close() throws Exception {
+        public void close() throws XMLStreamException {
             writeEndDocument();
         }
     }

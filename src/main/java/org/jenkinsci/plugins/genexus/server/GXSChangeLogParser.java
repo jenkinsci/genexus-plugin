@@ -23,8 +23,6 @@
  */
 package org.jenkinsci.plugins.genexus.server;
 
-import org.jenkinsci.plugins.genexus.server.GXSChangeLogSet.Action;
-import org.jenkinsci.plugins.genexus.server.GXSChangeLogSet.LogEntry;
 import hudson.model.Run;
 import hudson.scm.ChangeLogParser;
 import hudson.scm.RepositoryBrowser;
@@ -34,11 +32,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.digester3.Digester;
+import org.jenkinsci.plugins.genexus.server.GXSChangeLogSet.Action;
+import org.jenkinsci.plugins.genexus.server.GXSChangeLogSet.LogEntry;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-
-import javax.xml.parsers.ParserConfigurationException;
 
 /**
  *
@@ -48,25 +47,27 @@ public class GXSChangeLogParser extends ChangeLogParser {
 
     public GXSChangeLogParser() {
     }
-    
-    @SuppressWarnings("unchecked") 
+
+    @SuppressWarnings("unchecked")
     @Override
     public GXSChangeLogSet parse(@SuppressWarnings("rawtypes") Run build, RepositoryBrowser<?> browser, File changelogFile) throws IOException, SAXException {
         List<LogEntry> logs = parse(changelogFile);
         return new GXSChangeLogSet(build, browser, logs);
     }
-    
+
     public static List<LogEntry> parse(File changelogFile) throws IOException {
-        InputSource source = new InputSource(new FileInputStream(changelogFile));
-        source.setSystemId(changelogFile.toURI().toURL().toString());
-        return parse(source);
+        try (InputStream stream = new FileInputStream(changelogFile)) {
+            InputSource source = new InputSource(stream);
+            source.setSystemId(changelogFile.toURI().toURL().toString());
+            return parse(source);
+        }
     }
 
     public static List<LogEntry> parse(InputStream stream) throws IOException {
         InputSource source = new InputSource(stream);
         return parse(source);
     }
-            
+
     private static List<LogEntry> parse(InputSource source) throws IOException {
         ArrayList<LogEntry> logs = new ArrayList<>();
 
@@ -74,12 +75,12 @@ public class GXSChangeLogParser extends ChangeLogParser {
             Digester digester = createDigester(logs);
             digester.parse(source);
         } catch (IOException | SAXException e) {
-            String sourceId = source.getSystemId()!=null? source.getSystemId() : "";
-            throw new IOException("Failed to parse "+sourceId,e);
+            String sourceId = source.getSystemId() != null ? source.getSystemId() : "";
+            throw new IOException("Failed to parse " + sourceId, e);
         }
 
         logs.forEach((logEntry) -> logEntry.finish());
-        
+
         return logs;
     }
 
@@ -98,7 +99,7 @@ public class GXSChangeLogParser extends ChangeLogParser {
         }
         return digester;
     }
-    
+
     private static Digester createDigester(ArrayList<LogEntry> logs) throws SAXException {
         boolean secure = (!Boolean.getBoolean(GXSChangeLogParser.class.getName() + ".UNSAFE"));
         Digester digester = createDigester(secure);
@@ -106,14 +107,13 @@ public class GXSChangeLogParser extends ChangeLogParser {
 
         digester.addObjectCreate("*/logentry", LogEntry.class);
         digester.addSetProperties("*/logentry");
-        digester.addBeanPropertySetter("*/logentry/author","user");
+        digester.addBeanPropertySetter("*/logentry/author", "user");
 
         /* times in changelog.xml are in UTC (output from a call to "TeamDev.exe -utc ...") */
         digester.addCallMethod("*/logentry/date", "setDateFromUTCDate", 0);
 
-
         digester.addBeanPropertySetter("*/logentry/msg");
-        digester.addSetNext("*/logentry","add");
+        digester.addSetNext("*/logentry", "add");
 
         digester.addObjectCreate("*/logentry/actions/action", Action.class);
         digester.addSetProperties("*/logentry/actions/action");
@@ -121,9 +121,9 @@ public class GXSChangeLogParser extends ChangeLogParser {
         digester.addBeanPropertySetter("*/logentry/actions/action/objectType");
         digester.addBeanPropertySetter("*/logentry/actions/action/objectTypeGuid");
         digester.addBeanPropertySetter("*/logentry/actions/action/objectName");
-        digester.addBeanPropertySetter("*/logentry/actions/action/objectDescription");       
-        digester.addSetNext("*/logentry/actions/action","addAction");
-            
+        digester.addBeanPropertySetter("*/logentry/actions/action/objectDescription");
+        digester.addSetNext("*/logentry/actions/action", "addAction");
+
         return digester;
-    }    
+    }
 }
