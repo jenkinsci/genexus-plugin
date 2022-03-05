@@ -75,8 +75,8 @@ public class CreateLogTask {
     /**
      * @return true if success. The logFile may contain an actual log or the
      * error info.
-     * @throws java.io.IOException
-     * @throws java.lang.InterruptedException
+     * @throws java.io.IOException in case of error while writing the log file
+     * @throws java.lang.InterruptedException usually caused by the user aborting the build
      */
     public Boolean execute() throws IOException, InterruptedException {
         listener.getLogger().println("Checking GeneXus Server history");
