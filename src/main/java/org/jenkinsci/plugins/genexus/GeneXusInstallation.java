@@ -185,7 +185,7 @@ public final class GeneXusInstallation extends ToolInstallation
         @RequirePOST
         public ListBoxModel doFillMsBuildInstallationIdItems() {
             ListBoxModel items = new ListBoxModel();
-            items.add("(Default)", "");
+            items.add("(Custom)", "");
 
             Descriptor msbuildDescriptor = getMSBuildToolDescriptor();
             if (msbuildDescriptor != null) {

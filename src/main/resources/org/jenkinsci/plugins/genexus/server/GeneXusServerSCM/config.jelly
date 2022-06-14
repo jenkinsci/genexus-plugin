@@ -71,6 +71,14 @@ THE SOFTWARE.
         <f:entry field="kbDbInSameFolder">
             <f:checkbox title="${%Create DB files in KB folder}" default="true" />
         </f:entry>
+
+        <f:entry field="gxCustomPath" title="${%Custom GX installation path}">
+            <f:textbox />
+        </f:entry>
+
+        <f:entry field="msbuildCustomPath" title="${%Custom MSBuild installation path}">
+            <f:textbox />
+        </f:entry>
     </f:advanced>
 
 </j:jelly>

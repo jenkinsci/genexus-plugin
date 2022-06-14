@@ -67,7 +67,9 @@ public final class GeneXusServerStep extends SCMStep {
 
     // GX installation
     private String gxInstallationId;
-
+    private String gxCustomPath;
+    private String msbuildCustomPath;
+    
     // GXserver connection data
     private final String serverURL;
     private final String credentialsId;
@@ -89,16 +91,41 @@ public final class GeneXusServerStep extends SCMStep {
     @DataBoundConstructor
     public GeneXusServerStep(String serverURL, String credentialsId, String kbName) {
         this(
-                serverURL, credentialsId, kbName, /*gxInstallationId*/ "", /*kbVersion*/ "",
-                /*localKbPath*/ "", /*localKbVersion*/ "", /*kbDbServerInstance*/ "",
-                /*kbDbCredentialsId*/ "", /*kbDbName*/ "", /*kbDbInSameFolder*/ true
+                serverURL,
+                credentialsId,
+                kbName,
+                /*gxInstallationId*/ "",
+                /*gxCustomPath*/ "",
+                /*msbuildCustomPath*/ "",
+                /*kbVersion*/ "",
+                /*localKbPath*/ "",
+                /*localKbVersion*/ "",
+                /*kbDbServerInstance*/ "",
+                /*kbDbCredentialsId*/ "",
+                /*kbDbName*/ "",
+                /*kbDbInSameFolder*/ true
         );
     }
 
-    public GeneXusServerStep(String serverURL, String credentialsId, String kbName, String gxInstallationId,
-            String kbVersion, String localKbPath, String localKbVersion, String kbDbServerInstance,
-            String kbDbCredentialsId, String kbDbName, boolean kbDbInSameFolder) {
+    public GeneXusServerStep(
+            String serverURL,
+            String credentialsId,
+            String kbName,
+            String gxInstallationId,
+            String gxCustomPath,
+            String msbuildCustomPath,
+            String kbVersion,
+            String localKbPath,
+            String localKbVersion,
+            String kbDbServerInstance,
+            String kbDbCredentialsId,
+            String kbDbName,
+            boolean kbDbInSameFolder) {
+
         this.gxInstallationId = gxInstallationId;
+        this.gxCustomPath = gxCustomPath;
+        this.msbuildCustomPath = msbuildCustomPath;
+
         this.serverURL = serverURL;
         this.credentialsId = credentialsId;
 
@@ -116,8 +143,20 @@ public final class GeneXusServerStep extends SCMStep {
 
     @Override
     protected SCM createSCM() {
-        return new GeneXusServerSCM(gxInstallationId, serverURL, credentialsId, kbName, kbVersion, localKbPath,
-                localKbVersion, kbDbServerInstance, kbDbCredentialsId, kbDbName, kbDbInSameFolder);
+        return new GeneXusServerSCM(
+                gxInstallationId,
+                gxCustomPath,
+                msbuildCustomPath,
+                serverURL,
+                credentialsId,
+                kbName,
+                kbVersion,
+                localKbPath,
+                localKbVersion,
+                kbDbServerInstance,
+                kbDbCredentialsId,
+                kbDbName,
+                kbDbInSameFolder);
     }
 
     @Exported
@@ -128,6 +167,28 @@ public final class GeneXusServerStep extends SCMStep {
     @DataBoundSetter
     public void setGxInstallationId(String gxInstallationId) {
         this.gxInstallationId = gxInstallationId;
+    }
+
+
+    @Exported
+    public String getGxCustomPath() {
+        return gxCustomPath;
+    }
+
+    @DataBoundSetter
+    public void setGxCustomPath(String gxCustomPath) {
+        this.gxCustomPath = gxCustomPath;
+    }
+
+
+    @Exported
+    public String getMsbuildCustomPath() {
+        return msbuildCustomPath;
+    }
+
+    @DataBoundSetter
+    public void setMsbuildCustomPath(String msbuildCustomPath) {
+        this.msbuildCustomPath = msbuildCustomPath;
     }
 
     @Exported
