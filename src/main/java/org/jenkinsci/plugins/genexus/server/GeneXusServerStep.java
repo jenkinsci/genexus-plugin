@@ -294,7 +294,7 @@ public final class GeneXusServerStep extends SCMStep {
         @RequirePOST
         public ListBoxModel doFillGxInstallationIdItems() {
             ListBoxModel items = new ListBoxModel();
-            items.add("(Default)", "");
+            items.add("(Custom)", "");
             for (GeneXusInstallation installation : GeneXusInstallation.getInstallations()) {
                 items.add(installation.getName(), installation.getName());
             }

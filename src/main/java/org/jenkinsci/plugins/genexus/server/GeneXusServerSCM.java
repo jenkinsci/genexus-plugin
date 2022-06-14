@@ -654,7 +654,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
         @RequirePOST
         public ListBoxModel doFillGxInstallationIdItems() {
             ListBoxModel items = new ListBoxModel();
-            items.add("(Default)", "");
+            items.add("(Custom)", "");
             for (GeneXusInstallation installation : GeneXusInstallation.getInstallations()) {
                 items.add(installation.getName(), installation.getName());
             }
