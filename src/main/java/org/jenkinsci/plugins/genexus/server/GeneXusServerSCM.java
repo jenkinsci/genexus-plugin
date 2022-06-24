@@ -87,6 +87,8 @@ public class GeneXusServerSCM extends SCM implements Serializable {
 
     // GX installation
     private final String gxInstallationId;
+    private final String gxCustomPath;
+    private final String msbuildCustomPath;
 
     // GXserver connection data
     private final String serverURL;
@@ -109,12 +111,25 @@ public class GeneXusServerSCM extends SCM implements Serializable {
     private boolean kbDbInSameFolder = true;
 
     @DataBoundConstructor
-    public GeneXusServerSCM(String gxInstallationId, String serverURL, String credentialsId, String kbName,
-            String kbVersion, String localKbPath, String localKbVersion, String kbDbServerInstance,
-            String kbDbCredentialsId, String kbDbName, boolean kbDbInSameFolder) {
+    public GeneXusServerSCM(
+            String gxInstallationId,
+            String gxCustomPath,
+            String msbuildCustomPath,
+            String serverURL,
+            String credentialsId,
+            String kbName,
+            String kbVersion,
+            String localKbPath,
+            String localKbVersion,
+            String kbDbServerInstance,
+            String kbDbCredentialsId,
+            String kbDbName,
+            boolean kbDbInSameFolder) {
 
         this.gxInstallationId = gxInstallationId;
-
+        this.gxCustomPath = gxCustomPath;
+        this.msbuildCustomPath = msbuildCustomPath;
+    
         this.serverURL = serverURL;
         this.credentialsId = credentialsId;
 
@@ -134,6 +149,16 @@ public class GeneXusServerSCM extends SCM implements Serializable {
         return gxInstallationId;
     }
 
+    @Exported
+    public String getGxCustomPath() {
+        return gxCustomPath;
+    }
+
+    @Exported
+    public String getMsbuildCustomPath() {
+        return msbuildCustomPath;
+    }
+
     private GeneXusInstallation getGeneXusInstallation() {
         return GeneXusInstallation.getInstallation(gxInstallationId);
     }
@@ -144,7 +169,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
             return installation.getHome();
         }
 
-        return "";
+        return getGxCustomPath();
     }
 
     private String getMSBuildInstallationId() {
@@ -162,7 +187,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
             return msbuildTool.getHome();
         }
 
-        return "";
+        return getMsbuildCustomPath();
     }
 
     @Exported
@@ -629,7 +654,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
         @RequirePOST
         public ListBoxModel doFillGxInstallationIdItems() {
             ListBoxModel items = new ListBoxModel();
-            items.add("(Default)", "");
+            items.add("(Custom)", "");
             for (GeneXusInstallation installation : GeneXusInstallation.getInstallations()) {
                 items.add(installation.getName(), installation.getName());
             }
