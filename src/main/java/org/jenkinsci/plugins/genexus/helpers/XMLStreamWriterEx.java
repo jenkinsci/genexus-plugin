@@ -37,7 +37,11 @@ import javax.xml.stream.XMLStreamWriter;
 public class XMLStreamWriterEx extends IndentingXMLStreamWriter implements AutoCloseable {
 
     public static XMLStreamWriterEx newInstance(OutputStream stream) throws XMLStreamException {
-        return new XMLStreamWriterEx(XMLOutputFactory.newInstance().createXMLStreamWriter(stream));
+        return newInstance(stream, "UTF-8");
+    }
+
+    public static XMLStreamWriterEx newInstance(OutputStream stream, String encoding) throws XMLStreamException {
+        return new XMLStreamWriterEx(XMLOutputFactory.newInstance().createXMLStreamWriter(stream, encoding));
     }
 
     public XMLStreamWriterEx(XMLStreamWriter actualWriter) {
