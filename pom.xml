@@ -38,7 +38,7 @@ THE SOFTWARE.
 
     <properties>
         <changelist>999999-SNAPSHOT</changelist>
-        <jenkins.version>2.329</jenkins.version>
+        <jenkins.version>2.332.1</jenkins.version>
         <java.level>8</java.level>
         <spotbugs.effort>Max</spotbugs.effort>
         <spotbugs.failOnError>true</spotbugs.failOnError>
@@ -57,8 +57,8 @@ THE SOFTWARE.
         <dependencies>
             <dependency>
                 <groupId>io.jenkins.tools.bom</groupId>
-                <artifactId>bom-2.319.x</artifactId>
-                <version>1085.vc4c268262299</version>
+                <artifactId>bom-2.332.x</artifactId>
+                <version>1595.v8c71c13cc3a_9</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
