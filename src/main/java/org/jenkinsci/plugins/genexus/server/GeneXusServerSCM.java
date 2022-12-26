@@ -27,12 +27,17 @@ import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.StandardListBoxModel;
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import edu.umd.cs.findbugs.annotations.CheckForNull;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import hudson.EnvVars;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.Util;
+import hudson.model.Computer;
 import hudson.model.Item;
 import hudson.model.Job;
+import hudson.model.Node;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.plugins.msbuild.MsBuildInstallation;
@@ -129,7 +134,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
         this.gxInstallationId = gxInstallationId;
         this.gxCustomPath = gxCustomPath;
         this.msbuildCustomPath = msbuildCustomPath;
-    
+
         this.serverURL = serverURL;
         this.credentialsId = credentialsId;
 
@@ -159,12 +164,28 @@ public class GeneXusServerSCM extends SCM implements Serializable {
         return msbuildCustomPath;
     }
 
-    private GeneXusInstallation getGeneXusInstallation() {
-        return GeneXusInstallation.getInstallation(gxInstallationId);
+    private static Node workspaceToNode(FilePath workspace) {
+        Jenkins j = Jenkins.get();
+        if (workspace != null && workspace.isRemote()) {
+            for (Computer c : j.getComputers()) {
+                if (c.getChannel() == workspace.getChannel()) {
+                    Node n = c.getNode();
+                    if (n != null) {
+                        return n;
+                    }
+                }
+            }
+        }
+        return j;
     }
 
-    private String getGxPath() {
-        GeneXusInstallation installation = getGeneXusInstallation();
+    private GeneXusInstallation getGeneXusInstallation(@CheckForNull FilePath workspace, @CheckForNull EnvVars env, @NonNull TaskListener listener) {
+        Node node = workspaceToNode(workspace);
+        return GeneXusInstallation.resolveGeneXusInstallation(gxInstallationId, node, env, listener);
+    }
+
+    private String getGxPath(@CheckForNull FilePath workspace, @CheckForNull EnvVars env, @NonNull TaskListener listener) {
+        GeneXusInstallation installation = getGeneXusInstallation(workspace, env, listener);
         if (installation != null) {
             return installation.getHome();
         }
@@ -172,8 +193,8 @@ public class GeneXusServerSCM extends SCM implements Serializable {
         return getGxCustomPath();
     }
 
-    private String getMSBuildInstallationId() {
-        GeneXusInstallation installation = getGeneXusInstallation();
+    private String getMSBuildInstallationId(@CheckForNull FilePath workspace, @CheckForNull EnvVars env, @NonNull TaskListener listener) {
+        GeneXusInstallation installation = getGeneXusInstallation(workspace, env, listener);
         if (installation != null) {
             return installation.getMsBuildInstallationId();
         }
@@ -181,8 +202,10 @@ public class GeneXusServerSCM extends SCM implements Serializable {
         return "";
     }
 
-    private String getMsBuildPath() {
-        MsBuildInstallation msbuildTool = MsBuildInstallationHelper.getInstallation(getMSBuildInstallationId());
+    private String getMsBuildPath(@CheckForNull FilePath workspace, @CheckForNull EnvVars env, @NonNull TaskListener listener) {
+        String installationId = getMSBuildInstallationId(workspace, env, listener);
+        Node node = workspaceToNode(workspace);
+        MsBuildInstallation msbuildTool = MsBuildInstallationHelper.resolveInstallation(installationId, node, env, listener);
         if (msbuildTool != null) {
             return msbuildTool.getHome();
         }
@@ -352,7 +375,8 @@ public class GeneXusServerSCM extends SCM implements Serializable {
         Date updateTimestamp = new Date();
         listener.getLogger().println("Using the following timestamp for revisions:" + updateTimestamp.toString());
 
-        CommandBuilder builder = createCheckoutOrUpdateAction(workspace, build.getParent());
+        EnvVars environment = build.getEnvironment(listener);
+        CommandBuilder builder = createCheckoutOrUpdateAction(workspace, environment, listener, build.getParent());
 
         // TODO: Add support for parameterized builds
         // hint: see how SubversionSCM.java uses EnvVarsUtils to override env variables
@@ -486,19 +510,19 @@ public class GeneXusServerSCM extends SCM implements Serializable {
         return mapper.readValue(file, GXSInfo.class);
     }
 
-    private CommandBuilder createCheckoutOrUpdateAction(FilePath workspace, Item context) throws IOException, InterruptedException {
+    private CommandBuilder createCheckoutOrUpdateAction(FilePath workspace, EnvVars environment, TaskListener listener, Item context) throws IOException, InterruptedException {
         if (!kbAlreadyExists(getWorkingDirectory(workspace))) {
-            return createCheckoutAction(workspace, context);
+            return createCheckoutAction(workspace, environment, listener, context);
         }
 
-        return createUpdateAction(workspace, context);
+        return createUpdateAction(workspace, environment, listener, context);
     }
 
-    private MsBuildArgumentListBuilder createBaseMsBuildArgs(FilePath workspace, Item context, String... targetNames) {
-        MsBuildArgumentListBuilder msbArgs = new MsBuildArgumentListBuilder(getMsBuildFile());
+    private MsBuildArgumentListBuilder createBaseMsBuildArgs(FilePath workspace, EnvVars environment, TaskListener listener, Item context, String... targetNames) {
+        MsBuildArgumentListBuilder msbArgs = new MsBuildArgumentListBuilder(getMsBuildFile(workspace, environment, listener));
         msbArgs.addTargets(targetNames);
 
-        msbArgs.addProperty("GX_PROGRAM_DIR", getGxPath());
+        msbArgs.addProperty("GX_PROGRAM_DIR", getGxPath(workspace, environment, listener));
 
         StandardUsernamePasswordCredentials serverCredentials = getServerCredentials(context);
         if (serverCredentials != null) {
@@ -522,18 +546,18 @@ public class GeneXusServerSCM extends SCM implements Serializable {
         return msbArgs;
     }
 
-    private CommandBuilder createUpdateAction(FilePath workspace, Item context) throws IOException, InterruptedException {
-        MsBuildArgumentListBuilder msbArgs = createBaseMsBuildArgs(workspace, context, "Update");
+    private CommandBuilder createUpdateAction(FilePath workspace, EnvVars environment, TaskListener listener, Item context) throws IOException, InterruptedException {
+        MsBuildArgumentListBuilder msbArgs = createBaseMsBuildArgs(workspace, environment, listener, context, "Update");
 
         if (StringUtils.isNotBlank(getLocalKbVersion())) {
             msbArgs.addProperty("WorkingVersion", getLocalKbVersion());
         }
 
-        return createMsBuildAction(workspace, msbArgs);
+        return createMsBuildAction(workspace, environment, listener, msbArgs);
     }
 
-    private CommandBuilder createCheckoutAction(FilePath workspace, Item context) throws IOException, InterruptedException {
-        MsBuildArgumentListBuilder msbArgs = createBaseMsBuildArgs(workspace, context, "Checkout");
+    private CommandBuilder createCheckoutAction(FilePath workspace, EnvVars environment, TaskListener listener, Item context) throws IOException, InterruptedException {
+        MsBuildArgumentListBuilder msbArgs = createBaseMsBuildArgs(workspace, environment, listener, context, "Checkout");
 
         msbArgs.addProperty("ServerUrl", getServerURL());
         msbArgs.addProperty("ServerKbAlias", getKbName());
@@ -548,7 +572,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
         msbArgs.addProperty("DbaseName", getSafeKbDbName(getKbName(), getKbDbName()));
         msbArgs.addProperty("CreateDbInKbFolder", isKbDbInSameFolder());
 
-        return createMsBuildAction(workspace, msbArgs);
+        return createMsBuildAction(workspace, environment, listener, msbArgs);
     }
 
     private FilePath getWorkingDirectory(FilePath workspace) {
@@ -559,14 +583,17 @@ public class GeneXusServerSCM extends SCM implements Serializable {
         return workspace.child(getKbName());
     }
 
-    private String getMsBuildFile() {
+    private String getMsBuildFile(FilePath workspace, EnvVars environment, TaskListener listener) {
         final String teamDevMsBuildFile = "TeamDev.msbuild";
-        Path teamDevPath = Paths.get(getGxPath(), teamDevMsBuildFile);
+        Path teamDevPath = Paths.get(getGxPath(workspace, environment, listener), teamDevMsBuildFile);
         return teamDevPath.toString();
     }
 
-    private CommandBuilder createMsBuildAction(FilePath workspace, MsBuildArgumentListBuilder msbArgs) throws IOException, InterruptedException {
-        String msbuildExePath = ToolHelper.getToolFullPath(workspace, getMsBuildPath(), "msbuild.exe");
+    private CommandBuilder createMsBuildAction(FilePath workspace, EnvVars environment, TaskListener listener, MsBuildArgumentListBuilder msbArgs) throws IOException, InterruptedException {
+        String msbuildExePath = ToolHelper.getToolFullPath(
+                workspace,
+                getMsBuildPath(workspace, environment, listener),
+                "msbuild.exe");
         msbArgs.prepend(msbuildExePath);
         return new CommandBuilder(msbArgs);
     }
