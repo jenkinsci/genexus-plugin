@@ -23,15 +23,22 @@
  */
 package org.jenkinsci.plugins.genexus;
 
+import hudson.model.Node;
+import hudson.model.TaskListener;
+import hudson.model.labels.LabelAtom;
+import hudson.slaves.DumbSlave;
+import hudson.tools.ToolLocationNodeProperty;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.After;
 import org.junit.AfterClass;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Test;
 import org.junit.Rule;
+import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 
 /**
@@ -63,15 +70,44 @@ public class GeneXusInstallationTest {
     public void testConfigRoundtrip() throws Exception {
         GeneXusInstallation.DescriptorImpl descriptor = jenkins.getInstance().getDescriptorByType(GeneXusInstallation.DescriptorImpl.class);
 
-        TestCases testCases = CreateConfigRoundtripTestCases();
+        ConfigRoundTripTestCases testCases = CreateConfigRoundtripTestCases();
         descriptor.setInstallations(testCases.inputs.toArray(new GeneXusInstallation[testCases.inputs.size()]));
 
         List<GeneXusInstallation> results = Arrays.asList(descriptor.getInstallations());
         jenkins.assertEqualDataBoundBeans(testCases.expectedOutputs, results);
     }
 
-    private TestCases CreateConfigRoundtripTestCases() {
-        TestCases testCases = new TestCases();
+    @Test
+    public void testResolveGeneXusInstallation() throws Exception {
+        String agentLabel = "slave";
+
+        LabelAtom label = new LabelAtom(agentLabel);
+        DumbSlave agent = jenkins.createOnlineSlave(label);
+        agent.setMode(Node.Mode.NORMAL);
+        agent.setLabelString(agentLabel);
+
+        List<NodeConfigTestCase> testCases = createNodeConfigTestCases();
+        for (NodeConfigTestCase tc : testCases) {
+            GeneXusInstallation gxOnMaster = new GeneXusInstallation(tc.installationId, tc.pathOnMaster, tc.msbuildId);
+            jenkins.jenkins.getDescriptorByType(GeneXusInstallation.DescriptorImpl.class).setInstallations(gxOnMaster);
+
+            if (tc.pathOnSlave != null) {
+                agent.getNodeProperties().add(new ToolLocationNodeProperty(new ToolLocationNodeProperty.ToolLocation(
+                        jenkins.jenkins.getDescriptorByType(GeneXusInstallation.DescriptorImpl.class), tc.installationId, tc.pathOnSlave)));
+            }
+
+            GeneXusInstallation masterTool = GeneXusInstallation.resolveGeneXusInstallation(tc.installationId, jenkins.jenkins, null, TaskListener.NULL);
+            assertNotNull(masterTool);
+            assertEquals(masterTool.getHome(), tc.pathOnMaster);
+
+            GeneXusInstallation slaveTool = GeneXusInstallation.resolveGeneXusInstallation(tc.installationId, agent, null, TaskListener.NULL);
+            assertNotNull(slaveTool);
+            assertEquals(slaveTool.getHome(), tc.pathOnSlave != null? tc.pathOnSlave : tc.pathOnMaster);
+        }
+    }
+
+    private ConfigRoundTripTestCases CreateConfigRoundtripTestCases() {
+        ConfigRoundTripTestCases testCases = new ConfigRoundTripTestCases();
 
         testCases.addCase(new GeneXusInstallation("Evo3", "C:\\gx\\evo3", "msb12xxx"));
         testCases.addCase(new GeneXusInstallation("v15" , "C:\\gx\\v15 ", ""        ));
@@ -81,7 +117,7 @@ public class GeneXusInstallationTest {
         return testCases;
     }
 
-    private class TestCases {
+    private class ConfigRoundTripTestCases {
 
         public final List<GeneXusInstallation> inputs = new ArrayList<>();
         public final List<GeneXusInstallation> expectedOutputs = new ArrayList<>();
@@ -96,4 +132,28 @@ public class GeneXusInstallationTest {
         }
     }
 
+    private List<NodeConfigTestCase> createNodeConfigTestCases() {
+        List<NodeConfigTestCase> cases = new ArrayList<>();
+
+        // WARNING: use different installationId for each test case
+        cases.add(new NodeConfigTestCase("tc1", "", "C:\\MasterGX\\v18", "C:\\SlaveGX\\v18"));
+        cases.add(new NodeConfigTestCase("tc2", "", "C:\\MasterGX\\v18", null));
+        cases.add(new NodeConfigTestCase("tc3", "", null, null));
+
+        return cases;
+    }
+
+    private class NodeConfigTestCase {
+        public final String installationId;
+        public final String msbuildId;
+        public final String pathOnMaster;
+        public final String pathOnSlave;
+
+        public NodeConfigTestCase(String installationId, String msbuildId, String pathOnMaster, String pathOnSlave) {
+            this.installationId = installationId;
+            this.msbuildId = msbuildId;
+            this.pathOnMaster = pathOnMaster;
+            this.pathOnSlave = pathOnSlave;
+        }
+    }
 }

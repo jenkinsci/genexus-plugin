@@ -84,6 +84,7 @@ public final class GeneXusInstallation extends ToolInstallation
      * @param msBuildInstallationId MSBuild installation to use
      * @param name Installation name
      * @param home Path to GeneXus Installation
+     * @param msBuildInstallationId MSBuild installation id to be used
      * @param properties Tool properties
      */
     @DataBoundConstructor
