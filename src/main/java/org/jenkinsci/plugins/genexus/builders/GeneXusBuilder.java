@@ -26,18 +26,21 @@ package org.jenkinsci.plugins.genexus.builders;
 import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.StandardListBoxModel;
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
+import hudson.EnvVars;
 import hudson.Extension;
 import hudson.Launcher;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.BuildListener;
+import hudson.model.Computer;
 import hudson.model.Item;
+import hudson.model.Node;
+import hudson.model.TaskListener;
 import hudson.plugins.msbuild.MsBuildBuilder;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import hudson.util.ListBoxModel;
 import java.io.IOException;
-
 import jenkins.model.Jenkins;
 import org.jenkinsci.Symbol;
 import org.jenkinsci.plugins.genexus.GeneXusInstallation;
@@ -107,8 +110,10 @@ public class GeneXusBuilder extends Builder {
         return forceRebuild;
     }
 
-    private GeneXusInstallation getGeneXusInstallation() {
-        return GeneXusInstallation.getInstallation(gxInstallationId);
+    private GeneXusInstallation getGeneXusInstallation(AbstractBuild<?, ?> build, TaskListener listener) throws IOException, InterruptedException {
+        EnvVars env = build.getEnvironment(listener);
+        Node node = Computer.currentComputer().getNode();
+        return GeneXusInstallation.resolveGeneXusInstallation(gxInstallationId, node, env, listener);
     }
 
     private StandardUsernamePasswordCredentials getKbDbCredentials(Item context) {
@@ -117,7 +122,7 @@ public class GeneXusBuilder extends Builder {
 
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws IOException, InterruptedException {
-        GeneXusInstallation installation = getGeneXusInstallation();
+        GeneXusInstallation installation = getGeneXusInstallation(build, listener);
         if (installation == null) {
             listener.fatalError("Could not find GeneXus Installation: " + gxInstallationId);
             return false;
