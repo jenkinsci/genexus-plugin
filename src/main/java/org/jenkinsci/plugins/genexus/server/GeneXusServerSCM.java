@@ -613,7 +613,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
      * @return File that stores the revision
      */
     public static File getRevisionFile(Run<?, ?> build) {
-        return new File(build.getRootDir(), "revision.txt");
+        return new File(build.getRootDir(), "GXServer_revision.txt");
     }
 
     @Override
