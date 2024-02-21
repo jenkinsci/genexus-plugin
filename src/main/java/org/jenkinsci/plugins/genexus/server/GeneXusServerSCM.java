@@ -277,17 +277,24 @@ public class GeneXusServerSCM extends SCM implements Serializable {
     public PollingResult compareRemoteRevisionWith(@Nonnull Job<?, ?> project, @Nullable Launcher launcher,
             @Nullable FilePath workspace, @Nonnull TaskListener listener, @Nonnull SCMRevisionState _baseline)
             throws IOException, InterruptedException {
+        listener.getLogger().println("GXSERVER DEBUG: Starting remote revision compare (execute polling)");
         final GXSRevisionState baseline = getSafeBaseline(project, launcher, workspace, listener, _baseline);
+        listener.getLogger().println("SafeBaseline Revision: " + baseline.getRevision() + " - Date: " + baseline.getRevisionDate());
 
         try {
             GXSConnection gxs = getGXSConnection(project);
             GetLastRevisionTask getLastRevisionTask = new GetLastRevisionTask(listener, gxs, baseline.getRevisionDate(), new Date());
             GXSInfo currentInfo = getLastRevisionTask.execute();
             GXSRevisionState currentState = new GXSRevisionState(currentInfo.revision, currentInfo.revisionDate);
-
-            return new PollingResult(baseline, currentState,
+            PollingResult result = new PollingResult(baseline, currentState,
                     currentState.getRevision() > baseline.getRevision() ? Change.SIGNIFICANT : Change.NONE);
+            listener.getLogger().println("GXSERVER DEBUG: CurrentState Revision: " + currentState.getRevision() + "- Date: " + currentState.getRevisionDate());
+            listener.getLogger().println("GXSERVER DEBUG: Result " + result.toString());
+            listener.getLogger().println("GXSERVER DEBUG: Polling successful");
+
+            return result;
         } catch (IOException | InterruptedException ex) {
+            listener.getLogger().println("GXSERVER DEBUG: Polling failed " + ex.toString());
             listener.error(ex.getMessage());
             return PollingResult.BUILD_NOW;
         }
