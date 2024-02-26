@@ -257,7 +257,7 @@ public final class GeneXusInstallation extends ToolInstallation
 
     @Extension
     @Symbol("genexus")
-    public static class DescriptorImpl extends ToolDescriptor<GeneXusInstallation> {
+    public static final class DescriptorImpl extends ToolDescriptor<GeneXusInstallation> {
 
         public DescriptorImpl() {
             super();
