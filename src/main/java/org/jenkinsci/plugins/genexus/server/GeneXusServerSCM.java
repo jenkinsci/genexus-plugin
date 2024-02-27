@@ -185,12 +185,18 @@ public class GeneXusServerSCM extends SCM implements Serializable {
     }
 
     private String getGxPath(@CheckForNull FilePath workspace, @CheckForNull EnvVars env, @NonNull TaskListener listener) {
+        // check for custom path first
+        String customPath = getGxCustomPath();
+        if (customPath != null && !customPath.isEmpty()) {
+            return customPath;
+        }
+        
         GeneXusInstallation installation = getGeneXusInstallation(workspace, env, listener);
         if (installation != null) {
             return installation.getHome();
         }
 
-        return getGxCustomPath();
+        return "";
     }
 
     private String getMSBuildInstallationId(@CheckForNull FilePath workspace, @CheckForNull EnvVars env, @NonNull TaskListener listener) {
@@ -203,6 +209,12 @@ public class GeneXusServerSCM extends SCM implements Serializable {
     }
 
     private String getMsBuildPath(@CheckForNull FilePath workspace, @CheckForNull EnvVars env, @NonNull TaskListener listener) {
+        // check for custom path first
+        String customPath = getMsbuildCustomPath();
+        if (customPath != null && !customPath.isEmpty()) {
+            return customPath;
+        }
+
         String installationId = getMSBuildInstallationId(workspace, env, listener);
         Node node = workspaceToNode(workspace);
         MsBuildInstallation msbuildTool = MsBuildInstallationHelper.resolveInstallation(installationId, node, env, listener);
@@ -210,7 +222,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
             return msbuildTool.getHome();
         }
 
-        return getMsbuildCustomPath();
+        return "";
     }
 
     @Exported
