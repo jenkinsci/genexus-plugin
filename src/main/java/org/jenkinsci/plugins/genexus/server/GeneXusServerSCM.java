@@ -653,7 +653,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
     }
 
     @Extension
-    public static class DescriptorImpl extends SCMDescriptor<GeneXusServerSCM> {
+    public static final class DescriptorImpl extends SCMDescriptor<GeneXusServerSCM> {
 
         public static final String DEFAULT_GENEXUS_PATH = "C:\\Program Files (x86)\\GeneXus\\GeneXus15";
         public static final String DEFAULT_SERVER_URL = "https://sandbox.genexusserver.com/v15";
