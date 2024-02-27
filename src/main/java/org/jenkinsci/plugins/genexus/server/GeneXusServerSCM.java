@@ -51,6 +51,7 @@ import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -277,25 +278,30 @@ public class GeneXusServerSCM extends SCM implements Serializable {
     public PollingResult compareRemoteRevisionWith(@Nonnull Job<?, ?> project, @Nullable Launcher launcher,
             @Nullable FilePath workspace, @Nonnull TaskListener listener, @Nonnull SCMRevisionState _baseline)
             throws IOException, InterruptedException {
-        listener.getLogger().println("GXSERVER DEBUG: Starting remote revision compare (execute polling)");
+        PrintStream logStream = listener.getLogger();
+        
+        logStream.println("Starting GXserver polling");
         final GXSRevisionState baseline = getSafeBaseline(project, launcher, workspace, listener, _baseline);
-        listener.getLogger().println("SafeBaseline Revision: " + baseline.getRevision() + " - Date: " + baseline.getRevisionDate());
+        logStream.println("Baseline: Revision #" + baseline.getRevision() + " " + baseline.getRevisionDate());
 
         try {
             GXSConnection gxs = getGXSConnection(project);
             GetLastRevisionTask getLastRevisionTask = new GetLastRevisionTask(listener, gxs, baseline.getRevisionDate(), new Date());
             GXSInfo currentInfo = getLastRevisionTask.execute();
             GXSRevisionState currentState = new GXSRevisionState(currentInfo.revision, currentInfo.revisionDate);
-            PollingResult result = new PollingResult(baseline, currentState,
-                    currentState.getRevision() > baseline.getRevision() ? Change.SIGNIFICANT : Change.NONE);
-            listener.getLogger().println("GXSERVER DEBUG: CurrentState Revision: " + currentState.getRevision() + "- Date: " + currentState.getRevisionDate());
-            listener.getLogger().println("GXSERVER DEBUG: Result " + result.toString());
-            listener.getLogger().println("GXSERVER DEBUG: Polling successful");
+            Change stateChange = currentState.getRevision() > baseline.getRevision() ? Change.SIGNIFICANT : Change.NONE;
+            PollingResult result = new PollingResult(baseline, currentState, stateChange);
+            
+            logStream.println("Current State: Revision #" + currentState.getRevision() + " " + currentState.getRevisionDate());
+            logStream.println("Changes on polling result: " + stateChange.toString());
+            logStream.println("GXserver Polling was completed successfully");
 
             return result;
         } catch (IOException | InterruptedException ex) {
-            listener.getLogger().println("GXSERVER DEBUG: Polling failed " + ex.toString());
+            listener.error("GXserver Polling failed: " + ex.toString());
             listener.error(ex.getMessage());
+            
+            logStream.println("GXserver polling returning 'BUILD_NOW' result due to error");
             return PollingResult.BUILD_NOW;
         }
     }
