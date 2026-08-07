@@ -38,7 +38,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import jenkins.model.Jenkins;
-import org.apache.commons.lang.StringUtils;
+import hudson.Util;
 
 /**
  *
@@ -87,7 +87,7 @@ public class MsBuildInstallationHelper {
             @NonNull TaskListener listener) {
 
         MsBuildInstallation msb = null;
-        if (StringUtils.isNotBlank(installationId)) {
+        if (Util.fixEmptyAndTrim(installationId) != null) {
             msb = getInstallation(installationId);
         }
 

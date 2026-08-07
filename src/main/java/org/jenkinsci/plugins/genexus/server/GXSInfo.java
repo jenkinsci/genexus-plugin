@@ -30,7 +30,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
-import org.apache.commons.lang.StringUtils;
+import hudson.Util;
 
 /**
  * {@link GXSInfo} for {@link GeneXusServerSCM}.
@@ -123,7 +123,7 @@ public class GXSInfo implements Serializable, Comparable<GXSInfo> {
         StringBuilder sb = new StringBuilder();
         sb.append(serverUrl).append("/").append(kbName);
 
-        if (StringUtils.isNotBlank(kbVersion)) {
+        if (Util.fixEmptyAndTrim(kbVersion) != null) {
             sb.append(String.format(" (ver.%s)", kbVersion));
         }
 

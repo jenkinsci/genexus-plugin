@@ -24,8 +24,8 @@
 package org.jenkinsci.plugins.genexus.helpers;
 
 import hudson.FilePath;
+import hudson.Util;
 import java.io.IOException;
-import org.apache.commons.lang.StringUtils;
 
 /**
  *
@@ -34,7 +34,7 @@ import org.apache.commons.lang.StringUtils;
 public class ToolHelper {
 
     public static String getToolFullPath(FilePath workspace, String pathToTool, String execName) throws IOException, InterruptedException {
-        if (StringUtils.isBlank(pathToTool))
+        if (Util.fixEmptyAndTrim(pathToTool) == null)
             return execName;
         
         String fullPathToTool = (pathToTool != null ? pathToTool : "");

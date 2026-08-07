@@ -24,7 +24,6 @@
 package org.jenkinsci.plugins.genexus.helpers;
 
 import hudson.util.ArgumentListBuilder;
-import org.apache.commons.lang.StringUtils;
 
 /**
  *
@@ -59,7 +58,7 @@ public class MsBuildArgumentListBuilder extends ArgumentListBuilder {
     }
 
     public void addTargets(String... targetNames) {
-        String allTargets = StringUtils.join(targetNames, VALUE_SEPARATOR);
+        String allTargets = String.join(VALUE_SEPARATOR, targetNames);
         addTarget(allTargets);
     }
 

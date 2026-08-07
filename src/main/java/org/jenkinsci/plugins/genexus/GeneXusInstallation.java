@@ -52,7 +52,6 @@ import java.util.logging.Logger;
 import jenkins.model.Jenkins;
 import jenkins.security.MasterToSlaveCallable;
 import net.sf.json.JSONObject;
-import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
@@ -198,7 +197,7 @@ public final class GeneXusInstallation extends ToolInstallation
             @NonNull TaskListener listener) {
 
         GeneXusInstallation gx = null;
-        if (StringUtils.isNotBlank(installationId)) {
+        if (Util.fixEmptyAndTrim(installationId) != null) {
             gx = GeneXusInstallation.getInstallation(installationId);
         }
 
