@@ -67,7 +67,6 @@ import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
-import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.genexus.GeneXusInstallation;
 import org.jenkinsci.plugins.genexus.builders.CommandBuilder;
 import org.jenkinsci.plugins.genexus.helpers.CredentialsHelper;
@@ -555,7 +554,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
             msbArgs.addProperty("ServerPassword", serverCredentials.getPassword().getPlainText(), true);
         }
 
-        if (StringUtils.isNotBlank(getKbVersion())) {
+        if (Util.fixEmptyAndTrim(getKbVersion()) != null) {
             msbArgs.addProperty("ServerKbVersion", getKbVersion());
         }
 
@@ -574,7 +573,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
     private CommandBuilder createUpdateAction(FilePath workspace, EnvVars environment, TaskListener listener, Item context) throws IOException, InterruptedException {
         MsBuildArgumentListBuilder msbArgs = createBaseMsBuildArgs(workspace, environment, listener, context, "Update");
 
-        if (StringUtils.isNotBlank(getLocalKbVersion())) {
+        if (Util.fixEmptyAndTrim(getLocalKbVersion()) != null) {
             msbArgs.addProperty("WorkingVersion", getLocalKbVersion());
         }
 
@@ -590,7 +589,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
         // TODO: Add support for including all versions on checkout
         msbArgs.addProperty("GetAllKbVersions", false);
 
-        if (StringUtils.isNotBlank(getKbDbServerInstance())) {
+        if (Util.fixEmptyAndTrim(getKbDbServerInstance()) != null) {
             msbArgs.addProperty("DbaseServerInstance", getKbDbServerInstance());
         }
 
@@ -601,7 +600,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
     }
 
     private FilePath getWorkingDirectory(FilePath workspace) {
-        if (!StringUtils.isBlank(getLocalKbPath())) {
+        if (Util.fixEmptyAndTrim(getLocalKbPath()) != null) {
             return new FilePath(workspace, getLocalKbPath());
         }
 
@@ -624,7 +623,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
     }
 
     private static String getSafeKbDbName(String kbName, String kbDbName) {
-        if (StringUtils.isNotBlank(kbDbName)) {
+        if (Util.fixEmptyAndTrim(kbDbName) != null) {
             return kbDbName;
         }
 
@@ -664,7 +663,7 @@ public class GeneXusServerSCM extends SCM implements Serializable {
         StringBuilder b = new StringBuilder("gxserver");
         b.append(' ').append(serverURL);
         b.append(',').append(kbName);
-        if (!StringUtils.isBlank(kbVersion)) {
+        if (Util.fixEmptyAndTrim(kbVersion) != null) {
             b.append(',').append(kbVersion);
         }
         return b.toString();

@@ -29,7 +29,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
-import org.apache.commons.lang.StringUtils;
+import hudson.Util;
 
 /**
  *
@@ -78,7 +78,7 @@ public class TeamDevArgumentListBuilder extends ArgumentListBuilder {
 
         add("/kb:" + kbName);
 
-        if (StringUtils.isNotBlank(kbVersion)) {
+        if (Util.fixEmptyAndTrim(kbVersion) != null) {
             add("/v:" + kbVersion);
         }
 

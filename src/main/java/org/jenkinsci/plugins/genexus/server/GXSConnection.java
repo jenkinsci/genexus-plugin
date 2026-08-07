@@ -24,10 +24,10 @@
 package org.jenkinsci.plugins.genexus.server;
 
 import hudson.Extension;
+import hudson.Util;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
 import java.io.Serializable;
-import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.export.Exported;
 import org.kohsuke.stapler.export.ExportedBean;
@@ -60,7 +60,7 @@ public class GXSConnection extends AbstractDescribableImpl<GXSConnection> implem
 
     @Exported
     public String getServerURL() {
-        return StringUtils.defaultIfBlank(serverURL, DEFAULT_SERVER_URL);
+        return Util.fixEmptyAndTrim(serverURL) == null ? DEFAULT_SERVER_URL : serverURL;
     }
 
     @Exported
